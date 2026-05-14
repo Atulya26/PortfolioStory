@@ -1,0 +1,739 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  font-family: 'Inter', system-ui, sans-serif;
+  /* ss03 = single-storey g + tighter a; cv11 = stylistic 'i' alternates */
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1, 'ss01' 1, 'ss03' 1, 'cv11' 1;
+  font-kerning: normal;
+  color: #f7f8fb;
+  background: #030303;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --blue: #087cff;
+  --blue-bright: #3895ff;
+  --blue-deep: #0a347f;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: auto;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE / legacy Edge */
+}
+
+body {
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #030303;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* WebKit (Chrome/Safari/Comet) */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* Lock scroll while intro plays */
+body[data-intro='playing'] {
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+}
+
+.app-shell {
+  position: relative;
+}
+
+/* ===== INTRO SECTION ===================================================== */
+
+.intro-shell {
+  position: relative;
+  width: 100vw;
+  min-height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  z-index: 3;
+}
+
+.stage {
+  position: relative;
+  z-index: 3;
+  width: 100vw;
+  min-height: 100dvh;
+  overflow: visible;
+  will-change: transform;
+}
+
+.copy-stage {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 50%;
+  width: min(92vw, 940px);
+  height: clamp(72px, 10vw, 118px);
+  transform: translate(-50%, -50%);
+  perspective: 900px;
+  perspective-origin: 50% 50%;
+  pointer-events: none;
+}
+
+.word-mask {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max-content;
+  max-width: 92vw;
+  padding: 0.22em 0.04em;
+  overflow: hidden;
+  visibility: hidden;
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+}
+
+.intro-word {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.97);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: clamp(3rem, 6.4vw, 6.6rem);
+  font-weight: 600;
+  line-height: 1;
+  /* Aggressive tracking — compensates for the lost kerning between
+     individually-transformed chars. */
+  letter-spacing: -0.08em;
+  white-space: nowrap;
+  text-align: center;
+  text-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.42),
+    0 0 28px rgba(255, 255, 255, 0.04);
+}
+
+.intro-word-name {
+  font-size: clamp(2.45rem, 5.1vw, 5.25rem);
+  letter-spacing: -0.075em;
+  font-weight: 500;
+}
+
+/* Per-character: no wrapping mask, just an inline-block we can transform.
+   Clipping happens at the parent .word-mask. */
+.intro-char {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  /* Pull each char back a hair to fake kerning */
+  margin-right: -0.005em;
+}
+
+.intro-char-space {
+  /* Real word break for "i'm atulya" */
+  display: inline-block;
+  width: 0.28em;
+  margin-right: 0;
+}
+
+.ball {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: 50%;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  box-shadow:
+    0 0 24px rgba(8, 124, 255, 0.55),
+    0 0 80px rgba(8, 124, 255, 0.3),
+    0 0 160px rgba(8, 124, 255, 0.14);
+  will-change: transform, opacity;
+}
+
+.ball-core {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 38%),
+    radial-gradient(circle at 50% 50%, #2d96ff 0%, #087cff 45%, #0a4bb8 100%);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  will-change: transform;
+}
+
+.text-impact {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  top: 0;
+  width: clamp(72px, 9vw, 140px);
+  height: clamp(72px, 9vw, 140px);
+  border-radius: 999px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at center,
+    rgba(140, 200, 255, 0.42),
+    rgba(8, 124, 255, 0.22) 38%,
+    rgba(8, 124, 255, 0.06) 62%,
+    transparent 78%
+  );
+  filter: blur(0.5px);
+  will-change: transform, opacity;
+}
+
+.shock-ring {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  top: 0;
+  width: clamp(60px, 8vw, 120px);
+  height: clamp(60px, 8vw, 120px);
+  border-radius: 999px;
+  pointer-events: none;
+  border: 1.5px solid rgba(140, 200, 255, 0.55);
+  box-shadow: 0 0 24px rgba(8, 124, 255, 0.35);
+  will-change: transform, opacity;
+}
+
+/* ===== FIXED BACKGROUND LAYERS =========================================== */
+
+.flash-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.9), rgba(140, 200, 255, 0.4) 24%, transparent 56%);
+  mix-blend-mode: screen;
+  will-change: opacity;
+}
+
+.gradient-field {
+  --gradient-x: 50vw;
+  --gradient-y: 110vh;
+  --gradient-radius: 0px;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  /* Single smooth radial — fewer/closer stops were causing visible rings.
+     This one fades evenly from a soft blue centre to near-black at the
+     edges with no concentric banding. */
+  background: radial-gradient(
+    ellipse 130% 105% at var(--gradient-x) var(--gradient-y),
+    #6daaff 0%,
+    #3a85ec 18%,
+    #1c63cf 36%,
+    #0e3f99 54%,
+    #06245e 72%,
+    #020a26 88%,
+    #000204 100%
+  );
+  /* Softer mask falloff = no sharp circular boundary when revealing. */
+  -webkit-mask-image: radial-gradient(
+    circle var(--gradient-radius) at var(--gradient-x) var(--gradient-y),
+    #000 0 60%,
+    rgba(0, 0, 0, 0.6) 85%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    circle var(--gradient-radius) at var(--gradient-x) var(--gradient-y),
+    #000 0 60%,
+    rgba(0, 0, 0, 0.6) 85%,
+    transparent 100%
+  );
+  will-change: opacity;
+}
+
+.grid-field {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.072) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.072) 1px, transparent 1px);
+  background-size: 72px 72px;
+  background-position: center center;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000 35%, transparent 88%);
+  mask-image: radial-gradient(ellipse at 50% 50%, #000 35%, transparent 88%);
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.grain-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  /* A touch more grain — dithers the gradient so smooth color ramps don't
+     band on 8-bit displays. */
+  opacity: 0.09;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+}
+
+/* ===== WORKS TRANSITION TITLE =========================================== */
+
+.works-title {
+  position: fixed;
+  z-index: 4;
+  left: 50%;
+  top: 60%;
+  width: min(94vw, 980px);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  visibility: hidden;
+  perspective: 1000px;
+  perspective-origin: 50% 50%;
+}
+
+.works-title-mask {
+  width: max-content;
+  max-width: 94vw;
+  margin: 0 auto;
+  overflow: hidden;
+  padding: 0.28em 0.12em 0.38em;
+  transform-style: preserve-3d;
+}
+
+.works-title-text {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.96);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: clamp(2.8rem, 6.8vw, 7rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.07em;
+  white-space: nowrap;
+  text-align: center;
+  text-shadow:
+    0 18px 56px rgba(0, 0, 0, 0.54),
+    0 0 42px rgba(120, 180, 255, 0.16);
+}
+
+/* ===== SCROLL CUE ========================================================= */
+
+.scroll-cue {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  bottom: clamp(28px, 4vw, 56px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out) 200ms;
+}
+
+body[data-intro='done'] .scroll-cue {
+  opacity: 1;
+}
+
+.scroll-cue-line {
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), transparent);
+  animation: scroll-cue-pulse 1.8s ease-in-out infinite;
+  transform-origin: top;
+}
+
+@keyframes scroll-cue-pulse {
+  0%, 100% { transform: scaleY(0.4); opacity: 0.4; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+/* ===== MANIFESTO OVERLAY (inside intro-shell) ============================ */
+
+/* The manifesto sits absolutely over the intro-shell, so it reveals on the
+   exact same viewport as the bloomed gradient — no scroll-jump to a fresh
+   section. The intro's ball animation sits behind via .stage; by the time
+   text reveals, the ball is gone, so they don't visually conflict. */
+.manifesto-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  /* 3D perspective for the back-tilt reveal on each word */
+  perspective: 1200px;
+  perspective-origin: 50% 60%;
+}
+
+.manifesto-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;          /* center the lines horizontally */
+  text-align: center;           /* center the chars inside each line */
+  padding: 0 clamp(28px, 6vw, 120px);
+}
+
+/* Each line is its own overflow-hidden mask. Padding gives the rotationX
+   overshoot space; matching negative margin keeps the vertical rhythm. */
+.m-line {
+  display: block;
+  overflow: hidden;
+  padding: 0.16em 0;
+  margin: -0.16em 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.m-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: clamp(20px, 3vw, 36px);
+}
+
+.m-display {
+  font-size: clamp(2.6rem, 7vw, 7.6rem);
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.97);
+}
+
+.m-display + .m-display {
+  /* Pull display lines tight against each other (the line's own 0.16em
+     padding adds visual gap, and overflow:hidden prevents margin collapse,
+     so we counteract it with a negative top margin). */
+  margin-top: -0.14em;
+}
+
+.m-display-accent {
+  /* Soft sky tint + faint glow so it visibly punches against the blue
+     gradient. The glow is intentionally restrained — readable, not loud. */
+  color: rgba(200, 222, 255, 0.95);
+  font-weight: 500;
+  font-style: italic;
+  text-shadow:
+    0 0 38px rgba(140, 200, 255, 0.32),
+    0 0 96px rgba(80, 140, 230, 0.18);
+}
+
+.m-sub {
+  font-size: clamp(0.95rem, 1.25vw, 1.3rem);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 540px;
+  margin: clamp(28px, 4vw, 48px) auto 0;  /* auto centers when max-width caps */
+}
+
+.m-word {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* ===== SPIRAL SECTION ==================================================== */
+
+.spiral-section {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 3;
+  /* contain layout/paint so the pin doesn't bleed into the next section */
+  contain: layout paint;
+}
+
+.spiral-stage {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  /* Stronger perspective sells the 3D cylinder — small value = wider lens */
+  perspective: 1100px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+}
+
+.spiral-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.spiral-cards {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  transform-style: preserve-3d;
+}
+
+.light-portal {
+  position: absolute;
+  inset: 0;
+  z-index: 24;
+  overflow: hidden;
+  pointer-events: none;
+  background: #f3f2ed;
+  visibility: hidden;
+  opacity: 0;
+  isolation: isolate;
+  will-change: opacity;
+}
+
+.light-portal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 48%, rgba(56, 149, 255, 0.1), rgba(56, 149, 255, 0.035) 24%, transparent 55%),
+    radial-gradient(ellipse 120% 90% at 50% 120%, rgba(255, 255, 255, 0.62), transparent 60%);
+  mix-blend-mode: multiply;
+}
+
+.light-portal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.18 0 0 0 0 0.18 0 0 0 0 0.18 0 0 0 0.42 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+}
+
+.light-portal-grid {
+  position: absolute;
+  inset: -72px;
+  z-index: 2;
+  pointer-events: none;
+  background-size: 72px 72px;
+  background-position: center center;
+  will-change: opacity;
+}
+
+.light-portal-grid {
+  background-image:
+    linear-gradient(rgba(13, 19, 28, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 19, 28, 0.07) 1px, transparent 1px);
+}
+
+.light-portal-ripple {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: multiply;
+  will-change: opacity;
+}
+
+.experience-cta {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  top: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  width: 680px;
+  height: 204px;
+  padding: 0 88px;
+  border: 0;
+  border-radius: 999px;
+  color: #050505;
+  background: transparent;
+  text-decoration: none;
+  overflow: hidden;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.34);
+  transform: none;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition: box-shadow 260ms var(--ease-out);
+}
+
+.experience-cta-fill,
+.experience-cta-outline {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.experience-cta-fill {
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.97);
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  will-change: transform;
+}
+
+.experience-cta-outline {
+  z-index: 3;
+  overflow: visible;
+}
+
+.experience-cta-stroke {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.96);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  will-change: stroke-dashoffset, stroke-dasharray;
+}
+
+.experience-cta:hover,
+.experience-cta:focus-visible {
+  box-shadow:
+    0 28px 86px rgba(0, 0, 0, 0.52),
+    0 0 0 1px rgba(255, 255, 255, 0.36) inset,
+    0 1px 0 rgba(255, 255, 255, 0.82) inset;
+}
+
+.experience-cta:active {
+  scale: 0.96;
+}
+
+.experience-cta:focus-visible {
+  outline: 2px solid rgba(120, 180, 255, 0.9);
+  outline-offset: 5px;
+}
+
+.experience-cta-label {
+  position: relative;
+  z-index: 4;
+  display: inline-block;
+  width: 450px;
+  font-size: 58px;
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+
+.experience-cta-dot {
+  position: relative;
+  z-index: 4;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  transform: translateY(3px);
+  transition: transform 260ms var(--ease-out);
+}
+
+.experience-cta:hover .experience-cta-dot,
+.experience-cta:focus-visible .experience-cta-dot {
+  transform: translate(9px, 3px) scale(1.08);
+}
+
+.spiral-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /* Larger base texture + sub-1 JS scale = same perceived size without
+     compositor upscaling blur on crisp UI screenshots. */
+  width: clamp(340px, 29vw, 520px);
+  border-radius: 14px;
+  overflow: hidden;
+  outline: 1px solid rgba(255, 255, 255, 0.1);
+  outline-offset: -1px;
+  box-shadow:
+    0 28px 68px rgba(0, 0, 0, 0.48),
+    0 10px 24px rgba(0, 0, 0, 0.32),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  transform-origin: 50% 50%;
+  backface-visibility: hidden;
+  /* Promote each card to its own GPU layer. With real photo content the
+     compositor can move them around without repainting the texture every
+     frame — kills the scroll jitter. */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  background: #0a0a12;  /* fallback while images load */
+}
+
+.spiral-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  image-rendering: auto;
+  backface-visibility: hidden;
+}
+
+/* ===== RESPONSIVE ======================================================== */
+
+@media (max-width: 700px) {
+  .intro-word {
+    font-size: clamp(3rem, 12vw, 4.8rem);
+  }
+
+  .intro-word-name {
+    font-size: clamp(2.3rem, 9.8vw, 4rem);
+  }
+
+  .spiral-card {
+    width: clamp(292px, 82vw, 430px);
+  }
+
+  .works-title-text {
+    font-size: clamp(2.35rem, 11vw, 4.6rem);
+  }
+
+  .experience-cta {
+    width: min(86vw, 460px);
+    height: 132px;
+    padding: 0 42px;
+    gap: 18px;
+  }
+
+  .experience-cta-label {
+    width: 300px;
+    font-size: clamp(2rem, 9vw, 3rem);
+  }
+
+  .experience-cta-dot {
+    width: 20px;
+    height: 20px;
+  }
+}
