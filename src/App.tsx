@@ -235,6 +235,41 @@ const cardImages = [
   { src: '/cards/card-8.png', aspect: '4 / 3' },
 ];
 
+const caseStudies = [
+  {
+    code: 'PB',
+    number: '01',
+    title: 'Add products and brand.',
+    summary: 'Store your products, shots and brand look in one place.',
+    bullets: ['14+ model presets', 'Multiple pose options'],
+    theme: 'case-theme-orange',
+  },
+  {
+    code: 'GO',
+    number: '02',
+    title: 'AI generates options.',
+    summary: 'Use AI to create new concepts, scenes and ideas.',
+    bullets: ['Concept & scene variations', 'Multiple visual directions'],
+    theme: 'case-theme-sky',
+  },
+  {
+    code: 'CB',
+    number: '03',
+    title: 'Choose ones the best.',
+    summary: 'Pick the versions you like from the generations.',
+    bullets: ['Side-by-side comparison', 'Easy selection & review'],
+    theme: 'case-theme-violet',
+  },
+  {
+    code: 'AX',
+    number: '04',
+    title: 'Ready-made assets export.',
+    summary: 'Export ready-made files to your store, ads and social.',
+    bullets: ['Optimized for PDP & ads', 'One-click export'],
+    theme: 'case-theme-rust',
+  },
+];
+
 const SpiralCards = ({ innerRef }: { innerRef: RefObject<HTMLDivElement | null> }) => {
   return (
     <div className="spiral-cards" ref={innerRef}>
@@ -251,6 +286,84 @@ const SpiralCards = ({ innerRef }: { innerRef: RefObject<HTMLDivElement | null> 
         </div>
       ))}
     </div>
+  );
+};
+
+const CaseStudyFlow = ({
+  sectionRef,
+  chromeRef,
+  progressRef,
+  bottomCtaRef,
+}: {
+  sectionRef: RefObject<HTMLElement | null>;
+  chromeRef: RefObject<HTMLDivElement | null>;
+  progressRef: RefObject<HTMLSpanElement | null>;
+  bottomCtaRef: RefObject<HTMLButtonElement | null>;
+}) => {
+  return (
+    <section className="case-flow" ref={sectionRef} aria-label="Case studies">
+      <div className="case-fixed-chrome" ref={chromeRef}>
+        <div className="case-menu-pill" aria-label="Case scroll progress">
+          <span className="case-menu-lines" aria-hidden="true" />
+          <span>Menu</span>
+          <span className="case-menu-sun" aria-hidden="true" />
+          <span className="case-menu-progress" ref={progressRef}>0%</span>
+        </div>
+
+        <div className="case-top-actions">
+          <button className="case-action-button" type="button">work</button>
+          <button className="case-action-button" type="button">contact</button>
+        </div>
+      </div>
+
+      <button className="case-bottom-cta" ref={bottomCtaRef} type="button">
+        Get started
+      </button>
+
+      <main className="case-stack-wrapper">
+        {caseStudies.map((study) => (
+          <section className="case-card" key={study.code}>
+            <div className={`case-card-inner ${study.theme}`}>
+              <div className="case-card-code">({study.code})</div>
+
+              <div className="case-card-head">
+                <h3>{study.title}</h3>
+                <span className="case-card-number">{study.number}</span>
+              </div>
+
+              <div className="case-card-details">
+                {study.bullets.map((bullet) => (
+                  <div className="case-detail" key={bullet}>
+                    <span />
+                    <p>{bullet}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="case-card-body">
+                <p>{study.summary}</p>
+
+                <div className="case-motion-block" aria-hidden="true">
+                  <div className="case-motion-window">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                  <div className="case-motion-grid">
+                    <span />
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        ))}
+      </main>
+
+      <section className="case-footer-landing" aria-label="Footer space" />
+    </section>
   );
 };
 
@@ -275,10 +388,15 @@ export default function App() {
   const spiralCardsRef = useRef<HTMLDivElement>(null);
   const experienceCtaRef = useRef<HTMLAnchorElement>(null);
   const experienceLabelRef = useRef<HTMLSpanElement>(null);
+  const caseFlowRef = useRef<HTMLElement>(null);
+  const caseChromeRef = useRef<HTMLDivElement>(null);
+  const caseProgressRef = useRef<HTMLSpanElement>(null);
+  const caseBottomCtaRef = useRef<HTMLButtonElement>(null);
   const runtimeRef = useRef<Runtime | null>(null);
   const scrollSetupRef = useRef<boolean>(false);
   const manifestoSetupRef = useRef<boolean>(false);
   const experienceSetupRef = useRef<boolean>(false);
+  const caseFlowSetupRef = useRef<boolean>(false);
   const scrollTriggersRef = useRef<ScrollTrigger[]>([]);
   const soundRef = useRef<IntroSound | null>(null);
   const spiralSoundStepRef = useRef<number>(-1);
@@ -1027,6 +1145,107 @@ export default function App() {
     }
   }, []);
 
+  // ---------- CASE STUDY FLOW -------------------------------------------
+  const setupCaseFlowPhase = useCallback(() => {
+    const section = caseFlowRef.current;
+    const chrome = caseChromeRef.current;
+    const progress = caseProgressRef.current;
+    const bottomCta = caseBottomCtaRef.current;
+    if (!section || !chrome || !progress || !bottomCta) return;
+    if (caseFlowSetupRef.current) return;
+    caseFlowSetupRef.current = true;
+
+    gsap.set([chrome, bottomCta], {
+      autoAlpha: 0,
+      y: 10,
+    });
+    gsap.set(chrome, {
+      pointerEvents: 'none',
+    });
+    gsap.set(bottomCta, {
+      pointerEvents: 'none',
+    });
+
+    const setChromeActive = (active: boolean) => {
+      gsap.to([chrome, bottomCta], {
+        autoAlpha: active ? 1 : 0,
+        y: active ? 0 : 10,
+        duration: 0.22,
+        ease: 'power2.out',
+        overwrite: true,
+        onStart: () => {
+          if (active) {
+            gsap.set(chrome, { pointerEvents: 'none' });
+            gsap.set(bottomCta, { pointerEvents: 'auto' });
+          }
+        },
+        onComplete: () => {
+          if (!active) {
+            gsap.set(chrome, { pointerEvents: 'none' });
+            gsap.set(bottomCta, { pointerEvents: 'none' });
+          }
+        },
+      });
+    };
+
+    const progressTrigger = ScrollTrigger.create({
+      trigger: section,
+      start: 'top 86%',
+      end: 'bottom bottom',
+      onEnter: () => setChromeActive(true),
+      onEnterBack: () => setChromeActive(true),
+      onLeave: () => setChromeActive(false),
+      onLeaveBack: () => setChromeActive(false),
+      onUpdate: (self) => {
+        progress.textContent = `${Math.round(self.progress * 100)}%`;
+      },
+    });
+    scrollTriggersRef.current.push(progressTrigger);
+
+    if (prefersReducedMotion()) return;
+
+    const cards = Array.from(section.querySelectorAll<HTMLElement>('.case-card'));
+    const cardInners = cards
+      .map((card) => card.querySelector<HTMLElement>('.case-card-inner'))
+      .filter((inner): inner is HTMLElement => Boolean(inner));
+
+    gsap.set(cardInners, {
+      scale: 1,
+      y: 0,
+      rotation: 0,
+      filter: 'brightness(1) saturate(1)',
+      transformOrigin: '50% 12%',
+      force3D: true,
+      willChange: 'transform, filter',
+    });
+
+    const footer = section.querySelector<HTMLElement>('.case-footer-landing');
+    const depthTilts = [-5, 4.5, -4.2];
+
+    cardInners.forEach((inner, index) => {
+      const incomingCard = cards[index + 1] ?? footer;
+      if (!incomingCard) return;
+
+      const depthTween = gsap.to(inner, {
+        scale: 0.88,
+        y: 112,
+        rotation: index === cardInners.length - 1 ? 0 : depthTilts[index % depthTilts.length],
+        filter: 'brightness(0.45) saturate(0.74)',
+        ease: 'none',
+        scrollTrigger: {
+          trigger: incomingCard,
+          start: 'top bottom',
+          end: 'top top',
+          scrub: true,
+        },
+      });
+
+      if (depthTween.scrollTrigger) {
+        scrollTriggersRef.current.push(depthTween.scrollTrigger);
+      }
+    });
+  }, []);
+
   // ---------- LIFECYCLE ---------------------------------------------------
   useEffect(() => {
     soundRef.current = createIntroSound();
@@ -1042,6 +1261,7 @@ export default function App() {
     setupManifestoPhase();
     setupScrollPhase();
     setupExperienceCtaPhase();
+    setupCaseFlowPhase();
 
     let resizeTimer = 0;
     const handleResize = () => {
@@ -1077,11 +1297,12 @@ export default function App() {
       scrollSetupRef.current = false;
       manifestoSetupRef.current = false;
       experienceSetupRef.current = false;
+      caseFlowSetupRef.current = false;
       soundRef.current?.dispose();
       soundRef.current = null;
       document.body.dataset.intro = '';
     };
-  }, [runIntro, setupManifestoPhase, setupScrollPhase, setupExperienceCtaPhase, skip]);
+  }, [runIntro, setupManifestoPhase, setupScrollPhase, setupExperienceCtaPhase, setupCaseFlowPhase, skip]);
 
   return (
     <div className="app-shell" ref={shellRef}>
@@ -1186,6 +1407,13 @@ export default function App() {
           <span className="experience-cta-dot" aria-hidden="true" />
         </a>
       </section>
+
+      <CaseStudyFlow
+        sectionRef={caseFlowRef}
+        chromeRef={caseChromeRef}
+        progressRef={caseProgressRef}
+        bottomCtaRef={caseBottomCtaRef}
+      />
 
     </div>
   );
