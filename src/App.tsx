@@ -984,32 +984,32 @@ export default function App() {
       }, portalStartProgress + 0.008)
       .to(experienceCta, {
         scale: portalScale,
-        duration: 0.105,
+        duration: 0.075,
         ease: 'none',
       }, portalStartProgress + 0.012)
       .to(lightPortal, {
         autoAlpha: 1,
-        duration: 0.05,
-        ease: 'none',
-      }, portalStartProgress + 0.035)
-      .to(lightPortalGrid, {
-        autoAlpha: 1,
         duration: 0.045,
         ease: 'none',
-      }, portalStartProgress + 0.055)
-      .to(lightPortalRipple, {
+      }, portalStartProgress + 0.018)
+      .to(lightPortalGrid, {
         autoAlpha: 1,
-        duration: 0.018,
+        duration: 0.05,
         ease: 'none',
       }, portalStartProgress + 0.04)
+      .to(lightPortalRipple, {
+        autoAlpha: 1,
+        duration: 0.012,
+        ease: 'none',
+      }, portalStartProgress + 0.075)
       .to(rippleState, {
         progress: 1,
-        duration: 0.09,
+        duration: 0.047,
         ease: 'none',
         onUpdate: () => {
           drawRippleGrid(rippleState.progress);
         },
-      }, portalStartProgress + 0.03)
+      }, portalStartProgress + 0.073)
       .to(lightPortalRipple, {
         autoAlpha: 0,
         duration: 0.015,
@@ -1017,9 +1017,9 @@ export default function App() {
       }, portalStartProgress + 0.105)
       .to(experienceCta, {
         autoAlpha: 0,
-        duration: 0.03,
+        duration: 0.025,
         ease: 'none',
-      }, portalStartProgress + 0.09)
+      }, portalStartProgress + 0.078)
       .set({}, {}, 1);
 
     if (ctaTl.scrollTrigger) {
