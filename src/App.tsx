@@ -994,9 +994,9 @@ export default function App() {
       }, portalStartProgress + 0.018)
       .to(lightPortalGrid, {
         autoAlpha: 1,
-        duration: 0.05,
+        duration: 0.024,
         ease: 'none',
-      }, portalStartProgress + 0.04)
+      }, portalStartProgress + 0.096)
       .to(lightPortalRipple, {
         autoAlpha: 1,
         duration: 0.012,
