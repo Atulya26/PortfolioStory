@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, type RefObject } from 'react';
+import { useCallback, useEffect, useMemo, useRef, type FocusEvent, type PointerEvent, type RefObject } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
@@ -292,33 +292,24 @@ const SpiralCards = ({ innerRef }: { innerRef: RefObject<HTMLDivElement | null> 
 const CaseStudyFlow = ({
   sectionRef,
   chromeRef,
-  progressRef,
-  bottomCtaRef,
+  onCaseButtonEnter,
 }: {
   sectionRef: RefObject<HTMLElement | null>;
   chromeRef: RefObject<HTMLDivElement | null>;
-  progressRef: RefObject<HTMLSpanElement | null>;
-  bottomCtaRef: RefObject<HTMLButtonElement | null>;
+  onCaseButtonEnter: (event: PointerEvent<HTMLButtonElement> | FocusEvent<HTMLButtonElement>) => void;
 }) => {
   return (
     <section className="case-flow" ref={sectionRef} aria-label="Case studies">
       <div className="case-fixed-chrome" ref={chromeRef}>
-        <div className="case-menu-pill" aria-label="Case scroll progress">
-          <span className="case-menu-lines" aria-hidden="true" />
-          <span>Menu</span>
-          <span className="case-menu-sun" aria-hidden="true" />
-          <span className="case-menu-progress" ref={progressRef}>0%</span>
-        </div>
-
         <div className="case-top-actions">
-          <button className="case-action-button" type="button">work</button>
-          <button className="case-action-button" type="button">contact</button>
+          <button className="case-action-button" type="button" onPointerEnter={onCaseButtonEnter} onFocus={onCaseButtonEnter}>
+            <span className="case-button-label" data-text="work">work</span>
+          </button>
+          <button className="case-action-button" type="button" onPointerEnter={onCaseButtonEnter} onFocus={onCaseButtonEnter}>
+            <span className="case-button-label" data-text="contact">contact</span>
+          </button>
         </div>
       </div>
-
-      <button className="case-bottom-cta" ref={bottomCtaRef} type="button">
-        Get started
-      </button>
 
       <main className="case-stack-wrapper">
         {caseStudies.map((study) => (
@@ -362,7 +353,11 @@ const CaseStudyFlow = ({
         ))}
       </main>
 
-      <section className="case-footer-landing" aria-label="Footer space" />
+      <section className="case-footer-landing" aria-label="Footer space">
+        <button className="case-more-button" type="button" onPointerEnter={onCaseButtonEnter} onFocus={onCaseButtonEnter}>
+          <span className="case-button-label" data-text="view more case studies">view more case studies</span>
+        </button>
+      </section>
     </section>
   );
 };
@@ -390,8 +385,6 @@ export default function App() {
   const experienceLabelRef = useRef<HTMLSpanElement>(null);
   const caseFlowRef = useRef<HTMLElement>(null);
   const caseChromeRef = useRef<HTMLDivElement>(null);
-  const caseProgressRef = useRef<HTMLSpanElement>(null);
-  const caseBottomCtaRef = useRef<HTMLButtonElement>(null);
   const runtimeRef = useRef<Runtime | null>(null);
   const scrollSetupRef = useRef<boolean>(false);
   const manifestoSetupRef = useRef<boolean>(false);
@@ -402,6 +395,7 @@ export default function App() {
   const spiralSoundStepRef = useRef<number>(-1);
   const ctaHoverSoundAtRef = useRef<number>(0);
   const scrambleTweenRef = useRef<gsap.core.Tween | null>(null);
+  const caseButtonScrambleTweensRef = useRef<Map<HTMLElement, gsap.core.Tween>>(new Map());
 
   const scrambleExperienceLabel = useCallback(() => {
     const label = experienceLabelRef.current;
@@ -434,6 +428,27 @@ export default function App() {
     soundRef.current?.ctaSelect();
   }, []);
 
+  const scrambleCaseButtonLabel = useCallback((event: PointerEvent<HTMLButtonElement> | FocusEvent<HTMLButtonElement>) => {
+    const label = event.currentTarget.querySelector<HTMLElement>('.case-button-label');
+    const targetText = label?.dataset.text;
+    if (!label || !targetText || prefersReducedMotion()) return;
+
+    caseButtonScrambleTweensRef.current.get(label)?.kill();
+    const tween = gsap.to(label, {
+      duration: targetText.length > 10 ? 0.68 : 0.52,
+      ease: 'none',
+      scrambleText: {
+        text: targetText,
+        chars: 'lowerCase',
+        speed: 0.42,
+        revealDelay: targetText.length > 10 ? 0.045 : 0.025,
+        delimiter: '',
+      },
+    });
+
+    caseButtonScrambleTweensRef.current.set(label, tween);
+  }, []);
+
   // ---------- INTRO -------------------------------------------------------
   const runIntro = useCallback(() => {
     const shell = shellRef.current;
@@ -457,6 +472,7 @@ export default function App() {
 
     const heyChars = heyMask.querySelectorAll<HTMLElement>('.intro-char:not(.intro-char-space)');
     const nameChars = nameMask.querySelectorAll<HTMLElement>('.intro-char:not(.intro-char-space)');
+    const manifestoWords = shell.querySelectorAll<HTMLElement>('.manifesto-overlay .m-word');
 
     const rect = stage.getBoundingClientRect();
     const centerX = rect.width / 2;
@@ -491,6 +507,7 @@ export default function App() {
       gsap.set(ballCore, { scaleX: 1, scaleY: 1, transformOrigin: '50% 50%' });
       gsap.set([heyMask, nameMask], { autoAlpha: 0 });
       gsap.set([heyChars, nameChars], { yPercent: 115, rotationX: -55, opacity: 0 });
+      gsap.set(manifestoWords, { yPercent: 115, rotationX: -28, opacity: 0 });
       gsap.set(impact, { autoAlpha: 0, xPercent: -50, yPercent: -50, x: centerX, y: centerY + firstContactY, scale: 0.6 });
       gsap.set(ring, { autoAlpha: 0, xPercent: -50, yPercent: -50, x: centerX, y: centerY + firstContactY, scale: 0.3 });
       gsap.set(flash, { autoAlpha: 0 });
@@ -509,6 +526,7 @@ export default function App() {
       if (prefersReducedMotion()) {
         gsap.set(nameMask, { autoAlpha: 1 });
         gsap.set(nameChars, { yPercent: 0, rotationX: 0, opacity: 1 });
+        gsap.set(manifestoWords, { yPercent: 0, rotationX: 0, opacity: 1 });
         gsap.set(ball, { opacity: 0 });
         finalize();
         return;
@@ -593,7 +611,18 @@ export default function App() {
             },
           },
           3.74,
-        );
+        )
+        // Let the bloom land, then reveal the manifesto automatically instead
+        // of waiting for the first scroll. This removes the empty gradient beat
+        // while preserving the same word-mask motion language.
+        .to(manifestoWords, {
+          yPercent: 0,
+          rotationX: 0,
+          opacity: 1,
+          duration: 0.85,
+          ease: 'expo.out',
+          stagger: 0.065,
+        }, 4.64);
 
       runtimeRef.current = { revert: () => ctx.revert(), timeline: tl };
     }, shell);
@@ -822,7 +851,7 @@ export default function App() {
     scrollTriggersRef.current.push(cardsTrigger);
   }, []);
 
-  // ---------- MANIFESTO (overlay inside intro-shell, scroll-driven) -------
+  // ---------- MANIFESTO (overlay inside intro-shell, pinned handoff) -------
   const setupManifestoPhase = useCallback(() => {
     const intro = introRef.current;
     if (!intro) return;
@@ -832,50 +861,20 @@ export default function App() {
     const words = Array.from(intro.querySelectorAll<HTMLElement>('.manifesto-overlay .m-word'));
     if (!words.length) return;
 
-    gsap.set(words, { yPercent: 115, rotationX: -28, opacity: 0 });
+    gsap.set(words, document.body.dataset.intro === 'done'
+      ? { yPercent: 0, rotationX: 0, opacity: 1 }
+      : { yPercent: 115, rotationX: -28, opacity: 0 });
 
-    // Pin the intro-shell for a short scroll range. The manifesto overlay
-    // lives inside it, so the text reveals on the SAME viewport that already
-    // shows the bloomed gradient — no scroll-jump to a new section.
-    const tween = gsap.to(words, {
-      yPercent: 0,
-      rotationX: 0,
-      opacity: 1,
-      duration: 1,
-      ease: 'expo.out',
-      stagger: 0.18,
-      scrollTrigger: {
-        trigger: intro,
-        start: 'top top',
-        end: '+=60%',
-        pin: intro,
-        pinSpacing: true,
-        scrub: 0.6,
-      },
+    // Keep the same pinned handoff distance into the spiral section, but the
+    // manifesto itself now reveals from the intro timeline rather than scroll.
+    const pinTrigger = ScrollTrigger.create({
+      trigger: intro,
+      start: 'top top',
+      end: '+=60%',
+      pin: intro,
+      pinSpacing: true,
     });
-
-    if (tween.scrollTrigger) {
-      scrollTriggersRef.current.push(tween.scrollTrigger);
-    }
-
-    // Fade the scroll cue out as the manifesto reveal begins, so the
-    // "SCROLL" prompt doesn't sit on top of the manifesto text.
-    const cue = intro.querySelector<HTMLElement>('.scroll-cue');
-    if (cue) {
-      const cueTween = gsap.to(cue, {
-        autoAlpha: 0,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: intro,
-          start: 'top top',
-          end: '+=12%',
-          scrub: true,
-        },
-      });
-      if (cueTween.scrollTrigger) {
-        scrollTriggersRef.current.push(cueTween.scrollTrigger);
-      }
-    }
+    scrollTriggersRef.current.push(pinTrigger);
   }, []);
 
   // ---------- EXPERIENCE CTA (near the final spiral beat) ----------------
@@ -1149,25 +1148,20 @@ export default function App() {
   const setupCaseFlowPhase = useCallback(() => {
     const section = caseFlowRef.current;
     const chrome = caseChromeRef.current;
-    const progress = caseProgressRef.current;
-    const bottomCta = caseBottomCtaRef.current;
-    if (!section || !chrome || !progress || !bottomCta) return;
+    if (!section || !chrome) return;
     if (caseFlowSetupRef.current) return;
     caseFlowSetupRef.current = true;
 
-    gsap.set([chrome, bottomCta], {
+    gsap.set(chrome, {
       autoAlpha: 0,
       y: 10,
     });
     gsap.set(chrome, {
       pointerEvents: 'none',
     });
-    gsap.set(bottomCta, {
-      pointerEvents: 'none',
-    });
 
     const setChromeActive = (active: boolean) => {
-      gsap.to([chrome, bottomCta], {
+      gsap.to(chrome, {
         autoAlpha: active ? 1 : 0,
         y: active ? 0 : 10,
         duration: 0.22,
@@ -1176,13 +1170,11 @@ export default function App() {
         onStart: () => {
           if (active) {
             gsap.set(chrome, { pointerEvents: 'none' });
-            gsap.set(bottomCta, { pointerEvents: 'auto' });
           }
         },
         onComplete: () => {
           if (!active) {
             gsap.set(chrome, { pointerEvents: 'none' });
-            gsap.set(bottomCta, { pointerEvents: 'none' });
           }
         },
       });
@@ -1196,9 +1188,6 @@ export default function App() {
       onEnterBack: () => setChromeActive(true),
       onLeave: () => setChromeActive(false),
       onLeaveBack: () => setChromeActive(false),
-      onUpdate: (self) => {
-        progress.textContent = `${Math.round(self.progress * 100)}%`;
-      },
     });
     scrollTriggersRef.current.push(progressTrigger);
 
@@ -1221,6 +1210,24 @@ export default function App() {
 
     const footer = section.querySelector<HTMLElement>('.case-footer-landing');
     const depthTilts = [-5, 4.5, -4.2];
+
+    if (footer) {
+      const chromeExitTween = gsap.to(chrome, {
+        autoAlpha: 0,
+        y: -10,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: footer,
+          start: 'top 78%',
+          end: 'top 48%',
+          scrub: true,
+        },
+      });
+
+      if (chromeExitTween.scrollTrigger) {
+        scrollTriggersRef.current.push(chromeExitTween.scrollTrigger);
+      }
+    }
 
     cardInners.forEach((inner, index) => {
       const incomingCard = cards[index + 1] ?? footer;
@@ -1294,6 +1301,8 @@ export default function App() {
       scrambleTweenRef.current?.kill();
       scrollTriggersRef.current.forEach((t) => t.kill());
       scrollTriggersRef.current = [];
+      caseButtonScrambleTweensRef.current.forEach((tween) => tween.kill());
+      caseButtonScrambleTweensRef.current.clear();
       scrollSetupRef.current = false;
       manifestoSetupRef.current = false;
       experienceSetupRef.current = false;
@@ -1411,8 +1420,7 @@ export default function App() {
       <CaseStudyFlow
         sectionRef={caseFlowRef}
         chromeRef={caseChromeRef}
-        progressRef={caseProgressRef}
-        bottomCtaRef={caseBottomCtaRef}
+        onCaseButtonEnter={scrambleCaseButtonLabel}
       />
 
     </div>
