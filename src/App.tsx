@@ -29,8 +29,17 @@ const clamp = (value: number, min: number, max: number) =>
 const prefersReducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+const MOBILE_QUERY = '(max-width: 700px)';
 const SPIRAL_SCROLL_DISTANCE = '+=420%';
+const MOBILE_SPIRAL_SCROLL_DISTANCE = '+=300%';
 const SPIRAL_TIMING_REMAP = 300 / 420;
+const MOBILE_SPIRAL_TIMING_REMAP = 235 / 300;
+
+const isMobileViewport = () =>
+  window.matchMedia(MOBILE_QUERY).matches;
+
+const getSpiralScrollDistance = () =>
+  isMobileViewport() ? MOBILE_SPIRAL_SCROLL_DISTANCE : SPIRAL_SCROLL_DISTANCE;
 
 const createIntroSound = (): IntroSound => {
   type AudioWindow = Window & { webkitAudioContext?: typeof AudioContext };
@@ -278,9 +287,9 @@ const SpiralCards = ({ innerRef }: { innerRef: RefObject<HTMLDivElement | null> 
           <img
             src={image.src}
             alt=""
-            loading="eager"
+            loading={i < 3 ? 'eager' : 'lazy'}
             decoding="async"
-            fetchPriority={i < 4 ? 'high' : 'auto'}
+            fetchPriority={i < 2 ? 'high' : 'auto'}
             draggable={false}
           />
         </div>
@@ -312,8 +321,8 @@ const CaseStudyFlow = ({
       </div>
 
       <main className="case-stack-wrapper">
-        {caseStudies.map((study) => (
-          <section className="case-card" key={study.code}>
+        {caseStudies.map((study, index) => (
+          <section className="case-card" key={study.code} style={{ zIndex: index + 1 }}>
             <div className={`case-card-inner ${study.theme}`}>
               <div className="case-card-code">({study.code})</div>
 
@@ -475,16 +484,17 @@ export default function App() {
     const manifestoWords = shell.querySelectorAll<HTMLElement>('.manifesto-overlay .m-word');
 
     const rect = stage.getBoundingClientRect();
+    const mobile = isMobileViewport();
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const ballSize = clamp(rect.width * 0.02, 24, 44);
+    const ballSize = mobile ? clamp(rect.width * 0.07, 24, 32) : clamp(rect.width * 0.02, 24, 44);
     const maxGradientRadius = Math.hypot(rect.width, rect.height) * 1.18;
 
-    const restY = clamp(rect.height * 0.22, 140, 220);
-    const apexY = clamp(rect.height * -0.2, -220, -130);
-    const firstContactY = clamp(rect.height * -0.06, -64, -42);
-    const secondContactY = clamp(rect.height * -0.052, -56, -38);
-    const reboundY = clamp(rect.height * -0.22, -240, -150);
+    const restY = mobile ? clamp(rect.height * 0.18, 132, 168) : clamp(rect.height * 0.22, 140, 220);
+    const apexY = mobile ? clamp(rect.height * -0.17, -160, -118) : clamp(rect.height * -0.2, -220, -130);
+    const firstContactY = mobile ? clamp(rect.height * -0.045, -52, -34) : clamp(rect.height * -0.06, -64, -42);
+    const secondContactY = mobile ? clamp(rect.height * -0.04, -48, -32) : clamp(rect.height * -0.052, -56, -38);
+    const reboundY = mobile ? clamp(rect.height * -0.18, -174, -128) : clamp(rect.height * -0.22, -240, -150);
     const finalY = rect.height * 0.62; // off-screen below
 
     const setGradientOrigin = (y: number, radius: number) => {
@@ -663,6 +673,40 @@ export default function App() {
     const placeCards = (t: number) => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
+      const mobile = isMobileViewport();
+
+      if (mobile) {
+        const track = t * (total + 0.9) - 0.58;
+        const verticalSpacing = vh * 0.52;
+        const maxSideShift = Math.min(vw * 0.055, 22);
+        const snapPixel = (value: number) => Math.round(value * 2) / 2;
+
+        for (let i = 0; i < total; i += 1) {
+          const card = cards[i];
+          const rel = i - track;
+          const distance = Math.abs(rel);
+          const y = rel * verticalSpacing;
+          const x = Math.sin(i * 1.7 + t * 3.2) * maxSideShift;
+          const z = -distance * 110;
+          const scale = clamp(1 - distance * 0.16, 0.72, 1);
+          const opacity = clamp(1 - Math.max(0, distance - 0.62) / 0.92, 0, 1);
+          const rotationY = clamp(rel * -15, -24, 24);
+          const rotationZ = clamp(rel * 1.1, -2.2, 2.2);
+
+          gsap.set(card, {
+            x: snapPixel(x),
+            y: snapPixel(y),
+            z,
+            rotationY,
+            rotationZ,
+            scale,
+            opacity,
+            zIndex: Math.round(100 - distance * 20),
+          });
+        }
+
+        return;
+      }
 
       // ---- Cylinder model -------------------------------------------------
       // All cards live on a single vertical cylinder. The cylinder rotates
@@ -670,16 +714,16 @@ export default function App() {
       // - radius: how wide the carousel is (cards orbit this far from axis)
       // - spacing: vertical distance between cards on the cylinder
       // - rotations: total turns of the cylinder over the full scroll
-      const radius = clamp(vw * 0.17, 200, 340);
+      const radius = mobile ? clamp(vw * 0.28, 92, 138) : clamp(vw * 0.17, 200, 340);
       // Generous vertical spacing so neighbouring cards never crowd each
       // other — they sit clearly apart on the cylinder.
-      const spacing = vh * 0.55;
-      const rotations = 1.1;
+      const spacing = vh * (mobile ? 0.44 : 0.55);
+      const rotations = mobile ? 0.58 : 1.1;
 
       const cylinderHeight = (total - 1) * spacing;
       // Smaller entry buffer = first card arrives ~20% sooner after scrolling.
-      const entryBuffer = vh * 0.56;
-      const exitBuffer = vh * 0.7;
+      const entryBuffer = vh * (mobile ? 0.34 : 0.56);
+      const exitBuffer = vh * (mobile ? 0.48 : 0.7);
       const totalTravel = entryBuffer + cylinderHeight + exitBuffer;
 
       // At t=0 the bottom card sits just below the viewport. At t=1 the top
@@ -709,21 +753,21 @@ export default function App() {
 
         // Subtle organic wobble — tied to angular position so it varies card
         // to card but is deterministic (no scroll-jitter).
-        const rotationZ = Math.sin(worldTheta * 1.3 + i) * 2.25;
+        const rotationZ = Math.sin(worldTheta * 1.3 + i) * (mobile ? 1.35 : 2.25);
 
         // Depth-based styling. depthFactor: 0 (back of cylinder) → 1 (front)
         const depthFactor = (z + radius) / (2 * radius);
         // Keep scale below 1 so screenshots are never compositor-upscaled.
         // The CSS card width is larger now, preserving visual size while
         // keeping text and UI edges noticeably crisper.
-        const scale = 0.62 + depthFactor * 0.36;
-        const baseOpacity = 0.2 + depthFactor * 0.8;
+        const scale = mobile ? 0.7 + depthFactor * 0.22 : 0.62 + depthFactor * 0.36;
+        const baseOpacity = mobile ? 0.08 + depthFactor * 0.92 : 0.2 + depthFactor * 0.8;
 
         // Fade cards once they're clearly past the viewport (the section
         // already overflow-clips, but this saves overdraw).
         const visibilityFade =
-          worldY > vh * 0.65 || worldY < -vh * 0.65
-            ? clamp(1 - (Math.abs(worldY) - vh * 0.55) / (vh * 0.25), 0, 1)
+          worldY > vh * (mobile ? 0.58 : 0.65) || worldY < -vh * (mobile ? 0.58 : 0.65)
+            ? clamp(1 - (Math.abs(worldY) - vh * (mobile ? 0.48 : 0.55)) / (vh * (mobile ? 0.18 : 0.25)), 0, 1)
             : 1;
         // NOTE: we used to set `filter: blur(...)` per card per scroll frame
         // for depth-haze. With real photo content that forced a full image
@@ -823,17 +867,19 @@ export default function App() {
     }
 
     // ---- Trigger B: card placement on the cylinder (pinned) ------------
-    const cardFinishProgress = 0.80 * SPIRAL_TIMING_REMAP;
+    const cardFinishProgress = isMobileViewport()
+      ? 0.82 * MOBILE_SPIRAL_TIMING_REMAP
+      : 0.80 * SPIRAL_TIMING_REMAP;
     const cardsTrigger = ScrollTrigger.create({
       trigger: section,
       start: 'top top',
-      end: SPIRAL_SCROLL_DISTANCE,
+      end: getSpiralScrollDistance,
       pin: true,
       pinSpacing: true,
       // Slightly more lag in the scrub = smoother card motion on heavier
       // raster content. Anything <0.5 felt jittery once images replaced the
       // gradient placeholders.
-      scrub: 0.9,
+      scrub: isMobileViewport() ? 0.45 : 0.9,
       onUpdate: (self) => {
         const cardProgress = clamp(self.progress / cardFinishProgress, 0, 1);
         placeCards(cardProgress);
@@ -905,6 +951,7 @@ export default function App() {
 
     if (experienceSetupRef.current) return;
     experienceSetupRef.current = true;
+    const mobile = isMobileViewport();
 
     gsap.set(experienceCta, {
       opacity: 0,
@@ -928,7 +975,7 @@ export default function App() {
 
       const width = window.innerWidth;
       const height = window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.35 : 2);
       const canvasWidth = Math.round(width * dpr);
       const canvasHeight = Math.round(height * dpr);
 
@@ -946,13 +993,13 @@ export default function App() {
 
       const centerX = width / 2;
       const centerY = height / 2;
-      const gridSize = 72;
-      const sample = 10;
+      const gridSize = mobile ? 64 : 72;
+      const sample = mobile ? 16 : 10;
       const maxRadius = Math.hypot(width, height) * 0.78;
       const radius = progress * maxRadius;
       const energy = Math.sin(progress * Math.PI);
-      const bandWidth = 118;
-      const amplitude = 9 * energy;
+      const bandWidth = mobile ? 96 : 118;
+      const amplitude = (mobile ? 6.5 : 9) * energy;
       const frequency = 0.05;
       const firstX = centerX % gridSize;
       const firstY = centerY % gridSize;
@@ -1024,22 +1071,22 @@ export default function App() {
 
     drawRippleGrid(0);
 
-    const ctaStartProgress = 0.545;
-    const ctaFillProgress = 0.67;
-    const ctaContentProgress = 0.72;
-    const ctaInteractiveProgress = 0.755;
-    const portalStartProgress = 0.88;
+    const ctaStartProgress = mobile ? 0.56 : 0.545;
+    const ctaFillProgress = mobile ? 0.68 : 0.67;
+    const ctaContentProgress = mobile ? 0.725 : 0.72;
+    const ctaInteractiveProgress = mobile ? 0.76 : 0.755;
+    const portalStartProgress = mobile ? 0.865 : 0.88;
     const portalScale = Math.max(
       window.innerWidth / Math.max(experienceCta.offsetWidth, 1),
       window.innerHeight / Math.max(experienceCta.offsetHeight, 1),
-    ) * 1.42;
+    ) * (mobile ? 1.28 : 1.42);
     const rippleState = { progress: 0 };
 
     const ctaTl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
         start: 'top top',
-        end: SPIRAL_SCROLL_DISTANCE,
+        end: getSpiralScrollDistance,
         scrub: true,
       },
     });
@@ -1180,10 +1227,15 @@ export default function App() {
       });
     };
 
+    const footer = section.querySelector<HTMLElement>('.case-footer-landing');
+
     const progressTrigger = ScrollTrigger.create({
       trigger: section,
-      start: 'top 86%',
-      end: 'bottom bottom',
+      start: () => isMobileViewport() ? 'top 94%' : 'top 86%',
+      endTrigger: footer ?? section,
+      end: () => footer
+        ? (isMobileViewport() ? 'top 96%' : 'top 78%')
+        : 'bottom bottom',
       onEnter: () => setChromeActive(true),
       onEnterBack: () => setChromeActive(true),
       onLeave: () => setChromeActive(false),
@@ -1192,6 +1244,7 @@ export default function App() {
     scrollTriggersRef.current.push(progressTrigger);
 
     if (prefersReducedMotion()) return;
+    const mobile = isMobileViewport();
 
     const cards = Array.from(section.querySelectorAll<HTMLElement>('.case-card'));
     const cardInners = cards
@@ -1202,24 +1255,24 @@ export default function App() {
       scale: 1,
       y: 0,
       rotation: 0,
-      filter: 'brightness(1) saturate(1)',
+      filter: mobile ? 'none' : 'brightness(1) saturate(1)',
       transformOrigin: '50% 12%',
       force3D: true,
-      willChange: 'transform, filter',
+      willChange: mobile ? 'transform' : 'transform, filter',
     });
 
-    const footer = section.querySelector<HTMLElement>('.case-footer-landing');
     const depthTilts = [-5, 4.5, -4.2];
 
     if (footer) {
       const chromeExitTween = gsap.to(chrome, {
         autoAlpha: 0,
         y: -10,
+        pointerEvents: 'none',
         ease: 'none',
         scrollTrigger: {
           trigger: footer,
-          start: 'top 78%',
-          end: 'top 48%',
+          start: () => isMobileViewport() ? 'top 100%' : 'top 78%',
+          end: () => isMobileViewport() ? 'top 76%' : 'top 48%',
           scrub: true,
         },
       });
@@ -1233,11 +1286,10 @@ export default function App() {
       const incomingCard = cards[index + 1] ?? footer;
       if (!incomingCard) return;
 
-      const depthTween = gsap.to(inner, {
-        scale: 0.88,
-        y: 112,
-        rotation: index === cardInners.length - 1 ? 0 : depthTilts[index % depthTilts.length],
-        filter: 'brightness(0.45) saturate(0.74)',
+      const depthVars: gsap.TweenVars = {
+        scale: mobile ? 0.82 : 0.88,
+        y: mobile ? 118 : 112,
+        rotation: index === cardInners.length - 1 ? 0 : depthTilts[index % depthTilts.length] * (mobile ? 0.34 : 1),
         ease: 'none',
         scrollTrigger: {
           trigger: incomingCard,
@@ -1245,7 +1297,13 @@ export default function App() {
           end: 'top top',
           scrub: true,
         },
-      });
+      };
+
+      if (!mobile) {
+        depthVars.filter = 'brightness(0.45) saturate(0.74)';
+      }
+
+      const depthTween = gsap.to(inner, depthVars);
 
       if (depthTween.scrollTrigger) {
         scrollTriggersRef.current.push(depthTween.scrollTrigger);
@@ -1256,6 +1314,20 @@ export default function App() {
   // ---------- LIFECYCLE ---------------------------------------------------
   useEffect(() => {
     soundRef.current = createIntroSound();
+    const motionMedia = gsap.matchMedia();
+
+    const applyMotionProfile = (profile: 'mobile' | 'desktop') => {
+      document.documentElement.dataset.motionProfile = profile;
+      window.setTimeout(() => ScrollTrigger.refresh(), 0);
+      return () => {
+        if (document.documentElement.dataset.motionProfile === profile) {
+          delete document.documentElement.dataset.motionProfile;
+        }
+      };
+    };
+
+    motionMedia.add(MOBILE_QUERY, () => applyMotionProfile('mobile'));
+    motionMedia.add(`(min-width: 701px)`, () => applyMotionProfile('desktop'));
 
     const unlockSound = () => {
       soundRef.current?.unlock();
@@ -1274,7 +1346,6 @@ export default function App() {
     const handleResize = () => {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(() => {
-        runIntro();
         ScrollTrigger.refresh();
       }, 160);
     };
@@ -1298,6 +1369,7 @@ export default function App() {
       window.removeEventListener('keydown', handleKey);
       window.clearTimeout(resizeTimer);
       runtimeRef.current?.revert();
+      motionMedia.revert();
       scrambleTweenRef.current?.kill();
       scrollTriggersRef.current.forEach((t) => t.kill());
       scrollTriggersRef.current = [];

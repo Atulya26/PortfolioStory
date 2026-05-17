@@ -29,6 +29,7 @@ body,
 
 html {
   scroll-behavior: auto;
+  overflow-x: visible;
   scrollbar-width: none;          /* Firefox */
   -ms-overflow-style: none;       /* IE / legacy Edge */
 }
@@ -806,9 +807,13 @@ body[data-intro='done'] .scroll-cue {
   height: 100vh;
   min-height: 100dvh;
   margin: 0;
-  overflow: hidden;
-  background: #f7f6f1;
+  overflow: visible;
+  background: transparent;
   perspective: 1400px;
+}
+
+.case-card + .case-card {
+  margin-top: 0;
 }
 
 .case-card-inner {
@@ -817,6 +822,7 @@ body[data-intro='done'] .scroll-cue {
   grid-template-rows: auto auto auto 1fr;
   width: 100%;
   height: 100%;
+  min-height: 100%;
   padding: clamp(96px, 9vh, 130px) clamp(28px, 4vw, 58px) clamp(54px, 7vh, 86px);
   overflow: hidden;
   color: rgba(255, 255, 255, 0.96);
@@ -1014,7 +1020,7 @@ body[data-intro='done'] .scroll-cue {
 
 .case-footer-landing {
   position: relative;
-  z-index: 3;
+  z-index: 8;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -1057,49 +1063,145 @@ body[data-intro='done'] .scroll-cue {
 /* ===== RESPONSIVE ======================================================== */
 
 @media (max-width: 700px) {
+  html,
+  body,
+  #root {
+    min-width: 0;
+  }
+
+  html {
+    overflow-x: visible;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  #root {
+    overflow-x: visible;
+  }
+
+  .intro-shell,
+  .stage {
+    width: 100%;
+    min-height: 100svh;
+  }
+
+  .copy-stage {
+    width: 96vw;
+    height: 142px;
+  }
+
+  .word-mask {
+    max-width: 96vw;
+    padding: 0.42em 0.2em 0.5em;
+  }
+
   .intro-word {
-    font-size: clamp(3rem, 12vw, 4.8rem);
+    font-size: 3.18rem;
+    letter-spacing: 0;
   }
 
   .intro-word-name {
-    font-size: clamp(2.3rem, 9.8vw, 4rem);
+    font-size: 2.76rem;
+    letter-spacing: 0;
+  }
+
+  .manifesto-inner {
+    padding: 0 18px;
+  }
+
+  .m-eyebrow {
+    margin-bottom: 18px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+  }
+
+  .m-display {
+    font-size: 3.05rem;
+    letter-spacing: 0;
+    line-height: 0.98;
+  }
+
+  .m-sub {
+    max-width: 320px;
+    margin-top: 28px;
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .spiral-section {
+    width: 100%;
+    height: 100svh;
+  }
+
+  .spiral-stage {
+    perspective: 900px;
   }
 
   .spiral-card {
-    width: clamp(292px, 82vw, 430px);
+    width: min(88vw, 360px);
+    border-radius: 10px;
+    box-shadow:
+      0 22px 54px rgba(0, 0, 0, 0.46),
+      0 8px 20px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  }
+
+  .works-title {
+    top: 60%;
+    width: min(92vw, 360px);
+  }
+
+  .works-title-mask {
+    width: 100%;
+    max-width: none;
+    padding: 0.26em 0.1em 0.34em;
   }
 
   .works-title-text {
-    font-size: clamp(2.35rem, 11vw, 4.6rem);
+    font-size: clamp(1.92rem, 7.8vw, 2.18rem);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .light-portal-grid,
+  .case-flow::before,
+  .case-footer-landing::before {
+    background-size: 64px 64px;
   }
 
   .experience-cta {
-    width: min(86vw, 460px);
-    height: 132px;
-    padding: 0 42px;
-    gap: 18px;
+    width: min(96vw, 408px);
+    height: 102px;
+    padding: 0 22px;
+    gap: 8px;
   }
 
   .experience-cta-label {
-    width: 300px;
-    font-size: clamp(2rem, 9vw, 3rem);
+    width: min(300px, 70vw);
+    font-size: clamp(1.48rem, 6.25vw, 1.68rem);
+    letter-spacing: 0;
   }
 
   .experience-cta-dot {
-    width: 20px;
-    height: 20px;
+    width: 14px;
+    height: 14px;
+    transform: translateY(2px);
   }
 
   .case-fixed-chrome {
     justify-content: flex-end;
+    top: 18px;
     padding: 0 14px;
   }
 
   .case-action-button {
     min-width: 0;
-    height: 50px;
-    padding: 0 16px;
-    font-size: 14px;
+    height: 48px;
+    padding: 0 18px;
+    font-size: 15px;
+    letter-spacing: 0;
   }
 
   .case-top-actions {
@@ -1107,10 +1209,11 @@ body[data-intro='done'] .scroll-cue {
   }
 
   .case-more-button {
-    min-width: min(86vw, 360px);
-    height: 60px;
+    min-width: min(88vw, 360px);
+    height: 62px;
     padding: 0 24px;
-    font-size: 16px;
+    font-size: 1rem;
+    letter-spacing: 0;
   }
 
   .case-stack-wrapper {
@@ -1118,15 +1221,21 @@ body[data-intro='done'] .scroll-cue {
   }
 
   .case-card {
-    top: 0;
     width: 100%;
-    height: 100vh;
-    min-height: 100dvh;
+    height: 100svh;
+    min-height: 100svh;
     margin: 0;
   }
 
+  .case-card + .case-card {
+    margin-top: 0;
+  }
+
   .case-card-inner {
-    padding: 84px 20px 42px;
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    height: 100svh;
+    min-height: 100svh;
+    padding: 92px 20px 34px;
     border-radius: 0;
   }
 
@@ -1138,18 +1247,32 @@ body[data-intro='done'] .scroll-cue {
 
   .case-card-number {
     position: absolute;
-    top: 72px;
-    right: 24px;
-    font-size: clamp(5rem, 23vw, 8rem);
-    opacity: 0.42;
+    top: 102px;
+    right: 22px;
+    font-size: 5.8rem;
+    opacity: 0.34;
   }
 
   .case-card h3 {
-    padding-right: 86px;
-    font-size: clamp(3rem, 13vw, 5.4rem);
+    max-width: 330px;
+    padding-right: 78px;
+    font-size: 3.2rem;
+    letter-spacing: 0;
+    line-height: 0.98;
+  }
+
+  .case-card-code {
+    margin-bottom: 24px;
+    font-size: 1rem;
+  }
+
+  .case-card-details {
+    margin-top: 24px;
   }
 
   .case-detail {
+    min-height: 54px;
+    padding: 0 18px;
     border-right: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.22);
   }
@@ -1159,18 +1282,53 @@ body[data-intro='done'] .scroll-cue {
   }
 
   .case-card-body {
-    gap: 28px;
+    gap: 20px;
+    align-items: start;
+    margin-top: 24px;
+  }
+
+  .case-card-body > p {
+    max-width: 310px;
+    margin: 0;
+    font-size: 1.15rem;
+    letter-spacing: 0;
   }
 
   .case-motion-block {
-    min-height: 250px;
+    min-height: min(25svh, 210px);
+    padding: 16px;
+  }
+
+  .case-motion-window {
+    height: 40px;
+    padding: 0 14px;
+  }
+
+  .case-motion-window span {
+    width: 38px;
+  }
+
+  .case-motion-window span:first-child {
+    width: 62px;
   }
 
   .case-motion-grid {
     grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, minmax(42px, 1fr));
+    min-height: 136px;
+    gap: 10px;
   }
 
   .case-motion-grid span:first-child {
     grid-row: span 1;
+  }
+
+  .case-motion-grid span {
+    min-height: 42px;
+  }
+
+  .case-footer-landing {
+    min-height: 116svh;
+    padding-top: 28px;
   }
 }
