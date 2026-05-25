@@ -228,10 +228,15 @@ button {
   --gradient-x: 50vw;
   --gradient-y: 110vh;
   --gradient-radius: 0px;
+  --gradient-scale-x: 1;
+  --gradient-scale-y: 1;
+  --gradient-ripple-y: 0px;
   position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
+  transform: translateY(var(--gradient-ripple-y)) scale(var(--gradient-scale-x), var(--gradient-scale-y));
+  transform-origin: 50% 100%;
   /* Single smooth radial — fewer/closer stops were causing visible rings.
      This one fades evenly from a soft blue centre to near-black at the
      edges with no concentric banding. */
@@ -258,7 +263,7 @@ button {
     rgba(0, 0, 0, 0.6) 85%,
     transparent 100%
   );
-  will-change: opacity;
+  will-change: opacity, transform;
 }
 
 .grid-field {
@@ -296,7 +301,7 @@ button {
   position: fixed;
   z-index: 4;
   left: 50%;
-  top: 60%;
+  top: 52%;
   width: min(94vw, 980px);
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -683,10 +688,6 @@ body[data-intro='done'] .scroll-cue {
     0 0 0 1px rgba(255, 255, 255, 0.06) inset;
   transform-origin: 50% 50%;
   backface-visibility: hidden;
-  /* Promote each card to its own GPU layer. With real photo content the
-     compositor can move them around without repainting the texture every
-     frame — kills the scroll jitter. */
-  will-change: transform, opacity;
   transform: translateZ(0);
   background: #0a0a12;  /* fallback while images load */
 }
@@ -817,6 +818,7 @@ body[data-intro='done'] .scroll-cue {
 }
 
 .case-card-inner {
+  --depth-dim: 0;
   position: relative;
   display: grid;
   grid-template-rows: auto auto auto 1fr;
@@ -827,7 +829,9 @@ body[data-intro='done'] .scroll-cue {
   overflow: hidden;
   color: rgba(255, 255, 255, 0.96);
   border-radius: 0;
-  box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.26) inset;
+  box-shadow:
+    0 -1px 0 rgba(255, 255, 255, 0.26) inset,
+    inset 0 0 0 9999px rgba(0, 0, 0, var(--depth-dim));
   backface-visibility: hidden;
   transform: translateZ(0);
 }
@@ -1149,7 +1153,7 @@ body[data-intro='done'] .scroll-cue {
   }
 
   .works-title {
-    top: 60%;
+    top: 54%;
     width: min(92vw, 360px);
   }
 
