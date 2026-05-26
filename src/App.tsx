@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, type FocusEvent, type PointerEvent, type RefObject } from 'react';
+import { useCallback, useMemo, useRef, type FocusEvent, type PointerEvent, type RefObject } from 'react';
 import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 
-gsap.registerPlugin(ScrollTrigger, ScrambleTextPlugin, DrawSVGPlugin);
+gsap.registerPlugin(useGSAP, ScrollTrigger, ScrambleTextPlugin, DrawSVGPlugin);
 
 type Runtime = {
   revert: () => void;
@@ -54,7 +55,7 @@ const createIntroSound = (): IntroSound => {
 
       ctx = new AudioCtor();
       master = ctx.createGain();
-      master.gain.value = 0.9;
+      master.gain.value = 1.8;
       master.connect(ctx.destination);
     }
 
@@ -233,16 +234,28 @@ function SplitChars({ text, className }: { text: string; className: string }) {
 // Real work screenshots — served from /public/cards/. Keep each screenshot's
 // source aspect ratio so UI text is never cropped or resampled into a forced
 // frame shape.
+const spiralImageSizes = '(max-width: 700px) 88vw, (max-width: 1600px) 29vw, 520px';
+
 const cardImages = [
-  { src: '/cards/card-1.png', aspect: '1800 / 1102' },
-  { src: '/cards/card-2.png', aspect: '1800 / 1250' },
-  { src: '/cards/card-3.png', aspect: '4 / 3' },
-  { src: '/cards/card-4.png', aspect: '4 / 3' },
-  { src: '/cards/card-5.png', aspect: '4 / 3' },
-  { src: '/cards/card-6.png', aspect: '4 / 3' },
-  { src: '/cards/card-7.png', aspect: '4 / 3' },
-  { src: '/cards/card-8.png', aspect: '4 / 3' },
-];
+  { id: 'card-1', aspect: '1800 / 1102' },
+  { id: 'card-2', aspect: '1800 / 1250' },
+  { id: 'card-3', aspect: '4 / 3' },
+  { id: 'card-4', aspect: '4 / 3' },
+  { id: 'card-5', aspect: '4 / 3' },
+  { id: 'card-6', aspect: '4 / 3' },
+  { id: 'card-7', aspect: '4 / 3' },
+  { id: 'card-8', aspect: '4 / 3' },
+].map((image) => ({
+  ...image,
+  src: `/cards/optimized/${image.id}-1400.webp`,
+  srcSet: [
+    `/cards/optimized/${image.id}-900.webp 900w`,
+    `/cards/optimized/${image.id}-1400.webp 1400w`,
+    `/cards/optimized/${image.id}-1800.webp 1800w`,
+  ].join(', '),
+  sizes: spiralImageSizes,
+  fallback: `/cards/${image.id}.png`,
+}));
 
 const caseStudies = [
   {
@@ -286,10 +299,16 @@ const SpiralCards = ({ innerRef }: { innerRef: RefObject<HTMLDivElement | null> 
         <div key={image.src} className="spiral-card" data-index={i} style={{ aspectRatio: image.aspect }}>
           <img
             src={image.src}
+            srcSet={image.srcSet}
+            sizes={image.sizes}
             alt=""
             loading={i < 3 ? 'eager' : 'lazy'}
             decoding="async"
             fetchPriority={i < 2 ? 'high' : 'auto'}
+            onError={(event) => {
+              event.currentTarget.src = image.fallback;
+              event.currentTarget.removeAttribute('srcset');
+            }}
             draggable={false}
           />
         </div>
@@ -543,16 +562,47 @@ export default function App() {
       }
 
       const fireImpact = (y: number, strength = 1) => {
+        const glowScale = 1.75 + strength * 0.42;
+        const ringScale = 2.2 + strength * 0.58;
         gsap.killTweensOf(impact);
-        gsap.set(impact, { autoAlpha: 0.55 * strength, x: centerX, y: centerY + y, scale: 0.65 });
-        gsap.to(impact, { autoAlpha: 0, scale: 2.1, duration: 0.5, ease: 'power3.out' });
+        gsap.set(impact, { autoAlpha: 0.5 * strength, x: centerX, y: centerY + y, scale: 0.54 });
+        gsap.to(impact, { autoAlpha: 0, scale: glowScale, duration: 0.52, ease: 'power3.out' });
         gsap.killTweensOf(ring);
-        gsap.set(ring, { autoAlpha: 0.78 * strength, x: centerX, y: centerY + y, scale: 0.25 });
-        gsap.to(ring, { autoAlpha: 0, scale: 2.5 * strength, duration: 0.55, ease: 'power3.out' });
-        gsap.fromTo(stage, { y: -3 * strength }, { y: 0, duration: 0.32, ease: 'elastic.out(1, 0.35)' });
+        gsap.set(ring, { autoAlpha: 0.72 * strength, x: centerX, y: centerY + y, scale: 0.18 });
+        gsap.to(ring, { autoAlpha: 0, scale: ringScale, duration: 0.58, ease: 'power3.out' });
+        gsap.fromTo(
+          stage,
+          { y: -4 * strength, scaleY: 1.004, scaleX: 0.998 },
+          { y: 0, scaleY: 1, scaleX: 1, duration: 0.42, ease: 'elastic.out(1, 0.42)' },
+        );
       };
 
       const tl = gsap.timeline({ defaults: { overwrite: 'auto' }, onComplete: finalize });
+
+      const addTextImpulse = (
+        chars: NodeListOf<HTMLElement>,
+        at: number,
+        lift = -4,
+      ) => {
+        tl.to(chars, {
+          yPercent: lift,
+          duration: 0.075,
+          ease: 'power2.out',
+          stagger: {
+            each: 0.004,
+            from: 'center',
+          },
+        }, at)
+          .to(chars, {
+            yPercent: 0,
+            duration: 0.3,
+            ease: 'elastic.out(1, 0.5)',
+            stagger: {
+              each: 0.004,
+              from: 'center',
+            },
+          }, at + 0.08);
+      };
 
       // PHASE 1 — anticipation + "hey!" reveal + first impact
       tl
@@ -570,9 +620,9 @@ export default function App() {
           soundRef.current?.hit(0.78);
         }, [], 1.26)
         .to(ballCore, { scaleX: 1.5, scaleY: 0.52, duration: 0.07, ease: 'power3.out' }, 1.25)
-        .to(heyChars, { yPercent: -4, duration: 0.08, ease: 'power2.out', stagger: 0.005 }, 1.26)
-        .to(ballCore, { scaleX: 1, scaleY: 1, duration: 0.34, ease: 'elastic.out(1, 0.48)' }, 1.32)
-        .to(heyChars, { yPercent: 0, duration: 0.26, ease: 'elastic.out(1, 0.5)', stagger: 0.004 }, 1.34);
+        .to(ballCore, { scaleX: 1, scaleY: 1, duration: 0.34, ease: 'elastic.out(1, 0.48)' }, 1.32);
+
+      addTextImpulse(heyChars, 1.26, mobile ? -2.6 : -4);
 
       // PHASE 2 — continuous arc, no pause
       tl
@@ -589,16 +639,16 @@ export default function App() {
           soundRef.current?.hit(0.9);
         }, [], 2.38)
         .to(ballCore, { scaleX: 1.55, scaleY: 0.5, duration: 0.07, ease: 'power3.out' }, 2.37)
-        .to(nameChars, { yPercent: -4, duration: 0.08, ease: 'power2.out', stagger: 0.004 }, 2.38)
-        .to(ballCore, { scaleX: 1, scaleY: 1, duration: 0.32, ease: 'elastic.out(1, 0.5)' }, 2.44)
-        .to(nameChars, { yPercent: 0, duration: 0.26, ease: 'elastic.out(1, 0.5)', stagger: 0.004 }, 2.46);
+        .to(ballCore, { scaleX: 1, scaleY: 1, duration: 0.32, ease: 'elastic.out(1, 0.5)' }, 2.44);
+
+      addTextImpulse(nameChars, 2.38, mobile ? -2.6 : -4);
 
       // PHASE 3 — final fall off-screen + bloom
       tl
         .to(ball, { y: -110, duration: 0.36, ease: 'power2.out' }, 2.44)
         .to(ballCore, { scaleX: 0.92, scaleY: 1.12, duration: 0.22, ease: 'power2.out' }, 2.44)
         .to(nameChars, { yPercent: -115, rotationX: 55, opacity: 0, duration: 0.44, ease: 'power3.in', stagger: 0.022 }, 2.56)
-        .to(ball, { y: finalY, duration: 1.0, ease: 'power2.in' }, 2.78)
+        .to(ball, { y: finalY, duration: 1.0, ease: 'power3.in' }, 2.78)
         .to(ballCore, { scaleX: 0.84, scaleY: 1.28, duration: 0.55, ease: 'power2.in' }, 2.86)
         .call(() => soundRef.current?.cascade(), [], 3.46)
         .call(() => setGradientOrigin(finalY, 0), [], 3.7)
@@ -662,9 +712,42 @@ export default function App() {
 
     const cards = Array.from(cardsRoot.querySelectorAll<HTMLElement>('.spiral-card'));
     const total = cards.length;
+    type SpiralCardFrame = {
+      x: number;
+      y: number;
+      z: number;
+      rotationY: number;
+      rotationZ: number;
+      scale: number;
+      opacity: number;
+      zIndex: number;
+    };
+    const cardSetters = cards.map((card) => ({
+      x: gsap.quickSetter(card, 'x', 'px'),
+      y: gsap.quickSetter(card, 'y', 'px'),
+      z: gsap.quickSetter(card, 'z', 'px'),
+      rotationY: gsap.quickSetter(card, 'rotationY', 'deg'),
+      rotationZ: gsap.quickSetter(card, 'rotationZ', 'deg'),
+      scale: gsap.quickSetter(card, 'scale'),
+      opacity: gsap.quickSetter(card, 'opacity'),
+      zIndex: (value: number) => {
+        card.style.zIndex = String(Math.round(value));
+      },
+    }));
+    const applyCardFrame = (index: number, frame: SpiralCardFrame) => {
+      const setter = cardSetters[index];
+      setter.x(frame.x);
+      setter.y(frame.y);
+      setter.z(frame.z);
+      setter.rotationY(frame.rotationY);
+      setter.rotationZ(frame.rotationZ);
+      setter.scale(frame.scale);
+      setter.opacity(frame.opacity);
+      setter.zIndex(frame.zIndex);
+    };
 
     // Pre-position cards off-screen below.
-    gsap.set(cards, { xPercent: -50, yPercent: -50, opacity: 0, force3D: true });
+    gsap.set(cards, { xPercent: -50, yPercent: -50, opacity: 0, force3D: true, willChange: 'auto' });
     gsap.set(grid, { opacity: 0, y: 80 });
     const worksTitleChars = worksTitle.querySelectorAll<HTMLElement>('.intro-char:not(.intro-char-space)');
     gsap.set(worksTitle, { autoAlpha: 0 });
@@ -682,7 +765,6 @@ export default function App() {
         const snapPixel = (value: number) => Math.round(value * 2) / 2;
 
         for (let i = 0; i < total; i += 1) {
-          const card = cards[i];
           const rel = i - track;
           const distance = Math.abs(rel);
           const y = rel * verticalSpacing;
@@ -693,7 +775,7 @@ export default function App() {
           const rotationY = clamp(rel * -15, -24, 24);
           const rotationZ = clamp(rel * 1.1, -2.2, 2.2);
 
-          gsap.set(card, {
+          applyCardFrame(i, {
             x: snapPixel(x),
             y: snapPixel(y),
             z,
@@ -733,8 +815,6 @@ export default function App() {
       const snapPixel = (value: number) => Math.round(value * 2) / 2;
 
       for (let i = 0; i < total; i += 1) {
-        const card = cards[i];
-
         // Each card has a permanent angular slot on the cylinder.
         const baseAngle = (i / total) * Math.PI * 2;
         // Card 0 lives at the BOTTOM of the cylinder so it enters first.
@@ -774,7 +854,7 @@ export default function App() {
         // re-rasterize every frame → visible scroll jitter. Depth is now
         // carried by scale + opacity alone (the back-of-cylinder cards still
         // recede visually because they're smaller and dimmer).
-        gsap.set(card, {
+        applyCardFrame(i, {
           x: snapPixel(x),
           y: snapPixel(worldY),
           z,
@@ -817,6 +897,17 @@ export default function App() {
         gradient.style.setProperty('--gradient-x', `${cx}px`);
         gradient.style.setProperty('--gradient-y', `${drainY}px`);
 
+        const rippleWeight = Math.sin(t * Math.PI) * (1 - t * 0.35);
+        const rippleWave = Math.sin(t * Math.PI * 2.65) * rippleWeight;
+        gradient.style.setProperty('--gradient-scale-x', `${1 + rippleWeight * 0.018}`);
+        gradient.style.setProperty('--gradient-scale-y', `${1 - rippleWeight * 0.012}`);
+        gradient.style.setProperty('--gradient-ripple-y', `${rippleWave * 10}px`);
+        if (t >= 0.995) {
+          gradient.style.setProperty('--gradient-scale-x', '1');
+          gradient.style.setProperty('--gradient-scale-y', '1');
+          gradient.style.setProperty('--gradient-ripple-y', '0px');
+        }
+
         // Grid rises in tandem — by the time gradient is gone, grid is set.
         const gridT = clamp(t * 1.15, 0, 1);
         grid.style.opacity = String(gridT * 0.66);
@@ -834,33 +925,33 @@ export default function App() {
       },
     });
 
-    // Balanced placement: pre-gap (manifesto→title) and post-gap (title→spiral)
-    // are both ~0.20 of the approach scroll. Title is fully visible roughly
-    // in the middle 60% of the approach. With 13 chars in "some of my works",
+    // Balanced placement: leave a little more air after the manifesto before
+    // the title enters, then clear it just before the spiral pin engages.
+    // With 13 chars in "some of my works",
     // the stagger maths land:
-    //   reveal:  0.20  →  0.46   (last char tween ends at 0.20 + 12·0.010 + 0.14)
-    //   hold:    0.46  →  0.56   (~10% read window)
-    //   exit:    0.56  →  0.78   (last char tween ends at 0.56 + 12·0.008 + 0.12)
-    //   gone:    0.80
+    //   reveal:  0.30  →  0.59
+    //   hold:    0.59  →  0.64
+    //   exit:    0.64  →  0.88
+    //   gone:    0.92
     worksTitleTl
-      .set(worksTitle, { autoAlpha: 1 }, 0.20)
+      .set(worksTitle, { autoAlpha: 1 }, 0.30)
       .to(worksTitleChars, {
         yPercent: 0,
         rotationX: 0,
         opacity: 1,
         ease: 'none',
-        stagger: 0.010,
-        duration: 0.14,
-      }, 0.20)
+        stagger: 0.011,
+        duration: 0.16,
+      }, 0.30)
       .to(worksTitleChars, {
         yPercent: -115,
         rotationX: 34,
         opacity: 0,
         ease: 'none',
-        stagger: 0.008,
-        duration: 0.12,
-      }, 0.56)
-      .set(worksTitle, { autoAlpha: 0 }, 0.80);
+        stagger: 0.009,
+        duration: 0.13,
+      }, 0.64)
+      .set(worksTitle, { autoAlpha: 0 }, 0.92);
 
     if (worksTitleTl.scrollTrigger) {
       scrollTriggersRef.current.push(worksTitleTl.scrollTrigger);
@@ -880,6 +971,10 @@ export default function App() {
       // raster content. Anything <0.5 felt jittery once images replaced the
       // gradient placeholders.
       scrub: isMobileViewport() ? 0.45 : 0.9,
+      onEnter: () => gsap.set(cards, { willChange: 'transform, opacity' }),
+      onEnterBack: () => gsap.set(cards, { willChange: 'transform, opacity' }),
+      onLeave: () => gsap.set(cards, { willChange: 'auto' }),
+      onLeaveBack: () => gsap.set(cards, { willChange: 'auto' }),
       onUpdate: (self) => {
         const cardProgress = clamp(self.progress / cardFinishProgress, 0, 1);
         placeCards(cardProgress);
@@ -968,6 +1063,7 @@ export default function App() {
     gsap.set(lightPortalGrid, { autoAlpha: 0 });
     gsap.set(lightPortalRipple, { autoAlpha: 0 });
 
+    let rippleDrawKey = '';
     const drawRippleGrid = (progress: number) => {
       const canvas = lightPortalRipple;
       const context = canvas.getContext('2d');
@@ -976,6 +1072,11 @@ export default function App() {
       const width = window.innerWidth;
       const height = window.innerHeight;
       const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.35 : 2);
+      const frame = Math.round(progress * (mobile ? 54 : 72));
+      const drawKey = `${frame}:${width}:${height}:${dpr}`;
+      if (drawKey === rippleDrawKey) return;
+      rippleDrawKey = drawKey;
+
       const canvasWidth = Math.round(width * dpr);
       const canvasHeight = Math.round(height * dpr);
 
@@ -1216,7 +1317,7 @@ export default function App() {
         overwrite: true,
         onStart: () => {
           if (active) {
-            gsap.set(chrome, { pointerEvents: 'none' });
+            gsap.set(chrome, { pointerEvents: 'auto' });
           }
         },
         onComplete: () => {
@@ -1252,13 +1353,13 @@ export default function App() {
       .filter((inner): inner is HTMLElement => Boolean(inner));
 
     gsap.set(cardInners, {
+      '--depth-dim': 0,
       scale: 1,
       y: 0,
       rotation: 0,
-      filter: mobile ? 'none' : 'brightness(1) saturate(1)',
       transformOrigin: '50% 12%',
       force3D: true,
-      willChange: mobile ? 'transform' : 'transform, filter',
+      willChange: 'transform',
     });
 
     const depthTilts = [-5, 4.5, -4.2];
@@ -1287,6 +1388,7 @@ export default function App() {
       if (!incomingCard) return;
 
       const depthVars: gsap.TweenVars = {
+        '--depth-dim': mobile ? 0.08 : 0.3,
         scale: mobile ? 0.82 : 0.88,
         y: mobile ? 118 : 112,
         rotation: index === cardInners.length - 1 ? 0 : depthTilts[index % depthTilts.length] * (mobile ? 0.34 : 1),
@@ -1299,10 +1401,6 @@ export default function App() {
         },
       };
 
-      if (!mobile) {
-        depthVars.filter = 'brightness(0.45) saturate(0.74)';
-      }
-
       const depthTween = gsap.to(inner, depthVars);
 
       if (depthTween.scrollTrigger) {
@@ -1312,7 +1410,7 @@ export default function App() {
   }, []);
 
   // ---------- LIFECYCLE ---------------------------------------------------
-  useEffect(() => {
+  useGSAP(() => {
     soundRef.current = createIntroSound();
     const motionMedia = gsap.matchMedia();
 
@@ -1334,6 +1432,8 @@ export default function App() {
     };
 
     window.addEventListener('pointerdown', unlockSound, { passive: true });
+    window.addEventListener('touchstart', unlockSound, { passive: true });
+    window.addEventListener('wheel', unlockSound, { passive: true });
     window.addEventListener('keydown', unlockSound);
 
     runIntro();
@@ -1364,6 +1464,8 @@ export default function App() {
     window.addEventListener('keydown', handleKey);
     return () => {
       window.removeEventListener('pointerdown', unlockSound);
+      window.removeEventListener('touchstart', unlockSound);
+      window.removeEventListener('wheel', unlockSound);
       window.removeEventListener('keydown', unlockSound);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('keydown', handleKey);
@@ -1383,7 +1485,10 @@ export default function App() {
       soundRef.current = null;
       document.body.dataset.intro = '';
     };
-  }, [runIntro, setupManifestoPhase, setupScrollPhase, setupExperienceCtaPhase, setupCaseFlowPhase, skip]);
+  }, {
+    scope: shellRef,
+    dependencies: [runIntro, setupManifestoPhase, setupScrollPhase, setupExperienceCtaPhase, setupCaseFlowPhase, skip],
+  });
 
   return (
     <div className="app-shell" ref={shellRef}>
@@ -1420,7 +1525,7 @@ export default function App() {
         <div className="manifesto-overlay" aria-label="Introduction">
           <div className="manifesto-inner">
             <div className="m-line m-eyebrow">
-              <span className="m-word">atulya — 2026</span>
+              <span className="m-word">atulya</span>
             </div>
 
             <h2 className="m-line m-display">
