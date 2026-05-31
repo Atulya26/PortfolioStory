@@ -564,6 +564,107 @@ body[data-intro='done'] .scroll-cue {
   will-change: opacity;
 }
 
+.portal-selected-work {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  padding: clamp(96px, 12vh, 148px) clamp(24px, 6vw, 96px);
+  color: #050609;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.portal-selected-work-copy {
+  width: min(1120px, 92vw);
+  text-align: center;
+}
+
+.portal-selected-kicker {
+  display: block;
+  margin-bottom: clamp(12px, 1.4vw, 18px);
+  color: rgba(5, 8, 13, 0.46);
+  font-size: clamp(0.72rem, 0.86vw, 0.9rem);
+  font-weight: 720;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.portal-selected-work h2 {
+  margin: 0 auto;
+  color: #050609;
+  font-size: clamp(5rem, 11.5vw, 15rem);
+  font-weight: 760;
+  line-height: 0.82;
+  letter-spacing: -0.075em;
+  text-wrap: balance;
+}
+
+.portal-selected-work p {
+  margin: clamp(22px, 3vw, 38px) auto 18px;
+  max-width: 620px;
+  color: rgba(5, 8, 13, 0.78);
+  font-size: clamp(1.05rem, 1.35vw, 1.38rem);
+  font-weight: 560;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.portal-selected-work .helper-arrow-down {
+  width: clamp(34px, 3vw, 46px);
+  color: rgba(5, 8, 13, 0.42);
+}
+
+.portal-work-contact-hint {
+  position: absolute;
+  top: clamp(32px, 5.8vh, 76px);
+  right: clamp(330px, 27vw, 520px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(5, 8, 13, 0.5);
+  font-size: clamp(0.74rem, 0.82vw, 0.88rem);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+}
+
+.portal-work-contact-hint .helper-arrow-upright {
+  width: clamp(42px, 4.6vw, 62px);
+  color: rgba(5, 8, 13, 0.38);
+  transform: translateY(-2px);
+}
+
+.portal-selected-actions {
+  position: absolute;
+  top: clamp(28px, 5.2vh, 68px);
+  right: clamp(22px, 3.5vw, 54px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.portal-selected-actions span {
+  display: grid;
+  place-items: center;
+  min-width: clamp(112px, 8vw, 132px);
+  height: clamp(50px, 4vw, 58px);
+  padding: 0 28px;
+  border-radius: 999px;
+  color: #fff;
+  background: #050509;
+  box-shadow:
+    0 16px 40px rgba(20, 24, 32, 0.16),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  font-size: clamp(0.96rem, 1.05vw, 1.08rem);
+  font-weight: 560;
+  letter-spacing: -0.03em;
+}
+
 .experience-cta {
   position: absolute;
   z-index: 20;
@@ -701,6 +802,95 @@ body[data-intro='done'] .scroll-cue {
   -webkit-user-drag: none;
   image-rendering: auto;
   backface-visibility: hidden;
+}
+
+.spiral-captions {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+}
+
+.spiral-caption {
+  position: absolute;
+  top: 50%;
+  max-width: min(34vw, 360px);
+  margin: 0;
+  opacity: 0;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 18px 54px rgba(0, 0, 0, 0.58);
+  will-change: transform, opacity;
+}
+
+.spiral-caption[data-side='left'] {
+  left: clamp(24px, 6vw, 90px);
+  text-align: left;
+  transform: translate(-24px, -50%);
+}
+
+.spiral-caption[data-side='right'] {
+  right: clamp(24px, 6vw, 90px);
+  text-align: right;
+  transform: translate(24px, -50%);
+}
+
+.spiral-caption-kicker {
+  display: block;
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.spiral-caption-line {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(1.1rem, 1.6vw, 1.6rem);
+  font-weight: 560;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+.helper-arrow {
+  display: block;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.helper-arrow-shaft,
+.helper-arrow-head {
+  vector-effect: non-scaling-stroke;
+}
+
+.cta-helper {
+  position: absolute;
+  z-index: 21;
+  top: calc(50% + 150px);
+  left: 50%;
+  width: min(440px, 82vw);
+  color: rgba(255, 255, 255, 0.62);
+  text-align: center;
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.cta-helper .helper-arrow-up {
+  width: 80px;
+  margin: 0 auto 10px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.cta-helper p {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 520;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
 }
 
 /* ===== CASE STUDY SHEET FLOW ============================================ */
@@ -1175,6 +1365,48 @@ body[data-intro='done'] .scroll-cue {
     background-size: 64px 64px;
   }
 
+  .portal-selected-work {
+    padding: 88px 22px 72px;
+  }
+
+  .portal-selected-work h2 {
+    font-size: clamp(3.3rem, 17vw, 5.1rem);
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+  }
+
+  .portal-selected-work p {
+    max-width: 320px;
+    font-size: 1rem;
+    line-height: 1.15;
+    letter-spacing: 0;
+  }
+
+  .portal-work-contact-hint {
+    top: 26px;
+    right: 132px;
+    gap: 7px;
+    font-size: 0.68rem;
+  }
+
+  .portal-work-contact-hint .helper-arrow-upright {
+    width: 34px;
+  }
+
+  .portal-selected-actions {
+    top: 18px;
+    right: 12px;
+    gap: 7px;
+  }
+
+  .portal-selected-actions span {
+    min-width: 66px;
+    height: 42px;
+    padding: 0 14px;
+    font-size: 0.82rem;
+    letter-spacing: 0;
+  }
+
   .experience-cta {
     width: min(96vw, 408px);
     height: 102px;
@@ -1192,6 +1424,46 @@ body[data-intro='done'] .scroll-cue {
     width: 14px;
     height: 14px;
     transform: translateY(2px);
+  }
+
+  .spiral-caption,
+  .spiral-caption[data-side='left'],
+  .spiral-caption[data-side='right'] {
+    top: auto;
+    right: auto;
+    bottom: clamp(80px, 14vh, 140px);
+    left: 50%;
+    width: min(84vw, 340px);
+    max-width: 84vw;
+    text-align: center;
+    transform: translate(-50%, 0);
+  }
+
+  .spiral-caption-kicker {
+    margin-bottom: 9px;
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+  }
+
+  .spiral-caption-line {
+    font-size: clamp(1rem, 5.1vw, 1.28rem);
+    line-height: 1.12;
+    letter-spacing: 0;
+  }
+
+  .cta-helper {
+    top: calc(50% + 92px);
+    width: min(86vw, 330px);
+  }
+
+  .cta-helper .helper-arrow-up {
+    width: 62px;
+    margin-bottom: 6px;
+  }
+
+  .cta-helper p {
+    font-size: 0.76rem;
+    line-height: 1.3;
   }
 
   .case-fixed-chrome {
