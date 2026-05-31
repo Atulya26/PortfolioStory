@@ -14,3 +14,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 .claude/
+
+# local agent tooling
+.agents/
+skills-lock.json
