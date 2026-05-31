@@ -257,6 +257,23 @@ const cardImages = [
   fallback: `/cards/${image.id}.png`,
 }));
 
+type SpiralCaption = {
+  side: 'left' | 'right';
+  kicker: string;
+  line: string;
+};
+
+const spiralCaptions: SpiralCaption[] = [
+  { side: 'left', kicker: '01 / Studio', line: 'AI product shots shaped into brand-ready systems.' },
+  { side: 'right', kicker: '02 / Activity', line: 'Mobile dashboards with dense data made calm and scannable.' },
+  { side: 'left', kicker: '03 / Ops', line: 'Workflow screens for teams moving from signal to decision.' },
+  { side: 'right', kicker: '04 / Maps', line: 'Spatial product UI with layered controls and route context.' },
+  { side: 'left', kicker: '05 / Finance', line: 'Charting surfaces tuned for precision, states, and confidence.' },
+  { side: 'right', kicker: '06 / Library', line: 'Reusable interface patterns built to scale across products.' },
+  { side: 'left', kicker: '07 / Systems', line: 'Design-system documentation that turns rules into usable tools.' },
+  { side: 'right', kicker: '08 / Detail', line: 'Micro-interactions that make product moments feel deliberate.' },
+];
+
 const caseStudies = [
   {
     code: 'PB',
@@ -403,14 +420,17 @@ export default function App() {
   const lightPortalRef = useRef<HTMLDivElement>(null);
   const lightPortalGridRef = useRef<HTMLDivElement>(null);
   const lightPortalRippleRef = useRef<HTMLCanvasElement>(null);
+  const portalSelectedWorkRef = useRef<HTMLDivElement>(null);
   const worksTitleRef = useRef<HTMLDivElement>(null);
   const impactRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const flashRef = useRef<HTMLDivElement>(null);
   const spiralSectionRef = useRef<HTMLElement>(null);
   const spiralCardsRef = useRef<HTMLDivElement>(null);
+  const spiralCaptionsRef = useRef<HTMLDivElement>(null);
   const experienceCtaRef = useRef<HTMLAnchorElement>(null);
   const experienceLabelRef = useRef<HTMLSpanElement>(null);
+  const ctaHelperRef = useRef<HTMLDivElement>(null);
   const caseFlowRef = useRef<HTMLElement>(null);
   const caseChromeRef = useRef<HTMLDivElement>(null);
   const runtimeRef = useRef<Runtime | null>(null);
@@ -705,12 +725,15 @@ export default function App() {
     const gradient = gradientRef.current;
     const grid = gridRef.current;
     const worksTitle = worksTitleRef.current;
-    if (!section || !cardsRoot || !gradient || !grid || !worksTitle) return;
+    const captionsRoot = spiralCaptionsRef.current;
+    if (!section || !cardsRoot || !gradient || !grid || !worksTitle || !captionsRoot) return;
 
     if (scrollSetupRef.current) return;
     scrollSetupRef.current = true;
+    const reduceMotion = prefersReducedMotion();
 
     const cards = Array.from(cardsRoot.querySelectorAll<HTMLElement>('.spiral-card'));
+    const captions = Array.from(captionsRoot.querySelectorAll<HTMLElement>('.spiral-caption'));
     const total = cards.length;
     type SpiralCardFrame = {
       x: number;
@@ -751,12 +774,21 @@ export default function App() {
     gsap.set(grid, { opacity: 0, y: 80 });
     const worksTitleChars = worksTitle.querySelectorAll<HTMLElement>('.intro-char:not(.intro-char-space)');
     gsap.set(worksTitle, { autoAlpha: 0 });
-    gsap.set(worksTitleChars, { yPercent: 115, rotationX: -34, opacity: 0 });
+    gsap.set(worksTitleChars, { yPercent: 115, rotationX: -14, opacity: 0 });
+    gsap.set(captionsRoot, { autoAlpha: 1 });
+    gsap.set(captions, { opacity: 0 });
+    const captionOpacity = captions.map((caption) => gsap.quickSetter(caption, 'opacity'));
+
+    // Tracks which card is currently most centred/front-facing, so the sound
+    // can fire on the exact frame a card locks into focus (keeping it in sync
+    // with the caption, which is driven by the same centred-ness signal).
+    const spiralCentered = { index: 0 };
 
     const placeCards = (t: number) => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const mobile = isMobileViewport();
+      let bestCenteredScore = -Infinity;
 
       if (mobile) {
         const track = t * (total + 0.9) - 0.58;
@@ -774,6 +806,16 @@ export default function App() {
           const opacity = clamp(1 - Math.max(0, distance - 0.62) / 0.92, 0, 1);
           const rotationY = clamp(rel * -15, -24, 24);
           const rotationZ = clamp(rel * 1.1, -2.2, 2.2);
+
+          // Caption is keyed to scroll-order (mobile cards centre 0→7), so the
+          // numbering always counts up 01 → 08 regardless of platform.
+          if (!reduceMotion && captionOpacity[i]) {
+            captionOpacity[i](clamp(1 - distance / 0.6, 0, 1));
+          }
+          if (-distance > bestCenteredScore) {
+            bestCenteredScore = -distance;
+            spiralCentered.index = i;
+          }
 
           applyCardFrame(i, {
             x: snapPixel(x),
@@ -837,6 +879,25 @@ export default function App() {
 
         // Depth-based styling. depthFactor: 0 (back of cylinder) → 1 (front)
         const depthFactor = (z + radius) / (2 * radius);
+        // Caption tracks the same centred-ness the card has, so it fades in as
+        // the card rises into focus and peaks exactly when the card is centred
+        // (which is also when the sound fires below).
+        const centered = clamp(1 - Math.abs(worldY) / (vh * 0.40), 0, 1);
+        const frontness = clamp(z / radius, 0, 1);
+        // Desktop cards centre in reverse index order (7 → 0), so map to the
+        // scroll-sequence caption: the first card to centre shows caption 01.
+        const captionIndex = total - 1 - i;
+        if (!reduceMotion && captionOpacity[captionIndex]) {
+          let focus = centered * frontness;
+          focus = clamp((focus - 0.1) / 0.9, 0, 1);
+          captionOpacity[captionIndex](focus);
+        }
+        // Score peaks for the card that is both centred and front-facing.
+        const centeredScore = frontness - Math.abs(worldY) / vh;
+        if (centeredScore > bestCenteredScore) {
+          bestCenteredScore = centeredScore;
+          spiralCentered.index = i;
+        }
         // Keep scale below 1 so screenshots are never compositor-upscaled.
         // The CSS card width is larger now, preserving visual size while
         // keeping text and UI edges noticeably crisper.
@@ -880,7 +941,7 @@ export default function App() {
       trigger: section,
       start: 'top bottom',  // spiral top enters viewport from below
       end: 'top top',       // ends exactly when the spiral pin engages
-      scrub: 0.7,
+      scrub: 1.0,
       onUpdate: (self) => {
         const t = self.progress;
         // Smoother drain curve — gentle ease-in via squared progress
@@ -916,6 +977,27 @@ export default function App() {
     });
     scrollTriggersRef.current.push(drainTrigger);
 
+    const manifestoWords = shellRef.current?.querySelectorAll<HTMLElement>('.manifesto-overlay .m-word');
+    if (!reduceMotion && manifestoWords?.length) {
+      const manifestoExit = gsap.to(manifestoWords, {
+        yPercent: -60,
+        rotationX: 30,
+        opacity: 0,
+        ease: 'none',
+        stagger: 0.012,
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom',
+          end: 'top 58%',
+          scrub: 0.7,
+        },
+      });
+
+      if (manifestoExit.scrollTrigger) {
+        scrollTriggersRef.current.push(manifestoExit.scrollTrigger);
+      }
+    }
+
     const worksTitleTl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
@@ -925,32 +1007,29 @@ export default function App() {
       },
     });
 
-    // Balanced placement: leave a little more air after the manifesto before
-    // the title enters, then clear it just before the spiral pin engages.
-    // With 13 chars in "some of my works",
-    // the stagger maths land:
-    //   reveal:  0.30  →  0.59
-    //   hold:    0.59  →  0.64
-    //   exit:    0.64  →  0.88
-    //   gone:    0.92
+    // Reveal only AFTER the manifesto exit has finished (it ends at
+    // 'top 58%' ≈ progress 0.42 on this same scrubbed window). Starting at
+    // 0.46 means the two never share the screen — so scrubbing in reverse
+    // (spiral → manifesto) hands off cleanly instead of colliding. The exit
+    // beat below is left exactly as-is.
     worksTitleTl
-      .set(worksTitle, { autoAlpha: 1 }, 0.30)
+      .set(worksTitle, { autoAlpha: 1 }, 0.46)
       .to(worksTitleChars, {
         yPercent: 0,
         rotationX: 0,
         opacity: 1,
-        ease: 'none',
-        stagger: 0.011,
-        duration: 0.16,
-      }, 0.30)
+        ease: 'power2.out',
+        stagger: 0.005,
+        duration: 0.1,
+      }, 0.46)
       .to(worksTitleChars, {
         yPercent: -115,
-        rotationX: 34,
+        rotationX: 24,
         opacity: 0,
-        ease: 'none',
-        stagger: 0.009,
-        duration: 0.13,
-      }, 0.64)
+        ease: 'power2.in',
+        stagger: 0.008,
+        duration: 0.14,
+      }, 0.76)
       .set(worksTitle, { autoAlpha: 0 }, 0.92);
 
     if (worksTitleTl.scrollTrigger) {
@@ -961,6 +1040,7 @@ export default function App() {
     const cardFinishProgress = isMobileViewport()
       ? 0.82 * MOBILE_SPIRAL_TIMING_REMAP
       : 0.80 * SPIRAL_TIMING_REMAP;
+
     const cardsTrigger = ScrollTrigger.create({
       trigger: section,
       start: 'top top',
@@ -974,19 +1054,27 @@ export default function App() {
       onEnter: () => gsap.set(cards, { willChange: 'transform, opacity' }),
       onEnterBack: () => gsap.set(cards, { willChange: 'transform, opacity' }),
       onLeave: () => gsap.set(cards, { willChange: 'auto' }),
-      onLeaveBack: () => gsap.set(cards, { willChange: 'auto' }),
+      onLeaveBack: () => {
+        gsap.set(cards, { willChange: 'auto' });
+      },
       onUpdate: (self) => {
         const cardProgress = clamp(self.progress / cardFinishProgress, 0, 1);
         placeCards(cardProgress);
 
-        const soundStep = clamp(Math.round(cardProgress * (total - 1)), 0, total - 1);
-        if (self.direction >= 0 && soundStep > spiralSoundStepRef.current) {
-          soundRef.current?.xylophoneStep(soundStep, total, 'up');
-          spiralSoundStepRef.current = soundStep;
-        } else if (self.direction < 0 && soundStep < spiralSoundStepRef.current) {
-          soundRef.current?.xylophoneStep(soundStep, total, 'down');
-          spiralSoundStepRef.current = soundStep;
+        // Fire the note on the card that is actually centred (set by
+        // placeCards), mapped to scroll-order so the pitch still rises as you
+        // scroll forward — desktop cards centre in reverse index order.
+        const seqStep = isMobileViewport()
+          ? spiralCentered.index
+          : (total - 1 - spiralCentered.index);
+        if (self.direction >= 0 && seqStep > spiralSoundStepRef.current) {
+          soundRef.current?.xylophoneStep(seqStep, total, 'up');
+          spiralSoundStepRef.current = seqStep;
+        } else if (self.direction < 0 && seqStep < spiralSoundStepRef.current) {
+          soundRef.current?.xylophoneStep(seqStep, total, 'down');
+          spiralSoundStepRef.current = seqStep;
         }
+
       },
     });
     scrollTriggersRef.current.push(cardsTrigger);
@@ -1011,7 +1099,7 @@ export default function App() {
     const pinTrigger = ScrollTrigger.create({
       trigger: intro,
       start: 'top top',
-      end: '+=60%',
+      end: '+=40%',
       pin: intro,
       pinSpacing: true,
     });
@@ -1022,11 +1110,15 @@ export default function App() {
   const setupExperienceCtaPhase = useCallback(() => {
     const section = spiralSectionRef.current;
     const cardsRoot = spiralCardsRef.current;
+    const captionsRoot = spiralCaptionsRef.current;
     const experienceCta = experienceCtaRef.current;
     const experienceLabel = experienceLabelRef.current;
+    const ctaHelper = ctaHelperRef.current;
     const lightPortal = lightPortalRef.current;
     const lightPortalGrid = lightPortalGridRef.current;
     const lightPortalRipple = lightPortalRippleRef.current;
+    const portalSelectedWork = portalSelectedWorkRef.current;
+    const chrome = caseChromeRef.current;
     const experienceFill = experienceCta?.querySelector<HTMLElement>('.experience-cta-fill');
     const experienceStroke = experienceCta?.querySelector<SVGPathElement>('.experience-cta-stroke');
     const experienceDot = experienceCta?.querySelector<HTMLElement>('.experience-cta-dot');
@@ -1034,11 +1126,15 @@ export default function App() {
     if (
       !section ||
       !cardsRoot ||
+      !captionsRoot ||
       !experienceCta ||
       !experienceLabel ||
+      !ctaHelper ||
       !lightPortal ||
       !lightPortalGrid ||
       !lightPortalRipple ||
+      !portalSelectedWork ||
+      !chrome ||
       !experienceFill ||
       !experienceStroke ||
       !experienceDot
@@ -1059,9 +1155,15 @@ export default function App() {
     gsap.set(experienceStroke, { drawSVG: '0% 0%' });
     gsap.set(experienceLabel, { autoAlpha: 0, textContent: '' });
     gsap.set(experienceDot, { autoAlpha: 0, scale: 0.35 });
+    gsap.set(ctaHelper, { autoAlpha: 0, y: 10 });
     gsap.set(lightPortal, { autoAlpha: 0 });
     gsap.set(lightPortalGrid, { autoAlpha: 0 });
     gsap.set(lightPortalRipple, { autoAlpha: 0 });
+    gsap.set(portalSelectedWork, { autoAlpha: 0, y: 28 });
+    // Real (clickable) chrome buttons are owned here now: they fade in with the
+    // portal reveal, stay put (no slide), and remain visible into the case
+    // flow. No decorative copy, no "rising from the bottom" hand-off.
+    gsap.set(chrome, { autoAlpha: 0, y: 0, pointerEvents: 'none' });
 
     let rippleDrawKey = '';
     const drawRippleGrid = (progress: number) => {
@@ -1222,13 +1324,25 @@ export default function App() {
           delimiter: '',
         },
       }, ctaContentProgress)
+      .to(ctaHelper, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.03,
+        ease: 'none',
+      }, ctaContentProgress + 0.02)
       .set(experienceCta, { pointerEvents: 'auto' }, ctaInteractiveProgress)
       .set(experienceCta, { pointerEvents: 'none' }, portalStartProgress)
-      .to(cardsRoot, {
+      .to([cardsRoot, captionsRoot], {
         autoAlpha: 0,
         duration: 0.06,
         ease: 'none',
       }, portalStartProgress - 0.05)
+      .to(ctaHelper, {
+        autoAlpha: 0,
+        y: -8,
+        duration: 0.035,
+        ease: 'none',
+      }, portalStartProgress - 0.015)
       .to(experienceLabel, {
         autoAlpha: 0,
         x: -34,
@@ -1280,6 +1394,18 @@ export default function App() {
         duration: 0.015,
         ease: 'none',
       }, portalStartProgress + 0.105)
+      .to(portalSelectedWork, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.055,
+        ease: 'none',
+      }, portalStartProgress + 0.108)
+      .to(chrome, {
+        autoAlpha: 1,
+        duration: 0.04,
+        ease: 'none',
+      }, portalStartProgress + 0.108)
+      .set(chrome, { pointerEvents: 'auto' }, portalStartProgress + 0.12)
       .to(experienceCta, {
         autoAlpha: 0,
         duration: 0.025,
@@ -1299,52 +1425,14 @@ export default function App() {
     if (!section || !chrome) return;
     if (caseFlowSetupRef.current) return;
     caseFlowSetupRef.current = true;
+    const reduceMotion = prefersReducedMotion();
 
-    gsap.set(chrome, {
-      autoAlpha: 0,
-      y: 10,
-    });
-    gsap.set(chrome, {
-      pointerEvents: 'none',
-    });
-
-    const setChromeActive = (active: boolean) => {
-      gsap.to(chrome, {
-        autoAlpha: active ? 1 : 0,
-        y: active ? 0 : 10,
-        duration: 0.22,
-        ease: 'power2.out',
-        overwrite: true,
-        onStart: () => {
-          if (active) {
-            gsap.set(chrome, { pointerEvents: 'auto' });
-          }
-        },
-        onComplete: () => {
-          if (!active) {
-            gsap.set(chrome, { pointerEvents: 'none' });
-          }
-        },
-      });
-    };
-
+    // Chrome visibility is owned by the experience-CTA timeline (it fades in
+    // with the portal reveal and stays sticky). Here we only handle the exit
+    // as the footer arrives.
     const footer = section.querySelector<HTMLElement>('.case-footer-landing');
 
-    const progressTrigger = ScrollTrigger.create({
-      trigger: section,
-      start: () => isMobileViewport() ? 'top 94%' : 'top 86%',
-      endTrigger: footer ?? section,
-      end: () => footer
-        ? (isMobileViewport() ? 'top 96%' : 'top 78%')
-        : 'bottom bottom',
-      onEnter: () => setChromeActive(true),
-      onEnterBack: () => setChromeActive(true),
-      onLeave: () => setChromeActive(false),
-      onLeaveBack: () => setChromeActive(false),
-    });
-    scrollTriggersRef.current.push(progressTrigger);
-
-    if (prefersReducedMotion()) return;
+    if (reduceMotion) return;
     const mobile = isMobileViewport();
 
     const cards = Array.from(section.querySelectorAll<HTMLElement>('.case-card'));
@@ -1564,9 +1652,67 @@ export default function App() {
           <SpiralCards innerRef={spiralCardsRef} />
         </div>
 
+        <div className="spiral-captions" ref={spiralCaptionsRef} aria-hidden="true">
+          {spiralCaptions.map((caption, index) => (
+            <figure className="spiral-caption" data-side={caption.side} data-index={index} key={caption.kicker}>
+              <span className="spiral-caption-kicker">{caption.kicker}</span>
+              <p className="spiral-caption-line">{caption.line}</p>
+            </figure>
+          ))}
+        </div>
+
         <div className="light-portal" ref={lightPortalRef} aria-hidden="true">
           <div className="light-portal-grid" ref={lightPortalGridRef} />
           <canvas className="light-portal-ripple" ref={lightPortalRippleRef} />
+          <div className="portal-selected-work" ref={portalSelectedWorkRef}>
+            <div className="portal-work-contact-hint">
+              <span>work / contact</span>
+              <svg className="helper-arrow helper-arrow-upright" viewBox="0 0 96 56" fill="none" aria-hidden="true">
+                <path
+                  className="helper-arrow-shaft"
+                  d="M6 50 C 34 50, 58 44, 86 16"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+                <path
+                  className="helper-arrow-head"
+                  d="M72 12 L 88 12 L 88 28"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
+            </div>
+
+            <div className="portal-selected-work-copy">
+              <span className="portal-selected-kicker">selected work</span>
+              <h2>selected work</h2>
+              <p>Scroll through a few selected case studies, or jump to work and contact above.</p>
+              <svg className="helper-arrow helper-arrow-down" viewBox="0 0 40 72" fill="none" aria-hidden="true">
+                <path
+                  className="helper-arrow-shaft"
+                  d="M20 6 L 20 56"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+                <path
+                  className="helper-arrow-head"
+                  d="M8 44 L 20 62 L 32 44"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
+            </div>
+          </div>
         </div>
 
         <a
@@ -1592,6 +1738,29 @@ export default function App() {
           </span>
           <span className="experience-cta-dot" aria-hidden="true" />
         </a>
+
+        <div className="cta-helper" ref={ctaHelperRef} aria-hidden="true">
+          <svg className="helper-arrow helper-arrow-up" viewBox="0 0 80 64" fill="none" aria-hidden="true">
+            <path
+              className="helper-arrow-shaft"
+              d="M40 60 C 40 42, 30 30, 38 14"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+            />
+            <path
+              className="helper-arrow-head"
+              d="M30 22 L 38 10 L 48 19"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+            />
+          </svg>
+          <p>opens a live UI gallery in a new tab — keep scrolling for the full portfolio, then come back here for more.</p>
+        </div>
       </section>
 
       <CaseStudyFlow
