@@ -81,7 +81,7 @@
 .cs-topbar-tag { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
 
 /* ===== Layout ============================================================= */
-.cs-section { position: relative; overflow: hidden; padding: clamp(72px, 13vh, 184px) 0; }
+.cs-section { position: relative; overflow: hidden; padding: clamp(84px, 13vh, 184px) 0; }
 .cs-hero { padding-top: clamp(60px, 10vh, 132px); }
 .cs-inner {
   position: relative; z-index: 1;
@@ -344,7 +344,11 @@
    =========================================================================== */
 
 /* Generic card grid (title + copy). Use cs-cards-2 / cs-cards-2 for columns. */
-.cs-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 8px; }
+.cs-cards {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 1.8vw, 28px);
+  margin: clamp(26px, 3vw, 44px) 0 clamp(48px, 5.4vw, 84px);
+}
 .cs-cards-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .cs-cards-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .cs-card {
@@ -358,20 +362,20 @@
 .cs-card .cs-label { margin-bottom: 12px; color: var(--faint); }
 
 /* Stat / metric grid (big numeral + label). */
-.cs-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: clamp(28px, 4vw, 44px) 0; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--line); }
+.cs-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: clamp(36px, 4.4vw, 60px) 0 clamp(48px, 5.4vw, 84px); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--line); }
 .cs-stat { background: var(--card); padding: 26px; display: flex; flex-direction: column; gap: 10px; }
 .cs-stat strong { font-size: clamp(2.4rem, 4vw, 3.6rem); font-weight: 600; line-height: 0.95; letter-spacing: -0.045em; color: var(--blue); font-variant-numeric: tabular-nums; }
 .cs-stat span { font-size: 0.92rem; line-height: 1.45; color: var(--muted); }
 
 /* Callout — soft blue, left rule. */
-.cs-callout { margin: 30px 0; padding: 24px 28px; border-left: 3px solid var(--blue); border-radius: 0 14px 14px 0; background: linear-gradient(120deg, #eef4ff, #ffffff); max-width: 880px; }
+.cs-callout { margin: clamp(38px, 4vw, 64px) 0 clamp(44px, 5vw, 76px); padding: 24px 28px; border-left: 3px solid var(--blue); border-radius: 0 14px 14px 0; background: linear-gradient(120deg, #eef4ff, #ffffff); max-width: 880px; }
 .cs-callout p { margin: 0; color: var(--blue); font-size: clamp(1.25rem, 2vw, 1.75rem); font-weight: 500; line-height: 1.4; letter-spacing: -0.025em; max-width: none; }
 
 /* Pull-quote. */
-.cs-quote { margin: 38px 0; padding-left: 26px; border-left: 3px solid var(--blue); max-width: 900px; font-size: clamp(1.5rem, 2.6vw, 2.4rem); font-weight: 500; line-height: 1.32; letter-spacing: -0.03em; color: var(--ink); }
+.cs-quote { margin: clamp(46px, 5vw, 78px) 0; padding-left: 26px; border-left: 3px solid var(--blue); max-width: 900px; font-size: clamp(1.5rem, 2.6vw, 2.4rem); font-weight: 500; line-height: 1.32; letter-spacing: -0.03em; color: var(--ink); }
 
 /* Table (set --cols inline, e.g. style={{['--cols']:'2fr 1fr 1fr 1.3fr'}}). */
-.cs-table { margin: 26px 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--card); box-shadow: var(--shadow); }
+.cs-table { margin: clamp(38px, 4.5vw, 68px) 0 clamp(46px, 5.4vw, 84px); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--card); box-shadow: var(--shadow); }
 .cs-trow { display: grid; grid-template-columns: var(--cols, repeat(4, 1fr)); border-top: 1px solid var(--line-soft); }
 .cs-trow:first-child { border-top: 0; }
 .cs-trow > span { padding: 15px 18px; font-size: 0.92rem; color: var(--body); border-right: 1px solid var(--line-soft); }
@@ -381,13 +385,17 @@
 .cs-trow .cs-cell-accent { color: var(--blue); font-weight: 600; }
 
 /* Chips + check tiles. */
-.cs-chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0; }
+.cs-chips { display: flex; flex-wrap: wrap; gap: 10px; margin: clamp(28px, 3vw, 44px) 0 clamp(38px, 4vw, 60px); }
 .cs-chips span { padding: 9px 15px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font-size: 0.9rem; color: var(--ink); box-shadow: 0 2px 6px rgba(20,24,32,0.03); }
-.cs-checks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 24px 0; }
+.cs-checks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: clamp(34px, 4vw, 58px) 0 clamp(44px, 5vw, 74px); }
 .cs-checks span { padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-size: 0.92rem; color: var(--ink); }
 
 /* Flow steps (label + copy). cs-flow-4 / cs-flow-5 set columns. */
-.cs-flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 26px 0; }
+.cs-flow {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(14px, 1.6vw, 22px);
+  margin: clamp(34px, 4vw, 58px) 0 clamp(50px, 5.8vw, 88px);
+}
 .cs-flow-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .cs-flow-step { position: relative; padding: 20px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
 .cs-flow-step b { display: block; color: var(--blue); font-weight: 600; margin-bottom: 8px; letter-spacing: -0.01em; }
@@ -395,25 +403,25 @@
 .cs-flow-step span { display: block; color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
 
 /* Two-column label → description list (guidelines / mappings). */
-.cs-deflist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
+.cs-deflist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(14px, 1.5vw, 22px); margin: clamp(34px, 4vw, 58px) 0 clamp(46px, 5vw, 78px); }
 .cs-def { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; padding: 18px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); align-items: start; }
 .cs-def b { color: var(--blue); font-size: 0.94rem; }
 .cs-def span { color: var(--muted); font-size: 0.94rem; line-height: 1.55; }
 
 /* Palette / swatches. */
-.cs-palette { margin: 26px 0; padding: 22px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; }
+.cs-palette { margin: clamp(36px, 4vw, 60px) 0 clamp(48px, 5.4vw, 84px); padding: 22px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; }
 .cs-swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
 .cs-swatches span { height: 58px; border-radius: 9px; display: block; box-shadow: 0 0 0 1px rgba(16,23,33,0.06) inset; }
 .cs-sentiment { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .cs-sentiment span { padding: 12px; border-radius: 9px; border: 1px solid var(--line); background: var(--card); text-align: center; font-weight: 600; font-size: 0.85rem; }
 
 /* Light code block. */
-.cs-code { margin: 24px 0; border-radius: var(--radius); border: 1px solid var(--line); background: var(--paper-2); overflow: auto; }
+.cs-code { margin: clamp(36px, 4vw, 60px) 0 clamp(48px, 5.4vw, 84px); border-radius: var(--radius); border: 1px solid var(--line); background: var(--paper-2); overflow: auto; }
 .cs-code pre { margin: 0; padding: 24px; font-family: 'SFMono-Regular', ui-monospace, 'JetBrains Mono', monospace; font-size: 0.86rem; line-height: 1.7; color: var(--ink); }
 .cs-code pre .cs-tok { color: var(--blue); }
 
 /* Figure / image placeholder (assets not shipped). */
-.cs-figure { margin: 34px 0; }
+.cs-figure { margin: clamp(40px, 4.6vw, 70px) 0 clamp(50px, 5.8vw, 90px); }
 .cs-figure-ph {
   display: grid; place-items: center; min-height: clamp(220px, 34vw, 420px);
   border-radius: var(--radius); border: 1px dashed var(--line); background:
@@ -424,12 +432,46 @@
 .cs-figure figcaption { margin-top: 10px; font-family: 'SFMono-Regular', ui-monospace, monospace; font-size: 0.74rem; color: var(--faint); }
 
 /* Outcome — soft blue feature panel. */
-.cs-outcome { margin: 36px 0; padding: clamp(28px, 4vw, 52px); border-radius: var(--radius); background: linear-gradient(150deg, #eaf2ff, #f7faff); border: 1px solid rgba(10,92,255,0.22); box-shadow: var(--shadow); }
+.cs-outcome { margin: clamp(46px, 5vw, 78px) 0; padding: clamp(28px, 4vw, 52px); border-radius: var(--radius); background: linear-gradient(150deg, #eaf2ff, #f7faff); border: 1px solid rgba(10,92,255,0.22); box-shadow: var(--shadow); }
 .cs-outcome h3 { font-size: clamp(1.6rem, 3vw, 2.4rem); margin: 0 0 14px; letter-spacing: -0.03em; }
 .cs-outcome p { color: var(--body); max-width: 70ch; }
 
 /* Two-up audience/list panels. */
 .cs-list-panel ul { margin: 8px 0 0; padding-left: 18px; color: var(--body); font-size: 0.98rem; line-height: 1.7; }
+
+/* Content rhythm guardrails.
+   Staggered reveals briefly travel downward, so headings that follow dense
+   grids/tables need a little extra breathing room while the animation settles. */
+.cs-inner > :is(
+  .cs-cards,
+  .cs-flow,
+  .cs-table,
+  .cs-code,
+  .cs-figure,
+  .cs-deflist,
+  .cs-palette,
+  .cs-checks,
+  .cs-stat-grid,
+  .cs-callout,
+  .cs-quote,
+  .cs-outcome
+) + :is(h3, .cs-eyebrow) {
+  margin-top: clamp(48px, 6vw, 96px);
+}
+
+.cs-inner > :is(h3, .cs-eyebrow, .cs-lede, p) + :is(
+  .cs-cards,
+  .cs-flow,
+  .cs-table,
+  .cs-code,
+  .cs-figure,
+  .cs-deflist,
+  .cs-palette,
+  .cs-checks,
+  .cs-stat-grid
+) {
+  margin-top: clamp(30px, 3.6vw, 56px);
+}
 
 @media (max-width: 960px) {
   .cs-cards, .cs-cards-4 { grid-template-columns: repeat(2, 1fr); }
@@ -444,6 +486,21 @@
   .cs-stat-grid { grid-template-columns: 1fr; }
   .cs-swatches { grid-template-columns: repeat(3, 1fr); }
   .cs-def { grid-template-columns: 1fr; gap: 6px; }
+  .cs-section { padding: 72px 0; }
+  .cs-cards,
+  .cs-flow,
+  .cs-table,
+  .cs-code,
+  .cs-figure,
+  .cs-deflist,
+  .cs-palette,
+  .cs-checks,
+  .cs-stat-grid,
+  .cs-callout,
+  .cs-outcome {
+    margin-top: 28px;
+    margin-bottom: 48px;
+  }
 }
 
 /* ===== Works index ======================================================== */

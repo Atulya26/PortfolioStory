@@ -113,12 +113,12 @@ export function useCaseStudyMotion(rootRef: React.RefObject<HTMLElement | null>)
     gsap.utils.toArray<HTMLElement>('[data-stagger]').forEach((group) => {
       const items = gsap.utils.toArray<HTMLElement>('[data-rise]', group);
       items.forEach((i) => claimed.add(i));
-      gsap.from(items, { y: 54, autoAlpha: 0, scale: 0.985, duration: 0.9, ease: 'power3.out', stagger: 0.085, scrollTrigger: { trigger: group, start: 'top 82%' } });
+      gsap.from(items, { y: 34, autoAlpha: 0, scale: 0.992, duration: 0.82, ease: 'power3.out', stagger: 0.075, scrollTrigger: { trigger: group, start: 'top 86%' } });
     });
 
     gsap.utils.toArray<HTMLElement>('[data-rise]').forEach((el) => {
       if (claimed.has(el)) return;
-      gsap.from(el, { y: 44, autoAlpha: 0, duration: 0.85, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 86%' } });
+      gsap.from(el, { y: 30, autoAlpha: 0, duration: 0.78, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%' } });
     });
 
     gsap.utils.toArray<HTMLElement>('[data-parallax]').forEach((el) => {
