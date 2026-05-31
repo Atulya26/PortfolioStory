@@ -1,0 +1,469 @@
+/* ===========================================================================
+   CASE STUDY — light, editorial, big-bold. Built to feel hand-set: large type,
+   generous rhythm, a faint blueprint grid, white cards on warm paper, and a
+   GSAP motion layer (masked headings, mass-rise stagger, depth parallax).
+   =========================================================================== */
+
+.cs-root {
+  --paper: #f4f3ee;
+  --paper-2: #efeee8;
+  --ink: #0a0b0d;
+  --body: rgba(11, 13, 16, 0.66);
+  --muted: rgba(11, 13, 16, 0.46);
+  --faint: rgba(11, 13, 16, 0.30);
+  --line: rgba(16, 23, 33, 0.10);
+  --line-soft: rgba(16, 23, 33, 0.06);
+  --card: #ffffff;
+  --blue: #0a5cff;
+  --blue-soft: #2f7bff;
+  --radius: 20px;
+  --shadow: 0 18px 50px rgba(20, 24, 32, 0.07), 0 2px 6px rgba(20, 24, 32, 0.04);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  color: var(--ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1, 'ss01' 1, 'ss03' 1, 'cv11' 1;
+  background: var(--paper);
+  overflow-x: hidden;
+}
+
+/* Faint blueprint grid, masked top-down. */
+.cs-root::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(16, 23, 33, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 23, 33, 0.045) 1px, transparent 1px);
+  background-size: 76px 76px;
+  background-position: center top;
+  -webkit-mask-image: radial-gradient(120% 80% at 50% 0%, #000 36%, transparent 92%);
+  mask-image: radial-gradient(120% 80% at 50% 0%, #000 36%, transparent 92%);
+}
+
+/* ===== Scroll progress ==================================================== */
+.cs-progress {
+  position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 60;
+  background: rgba(16, 23, 33, 0.06);
+}
+.cs-progress span {
+  display: block; height: 100%;
+  transform: scaleX(0); transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--blue), var(--blue-soft));
+  will-change: transform;
+}
+
+/* ===== Top bar ============================================================ */
+.cs-topbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px clamp(20px, 5vw, 72px);
+  background: rgba(244, 243, 238, 0.72);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line-soft);
+}
+.cs-back {
+  display: inline-flex; align-items: center; gap: 9px;
+  color: var(--ink); text-decoration: none;
+  font-size: 0.92rem; font-weight: 560; letter-spacing: -0.01em;
+  padding: 9px 16px 9px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--card);
+  box-shadow: 0 2px 8px rgba(20, 24, 32, 0.04);
+  transition: transform 420ms var(--ease), box-shadow 420ms var(--ease);
+}
+.cs-back:hover { transform: translateX(-3px); box-shadow: 0 8px 22px rgba(20, 24, 32, 0.1); }
+.cs-back-arrow { font-size: 1.05rem; line-height: 1; }
+.cs-topbar-tag { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
+
+/* ===== Layout ============================================================= */
+.cs-section { position: relative; overflow: hidden; padding: clamp(72px, 13vh, 184px) 0; }
+.cs-hero { padding-top: clamp(60px, 10vh, 132px); }
+.cs-inner {
+  position: relative; z-index: 1;
+  width: min(1200px, 92vw); margin: 0 auto;
+  padding: 0 clamp(4px, 2vw, 16px);
+}
+.cs-split {
+  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(36px, 6vw, 96px); align-items: start;
+}
+.cs-copy { max-width: 620px; }
+
+/* Big ghost section numerals drifting behind the heading. */
+.cs-ghost {
+  position: absolute; top: clamp(-0.18em, -2vw, -0.05em); right: 3%;
+  z-index: 0; pointer-events: none; user-select: none;
+  font-size: clamp(9rem, 24vw, 24rem); font-weight: 700;
+  line-height: 0.78; letter-spacing: -0.06em;
+  color: rgba(11, 13, 16, 0.035);
+  will-change: transform;
+}
+
+/* ===== Type =============================================================== */
+.cs-eyebrow {
+  margin: 0 0 22px;
+  font-size: 0.76rem; font-weight: 620; letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--blue);
+}
+.cs-eyebrow-accent { color: var(--blue); }
+.cs-eyebrow-muted { color: var(--faint); }
+
+.cs-h { margin: 0 0 22px; overflow: hidden; padding-bottom: 0.16em; }
+.cs-h-inner { display: inline-block; will-change: transform; }
+.cs-hero .cs-h {
+  font-size: clamp(3.2rem, 8.4vw, 8.8rem);
+  font-weight: 600; line-height: 0.93; letter-spacing: -0.055em;
+}
+.cs-section .cs-h {
+  font-size: clamp(2.3rem, 5.4vw, 5rem);
+  font-weight: 600; line-height: 0.98; letter-spacing: -0.05em;
+  max-width: 20ch;
+}
+.cs-head-stat { color: var(--blue); }
+
+.cs-section h3 {
+  margin: 0 0 9px; font-size: clamp(1.12rem, 1.45vw, 1.45rem);
+  font-weight: 600; letter-spacing: -0.025em; color: var(--ink);
+}
+
+.cs-lede {
+  margin: 0 0 20px; max-width: 60ch;
+  font-size: clamp(1.18rem, 1.9vw, 1.85rem);
+  font-weight: 420; line-height: 1.32; letter-spacing: -0.025em;
+  color: rgba(11, 13, 16, 0.82);
+}
+.cs-hero-lede { max-width: 40ch; }
+.cs-section p {
+  margin: 0 0 16px; max-width: 64ch;
+  font-size: 1.04rem; line-height: 1.62; color: var(--body);
+}
+.cs-section code {
+  font-family: 'SFMono-Regular', ui-monospace, 'JetBrains Mono', monospace;
+  font-size: 0.84em; padding: 0.12em 0.4em; border-radius: 6px;
+  background: rgba(10, 92, 255, 0.09); color: var(--blue);
+}
+.cs-label {
+  display: block; font-size: 0.7rem; font-weight: 640;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+}
+
+/* ===== Meta + KPI ========================================================= */
+.cs-meta-grid {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px;
+  margin: clamp(40px, 6vw, 64px) 0; border: 1px solid var(--line);
+  border-radius: 16px; overflow: hidden; background: var(--line);
+}
+.cs-meta-item { display: flex; flex-direction: column; gap: 12px; padding: 24px clamp(18px, 1.6vw, 28px); background: var(--card); }
+.cs-meta-value { font-size: 1.08rem; font-weight: 600; letter-spacing: -0.02em; }
+
+.cs-kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 8px; }
+.cs-kpi-card {
+  display: flex; flex-direction: column; justify-content: space-between; gap: 28px;
+  min-height: 200px; padding: 26px;
+  border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--card); box-shadow: var(--shadow);
+}
+.cs-kpi-feature {
+  background: linear-gradient(165deg, #ffffff, #eef4ff);
+  border-color: rgba(10, 92, 255, 0.22);
+}
+.cs-kpi-value {
+  font-size: clamp(2.6rem, 4.4vw, 4.2rem); font-weight: 600;
+  letter-spacing: -0.045em; line-height: 0.96; font-variant-numeric: tabular-nums;
+}
+.cs-kpi-range { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.cs-kpi-range span:first-child { color: var(--muted); }
+.cs-kpi-range strong { color: var(--blue); font-weight: 600; }
+.cs-range-sep { color: var(--faint); font-size: 0.66em; }
+.cs-kpi-hint { margin: 16px 0 0; font-size: 0.88rem; line-height: 1.45; color: var(--muted); }
+
+/* ===== Panels ============================================================= */
+.cs-panel {
+  padding: clamp(24px, 2.6vw, 38px); border-radius: var(--radius);
+  border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow);
+}
+.cs-panel-header { margin-bottom: 20px; }
+.cs-panel-title .cs-label { margin-bottom: 9px; }
+
+.cs-ledger-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 20px; }
+.cs-ledger-hero, .cs-ledger-stat {
+  display: flex; flex-direction: column; gap: 12px; padding: 20px;
+  border-radius: 14px; border: 1px solid var(--line-soft); background: var(--paper);
+}
+.cs-ledger-hero {
+  grid-column: 1 / -1;
+  background: linear-gradient(160deg, #eef4ff, #ffffff);
+  border-color: rgba(10, 92, 255, 0.22);
+}
+.cs-ledger-hero .cs-kpi-value { color: var(--blue); }
+
+.cs-chart-summary {
+  margin: 20px 0 0; padding-top: 18px; border-top: 1px solid var(--line-soft);
+  font-size: 0.94rem; line-height: 1.5; color: var(--muted); max-width: none;
+}
+
+/* ===== Charts ============================================================= */
+.cs-chart { width: 100%; height: 420px; }
+.cs-chart-tall { height: 540px; }
+.cs-chart-short { height: 340px; }
+
+/* ===== Audit cards ======================================================== */
+.cs-audit-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+.cs-audit-card { padding: 30px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
+.cs-audit-card .cs-label { margin-bottom: 16px; }
+.cs-audit-number {
+  font-size: clamp(3.4rem, 7vw, 6.5rem); font-weight: 600;
+  letter-spacing: -0.05em; line-height: 0.92; margin-bottom: 16px; color: var(--blue);
+  font-variant-numeric: tabular-nums;
+}
+.cs-audit-card p { margin: 0; }
+
+/* ===== Method list ======================================================== */
+.cs-method-list { display: flex; flex-direction: column; }
+.cs-method-item {
+  display: grid; grid-template-columns: 72px 1fr; gap: clamp(18px, 3vw, 44px);
+  padding: 26px 0; border-top: 1px solid var(--line-soft);
+}
+.cs-method-item:first-child { border-top: 0; }
+.cs-method-index {
+  font-size: 1.06rem; font-weight: 600; letter-spacing: 0.02em;
+  color: var(--blue); font-variant-numeric: tabular-nums;
+}
+.cs-method-item p { margin: 0; }
+
+/* ===== Benchmark table ==================================================== */
+.cs-benchmark { margin-top: 8px; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--card); box-shadow: var(--shadow); }
+.cs-bench-row {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1.1fr;
+  align-items: center; gap: 12px; padding: 17px clamp(18px, 2vw, 28px);
+  border-top: 1px solid var(--line-soft); font-size: 0.92rem; color: var(--body);
+}
+.cs-bench-row > div:first-child { color: var(--ink); font-weight: 500; }
+.cs-bench-head {
+  border-top: 0; background: rgba(16, 23, 33, 0.025);
+  font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+}
+.cs-bench-head > div:first-child { color: var(--muted); font-weight: 600; }
+.cs-bench-mds { color: var(--blue) !important; font-weight: 600; }
+.cs-bench-win { color: var(--ink); font-weight: 600; }
+
+/* ===== Architecture + Design grids ======================================= */
+.cs-architecture-grid, .cs-design-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 8px;
+}
+.cs-architecture-card, .cs-design-change {
+  display: flex; flex-direction: column; justify-content: space-between; gap: 24px;
+  padding: 26px; border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--card); box-shadow: var(--shadow);
+  transition: border-color 420ms var(--ease), box-shadow 420ms var(--ease), transform 420ms var(--ease);
+}
+.cs-architecture-card:hover, .cs-design-change:hover {
+  border-color: rgba(10, 92, 255, 0.3); transform: translateY(-4px);
+  box-shadow: 0 26px 60px rgba(20, 24, 32, 0.12);
+}
+.cs-architecture-card .cs-label, .cs-design-change .cs-label { margin-bottom: 14px; color: var(--faint); }
+.cs-architecture-card p, .cs-design-change p { margin: 0; }
+.cs-code-chip {
+  align-self: flex-start;
+  font-family: 'SFMono-Regular', ui-monospace, monospace; font-size: 0.74rem; letter-spacing: -0.01em;
+  color: var(--blue); padding: 7px 12px; border-radius: 9px;
+  border: 1px solid rgba(10, 92, 255, 0.2); background: rgba(10, 92, 255, 0.07);
+}
+
+/* ===== Verification ======================================================= */
+.cs-verify-panel { display: flex; flex-direction: column; }
+.cs-verify-stat { margin: 14px 0; }
+.cs-verify-stat .cs-kpi-value { font-size: clamp(5rem, 10vw, 9rem); color: var(--blue); line-height: 0.9; }
+
+/* ===== Impact band — a calm tinted moment, still light ==================== */
+.cs-impact-band {
+  background:
+    radial-gradient(90% 120% at 50% 0%, rgba(10, 92, 255, 0.07), transparent 56%),
+    var(--paper-2);
+  border-block: 1px solid var(--line-soft);
+}
+
+/* ===== Cross-product ====================================================== */
+.cs-cross-detail { margin-top: 24px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }
+.cs-top-fixes { list-style: none; margin: 0; padding: 0; }
+.cs-top-fixes li {
+  display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 16px;
+  padding: 16px 0; border-top: 1px solid var(--line-soft); font-size: 0.96rem; color: var(--body);
+}
+.cs-top-fixes li:first-child { border-top: 0; }
+.cs-top-fixes .cs-rank { font-size: 0.84rem; font-weight: 600; color: var(--faint); font-variant-numeric: tabular-nums; }
+.cs-top-fixes .cs-resolved { font-size: 1.1rem; font-weight: 600; color: var(--blue); font-variant-numeric: tabular-nums; }
+
+/* ===== Notes / limits ===================================================== */
+.cs-limits-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 8px; }
+.cs-limit-card { padding: 26px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
+.cs-limit-card .cs-label { margin-bottom: 13px; }
+.cs-limit-card p { margin: 0; color: var(--body); }
+.cs-limit-card strong { color: var(--ink); font-weight: 600; }
+
+/* ===== Footer ============================================================= */
+.cs-footer { padding: 44px 0 72px; border-top: 1px solid var(--line-soft); }
+.cs-footer-grid { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.cs-footer p { margin: 0; font-size: 0.86rem; color: var(--muted); }
+.cs-back-link { color: var(--blue); font-size: 0.92rem; font-weight: 560; background: none; border: 0; padding: 0; cursor: pointer; }
+.cs-back-link:hover { text-decoration: underline; }
+
+/* ===== Responsive ========================================================= */
+@media (max-width: 960px) {
+  .cs-split { grid-template-columns: 1fr; }
+  .cs-meta-grid { grid-template-columns: repeat(2, 1fr); }
+  .cs-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .cs-audit-cards { grid-template-columns: 1fr; }
+  .cs-architecture-grid, .cs-design-grid { grid-template-columns: repeat(2, 1fr); }
+  .cs-cross-detail { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .cs-kpi-grid, .cs-architecture-grid, .cs-design-grid, .cs-limits-grid { grid-template-columns: 1fr; }
+  .cs-section .cs-h { max-width: none; }
+  .cs-bench-row { grid-template-columns: 1fr; gap: 4px; }
+  .cs-bench-head { display: none; }
+  .cs-bench-row > div:first-child { font-weight: 600; margin-bottom: 6px; font-size: 1rem; }
+  .cs-chart-tall { height: 460px; }
+  .cs-method-item { grid-template-columns: 54px 1fr; gap: 16px; }
+  .cs-ghost { font-size: 38vw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs-progress { display: none; }
+  .cs-h-inner { transform: none !important; }
+}
+
+/* ===========================================================================
+   SHARED CONTENT BLOCKS — reusable across every case study. Reinterpret any
+   source layout into these primitives so the whole set stays consistent.
+   =========================================================================== */
+
+/* Generic card grid (title + copy). Use cs-cards-2 / cs-cards-2 for columns. */
+.cs-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 8px; }
+.cs-cards-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cs-cards-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.cs-card {
+  padding: 26px; border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--card); box-shadow: var(--shadow);
+  transition: border-color 420ms var(--ease), transform 420ms var(--ease), box-shadow 420ms var(--ease);
+}
+.cs-card:hover { border-color: rgba(10, 92, 255, 0.28); transform: translateY(-4px); box-shadow: 0 26px 60px rgba(20, 24, 32, 0.12); }
+.cs-card h3 { margin: 0 0 10px; }
+.cs-card p { margin: 0; font-size: 0.98rem; }
+.cs-card .cs-label { margin-bottom: 12px; color: var(--faint); }
+
+/* Stat / metric grid (big numeral + label). */
+.cs-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: clamp(28px, 4vw, 44px) 0; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--line); }
+.cs-stat { background: var(--card); padding: 26px; display: flex; flex-direction: column; gap: 10px; }
+.cs-stat strong { font-size: clamp(2.4rem, 4vw, 3.6rem); font-weight: 600; line-height: 0.95; letter-spacing: -0.045em; color: var(--blue); font-variant-numeric: tabular-nums; }
+.cs-stat span { font-size: 0.92rem; line-height: 1.45; color: var(--muted); }
+
+/* Callout — soft blue, left rule. */
+.cs-callout { margin: 30px 0; padding: 24px 28px; border-left: 3px solid var(--blue); border-radius: 0 14px 14px 0; background: linear-gradient(120deg, #eef4ff, #ffffff); max-width: 880px; }
+.cs-callout p { margin: 0; color: var(--blue); font-size: clamp(1.25rem, 2vw, 1.75rem); font-weight: 500; line-height: 1.4; letter-spacing: -0.025em; max-width: none; }
+
+/* Pull-quote. */
+.cs-quote { margin: 38px 0; padding-left: 26px; border-left: 3px solid var(--blue); max-width: 900px; font-size: clamp(1.5rem, 2.6vw, 2.4rem); font-weight: 500; line-height: 1.32; letter-spacing: -0.03em; color: var(--ink); }
+
+/* Table (set --cols inline, e.g. style={{['--cols']:'2fr 1fr 1fr 1.3fr'}}). */
+.cs-table { margin: 26px 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--card); box-shadow: var(--shadow); }
+.cs-trow { display: grid; grid-template-columns: var(--cols, repeat(4, 1fr)); border-top: 1px solid var(--line-soft); }
+.cs-trow:first-child { border-top: 0; }
+.cs-trow > span { padding: 15px 18px; font-size: 0.92rem; color: var(--body); border-right: 1px solid var(--line-soft); }
+.cs-trow > span:last-child { border-right: 0; }
+.cs-trow.cs-thead > span { background: rgba(16, 23, 33, 0.025); color: var(--muted); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; }
+.cs-trow > span:first-child { color: var(--ink); font-weight: 500; }
+.cs-trow .cs-cell-accent { color: var(--blue); font-weight: 600; }
+
+/* Chips + check tiles. */
+.cs-chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0; }
+.cs-chips span { padding: 9px 15px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font-size: 0.9rem; color: var(--ink); box-shadow: 0 2px 6px rgba(20,24,32,0.03); }
+.cs-checks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 24px 0; }
+.cs-checks span { padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-size: 0.92rem; color: var(--ink); }
+
+/* Flow steps (label + copy). cs-flow-4 / cs-flow-5 set columns. */
+.cs-flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 26px 0; }
+.cs-flow-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.cs-flow-step { position: relative; padding: 20px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
+.cs-flow-step b { display: block; color: var(--blue); font-weight: 600; margin-bottom: 8px; letter-spacing: -0.01em; }
+.cs-flow-step i { display: block; font-style: normal; font-family: 'SFMono-Regular', ui-monospace, monospace; font-size: 0.74rem; color: var(--faint); margin-bottom: 8px; }
+.cs-flow-step span { display: block; color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+
+/* Two-column label → description list (guidelines / mappings). */
+.cs-deflist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
+.cs-def { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; padding: 18px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); align-items: start; }
+.cs-def b { color: var(--blue); font-size: 0.94rem; }
+.cs-def span { color: var(--muted); font-size: 0.94rem; line-height: 1.55; }
+
+/* Palette / swatches. */
+.cs-palette { margin: 26px 0; padding: 22px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; }
+.cs-swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.cs-swatches span { height: 58px; border-radius: 9px; display: block; box-shadow: 0 0 0 1px rgba(16,23,33,0.06) inset; }
+.cs-sentiment { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cs-sentiment span { padding: 12px; border-radius: 9px; border: 1px solid var(--line); background: var(--card); text-align: center; font-weight: 600; font-size: 0.85rem; }
+
+/* Light code block. */
+.cs-code { margin: 24px 0; border-radius: var(--radius); border: 1px solid var(--line); background: var(--paper-2); overflow: auto; }
+.cs-code pre { margin: 0; padding: 24px; font-family: 'SFMono-Regular', ui-monospace, 'JetBrains Mono', monospace; font-size: 0.86rem; line-height: 1.7; color: var(--ink); }
+.cs-code pre .cs-tok { color: var(--blue); }
+
+/* Figure / image placeholder (assets not shipped). */
+.cs-figure { margin: 34px 0; }
+.cs-figure-ph {
+  display: grid; place-items: center; min-height: clamp(220px, 34vw, 420px);
+  border-radius: var(--radius); border: 1px dashed var(--line); background:
+    repeating-linear-gradient(135deg, rgba(16,23,33,0.018) 0 14px, transparent 14px 28px), var(--paper-2);
+  color: var(--faint); text-align: center; padding: 24px;
+}
+.cs-figure-ph span { font-family: 'SFMono-Regular', ui-monospace, monospace; font-size: 0.8rem; max-width: 40ch; }
+.cs-figure figcaption { margin-top: 10px; font-family: 'SFMono-Regular', ui-monospace, monospace; font-size: 0.74rem; color: var(--faint); }
+
+/* Outcome — soft blue feature panel. */
+.cs-outcome { margin: 36px 0; padding: clamp(28px, 4vw, 52px); border-radius: var(--radius); background: linear-gradient(150deg, #eaf2ff, #f7faff); border: 1px solid rgba(10,92,255,0.22); box-shadow: var(--shadow); }
+.cs-outcome h3 { font-size: clamp(1.6rem, 3vw, 2.4rem); margin: 0 0 14px; letter-spacing: -0.03em; }
+.cs-outcome p { color: var(--body); max-width: 70ch; }
+
+/* Two-up audience/list panels. */
+.cs-list-panel ul { margin: 8px 0 0; padding-left: 18px; color: var(--body); font-size: 0.98rem; line-height: 1.7; }
+
+@media (max-width: 960px) {
+  .cs-cards, .cs-cards-4 { grid-template-columns: repeat(2, 1fr); }
+  .cs-stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .cs-flow, .cs-flow-5 { grid-template-columns: repeat(2, 1fr); }
+  .cs-deflist { grid-template-columns: 1fr; }
+  .cs-trow { grid-template-columns: 1fr !important; }
+  .cs-trow > span { border-right: 0; border-bottom: 1px solid var(--line-soft); }
+}
+@media (max-width: 640px) {
+  .cs-cards, .cs-cards-2, .cs-cards-4, .cs-checks, .cs-flow, .cs-flow-5 { grid-template-columns: 1fr; }
+  .cs-stat-grid { grid-template-columns: 1fr; }
+  .cs-swatches { grid-template-columns: repeat(3, 1fr); }
+  .cs-def { grid-template-columns: 1fr; gap: 6px; }
+}
+
+/* ===== Works index ======================================================== */
+.cs-work-list { display: flex; flex-direction: column; gap: 14px; margin-top: clamp(36px, 5vw, 60px); }
+.cs-work-card {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center;
+  gap: clamp(20px, 4vw, 56px); padding: clamp(26px, 3vw, 40px);
+  border-radius: var(--radius); border: 1px solid var(--line); background: var(--card);
+  box-shadow: var(--shadow); text-decoration: none; color: var(--ink);
+  transition: border-color 420ms var(--ease), transform 420ms var(--ease), box-shadow 420ms var(--ease);
+}
+.cs-work-card:hover { border-color: rgba(10, 92, 255, 0.3); transform: translateY(-4px); box-shadow: 0 30px 64px rgba(20, 24, 32, 0.13); }
+.cs-work-num { font-size: clamp(1.1rem, 1.6vw, 1.5rem); font-weight: 600; color: var(--faint); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; align-self: start; padding-top: 0.3em; }
+.cs-work-body h3 { margin: 0 0 10px; font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 600; letter-spacing: -0.04em; line-height: 1.02; }
+.cs-work-body p { margin: 0 0 16px; max-width: 64ch; font-size: clamp(0.98rem, 1.2vw, 1.15rem); line-height: 1.5; color: var(--body); }
+.cs-work-meta { display: flex; gap: 18px; flex-wrap: wrap; }
+.cs-work-meta span { font-size: 0.74rem; font-weight: 640; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.cs-work-arrow { font-size: 1.6rem; color: var(--blue); transition: transform 420ms var(--ease); }
+.cs-work-card:hover .cs-work-arrow { transform: translateX(6px); }
+@media (max-width: 640px) {
+  .cs-work-card { grid-template-columns: auto minmax(0, 1fr); }
+  .cs-work-arrow { display: none; }
+}
