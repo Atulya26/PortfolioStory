@@ -2,14 +2,18 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import './case-study.css';
+import { SplitText } from 'gsap/SplitText';
+import './case-experience.css';
 
-gsap.registerPlugin(useGSAP, ScrollTrigger);
+gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
 // ---------------------------------------------------------------------------
-// Chart theme — ECharts options on the light, editorial surface. Data is
-// identical to the source brief; colours/axes/fonts re-skinned for light mode.
+// THE SIGNAL — experimental redesign of #/case/mds-accessibility.
+// Ten-chapter scroll narrative: pinned hero, tick-rail chapter index,
+// horizontal architecture gallery, and a dark pinned impact scene at 100%.
+// Fully scoped to this route: new csx-* namespace, own stylesheet.
 // ---------------------------------------------------------------------------
+
 const P = {
   ink: '#0a0b0d',
   body: '#5b5e66',
@@ -22,7 +26,8 @@ const P = {
   orange: '#f5871f',
   yellow: '#dca400',
   green: '#16a34a',
-  slate: '#c2c5cc',
+  slate: '#9aa3b5',
+  slateSoft: '#c3cad6',
   white: '#ffffff',
   tip: '#0b0e13',
 };
@@ -46,7 +51,7 @@ const CHARTS: ChartDef[] = [
   {
     id: 'auditChart',
     option: {
-      color: [P.orange, P.blue], tooltip,
+      color: [P.slate, P.blue], tooltip,
       legend: { top: 0, right: 0, textStyle: chartText, itemWidth: 12, itemHeight: 12 },
       grid: { left: 156, right: 34, top: 56, bottom: 28 },
       xAxis: { type: 'value', splitLine: { lineStyle: { color: P.hairline, type: 'dashed' } }, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: P.body } },
@@ -94,7 +99,7 @@ const CHARTS: ChartDef[] = [
   {
     id: 'impactChart',
     option: {
-      color: [P.green, P.orange], tooltip,
+      color: [P.blue, P.slate], tooltip,
       legend: { top: 12, left: 'center', orient: 'horizontal', itemGap: 52, itemWidth: 16, itemHeight: 10, padding: [10, 16, 14, 16], icon: 'roundRect', textStyle: { color: P.ink, fontSize: 13, fontFamily: FONT }, inactiveColor: P.muted },
       grid: { left: 22, right: 36, top: 82, bottom: 34, containLabel: true },
       xAxis: { type: 'category', data: ["Jan '26", "Feb '26", "Mar '26", "Apr '26"], axisLine: { lineStyle: { color: P.hairline } }, axisTick: { show: false }, axisLabel: { color: P.body } },
@@ -111,12 +116,12 @@ const CHARTS: ChartDef[] = [
   {
     id: 'crossProductChart',
     option: {
-      color: [P.blue, P.orange], tooltip, legend: { top: 0, right: 0, textStyle: chartText, itemWidth: 12, itemHeight: 12 }, grid: { left: 18, right: 32, top: 58, bottom: 46, containLabel: true },
+      color: [P.blue, P.slateSoft], tooltip, legend: { top: 0, right: 0, textStyle: chartText, itemWidth: 12, itemHeight: 12 }, grid: { left: 18, right: 32, top: 58, bottom: 46, containLabel: true },
       xAxis: { type: 'value', max: 100, splitLine: { lineStyle: { color: P.hairline, type: 'dashed' } }, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: P.body, formatter: '{value}%' } },
       yAxis: { type: 'category', inverse: true, data: ['Case & Care Mgmt', 'Outreach Module', 'DAP & Analytics'], axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: P.body, width: 116, overflow: 'break' } },
       series: [
         { name: 'MDS-fixable', type: 'bar', stack: 'total', data: [61.5, 51.3, 36.1], barWidth: 30, itemStyle: { borderRadius: [14, 0, 0, 14] }, emphasis: { focus: 'series' }, blur: { itemStyle: { opacity: 0.4 } }, label: { show: true, position: 'insideLeft', formatter: '{c}%', color: P.white, fontWeight: 700, fontFamily: FONT } },
-        { name: 'Product-team', type: 'bar', stack: 'total', data: [38.5, 48.7, 63.9], barWidth: 30, itemStyle: { borderRadius: [0, 14, 14, 0] }, emphasis: { focus: 'series' }, blur: { itemStyle: { opacity: 0.4 } }, label: { show: true, position: 'insideRight', formatter: '{c}%', color: '#3a2607', fontWeight: 700, fontFamily: FONT } },
+        { name: 'Product-team', type: 'bar', stack: 'total', data: [38.5, 48.7, 63.9], barWidth: 30, itemStyle: { borderRadius: [0, 14, 14, 0] }, emphasis: { focus: 'series' }, blur: { itemStyle: { opacity: 0.4 } }, label: { show: true, position: 'insideRight', formatter: '{c}%', color: '#475063', fontWeight: 700, fontFamily: FONT } },
       ],
       graphic: [{ type: 'text', right: 24, bottom: 8, style: { text: 'Share of downstream audit issues', fill: P.muted, fontSize: 12, fontFamily: FONT } }],
     },
@@ -137,95 +142,366 @@ const CHARTS: ChartDef[] = [
   },
 ];
 
-// --- Heading with clip-up reveal mask -------------------------------------
-function H({ id, level = 2, children }: { id?: string; level?: 1 | 2; children: ReactNode }) {
+// --- Chapter registry (drives the rail + section meta) ---------------------
+const CHAPTERS = [
+  { id: 'stakes', num: '01', label: 'Stakes' },
+  { id: 'audits', num: '02', label: 'Audits' },
+  { id: 'method', num: '03', label: 'Method' },
+  { id: 'inventory', num: '04', label: 'Inventory' },
+  { id: 'architecture', num: '05', label: 'Architecture' },
+  { id: 'design', num: '06', label: 'Design' },
+  { id: 'proof', num: '07', label: 'Proof' },
+  { id: 'impact', num: '08', label: 'Impact' },
+  { id: 'ripple', num: '09', label: 'Ripple' },
+  { id: 'notes', num: '10', label: 'Notes' },
+];
+
+const ARCH_CARDS: Array<[string, string, string, string]> = [
+  ['01', 'Auto-labelled clear buttons', 'Derived clear-button names from labels developers already wrote, avoiding a new prop every consumer would forget.', 'Input · Chip · Combobox'],
+  ['02', 'useAccessibilityProps', 'Interactive attributes are gated behind real interaction, preventing decorative icons from becoming fake controls.', 'Icon · StatusHint · Card'],
+  ['03', 'OverlayManager', 'A singleton stack lets overlays ask whether they are on top before handling Escape.', 'Modal · Tooltip · Dropdown'],
+  ['04', 'Focus trap respecting inert', 'The trap skips inert ancestors, supports static heading focus, and avoids restoring focus under newer dialogs.', 'Modal · Sidesheet · Popper'],
+  ['05', 'View-aware calendar labels', 'Chevron labels now change by calendar view: month, year, or year block.', 'Calendar · DatePicker'],
+  ['06', 'Hydration-safe unique IDs', 'Lazy refs created stable IDs without random churn, module counters, or a React 18 dependency.', 'Input · Radio · Switch'],
+  ['07', 'Adaptive touch-target padding', "Small glyphs stay visually delicate while the interactive target reaches WCAG's 24 by 24 minimum.", 'Input · Tabs · Select'],
+  ['08', 'Native checkbox, switch semantics', 'SwitchInput keeps native form behavior while presenting as a WAI-ARIA switch — no custom div breaking name, value, labels, or form submission.', 'role="switch" · SwitchInput'],
+  ['09', 'Forced-colors fallbacks', 'Box-shadow affordances became real borders and outlines in Windows High Contrast Mode.', '19 CSS modules · +421 lines'],
+];
+
+// --- Sound layer — tiny WebAudio synth, no assets ---------------------------
+// Continues the site's xylophone-ish interaction sounds. The context unlocks
+// on first user gesture (pointer/key/touch); everything degrades silently.
+let audioCtx: AudioContext | null = null;
+
+function ensureAudio(): AudioContext | null {
+  if (typeof window === 'undefined') return null;
+  const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!AC) return null;
+  if (!audioCtx) {
+    try { audioCtx = new AC(); } catch { return null; }
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+  return audioCtx;
+}
+
+function tone(ctx: AudioContext, freq: number, at: number, dur: number, peak: number, type: OscillatorType = 'sine') {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0, at);
+  gain.gain.linearRampToValueAtTime(peak, at + 0.018);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(at);
+  osc.stop(at + dur + 0.05);
+}
+
+function soundsAllowed() {
+  return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/** Soft ascending major triad — the 100% completion chime. */
+function playSuccess() {
+  if (!soundsAllowed()) return;
+  const ctx = ensureAudio();
+  if (!ctx || ctx.state !== 'running') return;
+  const t = ctx.currentTime;
+  tone(ctx, 523.25, t, 0.6, 0.04);          // C5
+  tone(ctx, 659.25, t + 0.09, 0.6, 0.04);   // E5
+  tone(ctx, 783.99, t + 0.18, 1.05, 0.05);  // G5
+  tone(ctx, 1567.98, t + 0.18, 0.5, 0.012); // G6 shimmer
+}
+
+/** Tiny xylophone tick for rail navigation. */
+function playTick() {
+  if (!soundsAllowed()) return;
+  const ctx = ensureAudio();
+  if (!ctx || ctx.state !== 'running') return;
+  tone(ctx, 1318.5, ctx.currentTime, 0.09, 0.016, 'triangle');
+}
+
+// --- Split heading: SplitText target -----------------------------------------
+function H({ id, level = 2, className, children }: { id?: string; level?: 1 | 2; className?: string; children: ReactNode }) {
   const Tag = level === 1 ? 'h1' : 'h2';
+  return <Tag id={id} className={`csx-h${className ? ` ${className}` : ''}`} data-split>{children}</Tag>;
+}
+
+function Eyebrow({ children }: { children: ReactNode }) {
+  return <p className="csx-eyebrow" data-rise><span className="csx-eyebrow-dot" aria-hidden="true" />{children}</p>;
+}
+
+function Marquee({ items }: { items: string[] }) {
+  const row = items.join('  ·  ') + '  ·  ';
   return (
-    <Tag id={id} className="cs-h">
-      <span className="cs-h-inner" data-h-inner>{children}</span>
-    </Tag>
+    <div className="csx-marquee" aria-hidden="true">
+      <div className="csx-marquee-track">
+        <span>{row}</span><span>{row}</span>
+      </div>
+    </div>
   );
 }
 
 export default function CaseStudy() {
   const rootRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLSpanElement>(null);
+  const railFillRef = useRef<HTMLSpanElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const archRef = useRef<HTMLElement>(null);
+  const archTrackRef = useRef<HTMLDivElement>(null);
+  const archCountRef = useRef<HTMLSpanElement>(null);
+  const impactRef = useRef<HTMLElement>(null);
+  const impactCountRef = useRef<HTMLSpanElement>(null);
 
-  // ---- Motion system (GSAP + ScrollTrigger) -------------------------------
+  // ---- Motion system -------------------------------------------------------
   useGSAP(() => {
     const root = rootRef.current;
     if (!root) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (reduce) {
-      gsap.set(root.querySelectorAll('[data-h-inner],[data-rise]'), { clearProps: 'all', autoAlpha: 1, y: 0 });
+      gsap.set(root.querySelectorAll('[data-rise],[data-split],.csx-hero-inner'), { clearProps: 'all', autoAlpha: 1 });
+      const counter = impactCountRef.current;
+      if (counter) counter.textContent = '100%';
       return;
     }
 
-    // Masked heading reveal — text rises out from behind its clip.
-    gsap.utils.toArray<HTMLElement>('[data-h-inner]').forEach((inner) => {
-      gsap.from(inner, {
-        yPercent: 116,
-        duration: 1.15,
-        ease: 'expo.out',
-        scrollTrigger: { trigger: inner.parentElement, start: 'top 88%' },
+    const mm = gsap.matchMedia();
+
+    // -- 100% completion ripple: event-fired (not scrubbed) so it always
+    //    plays as a crisp one-shot the moment the counter lands.
+    const completionEl = root.querySelector<HTMLElement>('.csx-impact-completion');
+    const counterWrapEl = root.querySelector<HTMLElement>('.csx-impact-counter');
+    let rippleArmed = true;
+    const fireRipple = () => {
+      if (!rippleArmed) return;
+      rippleArmed = false;
+      if (completionEl) {
+        gsap.fromTo(completionEl,
+          { scale: 0.55, autoAlpha: 0.95 },
+          { scale: 1.7, autoAlpha: 0, duration: 1.2, ease: 'power2.out', overwrite: true });
+      }
+      if (counterWrapEl) {
+        gsap.fromTo(counterWrapEl,
+          { scale: 1 },
+          { scale: 1.03, duration: 0.16, yoyo: true, repeat: 1, ease: 'power2.inOut', overwrite: 'auto' });
+      }
+      playSuccess();
+    };
+    const armRipple = () => { rippleArmed = true; };
+
+    // ======================================================================
+    // DESKTOP — full experience (pins, rail, horizontal gallery)
+    // ======================================================================
+    mm.add('(min-width: 921px)', () => {
+      const hero = heroRef.current;
+
+      // -- 1) HERO PIN: headline holds, then calmly drifts away -------------
+      if (hero) {
+        const heroTl = gsap.timeline({
+          scrollTrigger: { trigger: hero, start: 'top top', end: '+=70%', pin: true, scrub: 0.9 },
+        });
+        heroTl
+          .to(hero.querySelector('.csx-hero-inner'), { yPercent: -14, autoAlpha: 0, ease: 'power1.in' }, 0)
+          .to(hero.querySelector('.csx-hero-ghost'), { yPercent: -26, autoAlpha: 0, ease: 'none' }, 0)
+          .to(hero.querySelector('.csx-scrollcue'), { autoAlpha: 0 }, 0);
+      }
+
+      // -- 2) Rail progress fill ---------------------------------------------
+      if (railFillRef.current) {
+        gsap.fromTo(railFillRef.current, { scaleY: 0 }, {
+          scaleY: 1, ease: 'none',
+          scrollTrigger: { trigger: root, start: 'top top', end: 'bottom bottom', scrub: 0.5 },
+        });
+      }
+
+      // -- 3) ARCHITECTURE: pinned horizontal gallery ------------------------
+      const arch = archRef.current;
+      const track = archTrackRef.current;
+      if (arch && track) {
+        const distance = () => Math.max(0, track.scrollWidth - window.innerWidth);
+        gsap.to(track, {
+          x: () => -distance(), ease: 'none',
+          scrollTrigger: {
+            trigger: arch, start: 'top top', end: () => `+=${distance()}`,
+            pin: true, scrub: 1, invalidateOnRefresh: true, anticipatePin: 1,
+            onUpdate: (self) => {
+              const counter = archCountRef.current;
+              if (counter) {
+                const idx = Math.min(ARCH_CARDS.length, Math.max(1, Math.round(self.progress * (ARCH_CARDS.length - 1)) + 1));
+                counter.textContent = String(idx).padStart(2, '0');
+              }
+            },
+          },
+        });
+        gsap.utils.toArray<HTMLElement>('.csx-arch-card', track).forEach((card, i) => {
+          gsap.from(card, {
+            y: 60, autoAlpha: 0, duration: 0.7, ease: 'power3.out', delay: 0.06 * i,
+            scrollTrigger: { trigger: arch, start: 'top 70%' },
+          });
+        });
+      }
+
+      // -- 4) IMPACT: pinned dark detonation ---------------------------------
+      const impact = impactRef.current;
+      if (impact) {
+        const counter = impactCountRef.current;
+        const num = { v: 27.6 };
+        const impactTl = gsap.timeline({
+          scrollTrigger: { trigger: impact, start: 'top top', end: '+=160%', pin: true, scrub: 0.8, anticipatePin: 1 },
+        });
+        impactTl
+          .fromTo(impact.querySelector('.csx-impact-veil'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.22, ease: 'none' }, 0)
+          .fromTo(num, { v: 27.6 }, {
+            v: 100, duration: 0.55, ease: 'none',
+            onUpdate: () => {
+              if (counter) counter.textContent = `${num.v.toFixed(num.v < 100 ? 1 : 0)}%`;
+              if (num.v >= 99.4) fireRipple();
+              else if (num.v < 92) armRipple();
+            },
+          }, 0.08)
+          .fromTo(impact.querySelectorAll('.csx-impact-ring'), { scale: 0.55, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.5, ease: 'power1.inOut', stagger: 0.08 }, 0.06)
+          .fromTo(impact.querySelector('.csx-impact-baseline'), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.14 }, 0.05)
+          .fromTo(impact.querySelector('.csx-impact-caption'), { y: 22, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.2 }, 0.46)
+          .fromTo(impact.querySelectorAll('.csx-impact-stat'), { y: 36, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.24, stagger: 0.06 }, 0.62);
+      }
+
+      // -- 5) Rail chapter sync (single active item, robust across pins) -----
+      const railItems = gsap.utils.toArray<HTMLElement>('[data-rail]');
+      const setActive = (id: string | null) => {
+        root.classList.toggle('is-dark-rail', id === 'impact');
+        const activeIdx = CHAPTERS.findIndex((c) => c.id === id);
+        railItems.forEach((el) => {
+          const idx = CHAPTERS.findIndex((c) => c.id === el.dataset.rail);
+          const dist = activeIdx === -1 || idx === -1 ? Infinity : Math.abs(idx - activeIdx);
+          el.classList.toggle('is-active', dist === 0);
+          el.classList.toggle('is-near', dist === 1);
+        });
+      };
+      CHAPTERS.forEach((ch, i) => {
+        const section = root.querySelector<HTMLElement>(`#${ch.id}`);
+        if (!section) return;
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top 50%',
+          end: 'bottom 50%',
+          onEnter: () => setActive(ch.id),
+          onEnterBack: () => setActive(ch.id),
+          onLeaveBack: i === 0 ? () => setActive(null) : undefined,
+        });
+      });
+
+      // -- 6) Magnetic pills --------------------------------------------------
+      const magnets = gsap.utils.toArray<HTMLElement>('.csx-magnetic');
+      const cleanups = magnets.map((el) => {
+        const xTo = gsap.quickTo(el, 'x', { duration: 0.4, ease: 'power3' });
+        const yTo = gsap.quickTo(el, 'y', { duration: 0.4, ease: 'power3' });
+        const move = (e: PointerEvent) => {
+          const r = el.getBoundingClientRect();
+          xTo(gsap.utils.clamp(-7, 7, (e.clientX - (r.left + r.width / 2)) * 0.18));
+          yTo(gsap.utils.clamp(-5, 5, (e.clientY - (r.top + r.height / 2)) * 0.18));
+        };
+        const leave = () => { xTo(0); yTo(0); };
+        el.addEventListener('pointermove', move);
+        el.addEventListener('pointerleave', leave);
+        return () => { el.removeEventListener('pointermove', move); el.removeEventListener('pointerleave', leave); };
+      });
+
+      return () => cleanups.forEach((fn) => fn());
+    });
+
+    // ======================================================================
+    // ALL VIEWPORTS — kinetic type + rises (mobile gets these, minus pins)
+    // ======================================================================
+    mm.add('(min-width: 0px)', () => {
+      // SplitText char reveals on every heading.
+      const splits: SplitText[] = [];
+      document.fonts.ready.then(() => {
+        gsap.utils.toArray<HTMLElement>('[data-split]').forEach((el) => {
+          const split = new SplitText(el, { type: 'lines,chars', linesClass: 'csx-line' });
+          splits.push(split);
+          gsap.from(split.chars, {
+            yPercent: 112, duration: 0.9, ease: 'expo.out', stagger: 0.016,
+            scrollTrigger: { trigger: el, start: 'top 86%' },
+          });
+        });
+        ScrollTrigger.refresh();
+      });
+
+      // Grouped + lone rises.
+      const claimed = new Set<HTMLElement>();
+      gsap.utils.toArray<HTMLElement>('[data-stagger]').forEach((group) => {
+        const items = gsap.utils.toArray<HTMLElement>('[data-rise]', group);
+        items.forEach((i) => claimed.add(i));
+        gsap.from(items, {
+          y: 38, autoAlpha: 0, duration: 0.85, ease: 'power3.out', stagger: 0.08,
+          scrollTrigger: { trigger: group, start: 'top 86%' },
+        });
+      });
+      gsap.utils.toArray<HTMLElement>('[data-rise]').forEach((el) => {
+        if (claimed.has(el)) return;
+        gsap.from(el, {
+          y: 30, autoAlpha: 0, duration: 0.78, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 88%' },
+        });
+      });
+
+      // Depth parallax on ghosts.
+      gsap.utils.toArray<HTMLElement>('[data-parallax]').forEach((el) => {
+        const depth = parseFloat(el.dataset.parallax || '1');
+        gsap.fromTo(el,
+          { yPercent: 10 * depth },
+          { yPercent: -10 * depth, ease: 'none', scrollTrigger: { trigger: el.closest('section') ?? el, start: 'top bottom', end: 'bottom top', scrub: 0.6 } },
+        );
+      });
+
+      // Count-ups.
+      gsap.utils.toArray<HTMLElement>('[data-count]').forEach((el) => {
+        const end = parseFloat(el.dataset.count || '0');
+        const suffix = el.dataset.suffix ?? '';
+        const obj = { v: 0 };
+        gsap.to(obj, {
+          v: end, duration: 1.5, ease: 'power2.out',
+          scrollTrigger: { trigger: el, start: 'top 86%' },
+          onUpdate: () => { el.textContent = `${Math.round(obj.v)}${suffix}`; },
+          onComplete: () => { el.textContent = `${end}${suffix}`; },
+        });
+      });
+
+      return () => splits.forEach((s) => s.revert());
+    });
+
+    // Mobile: impact counter has no pin — give it a simple in-view count-up.
+    mm.add('(max-width: 920px)', () => {
+      const counter = impactCountRef.current;
+      if (!counter) return;
+      const num = { v: 27.6 };
+      gsap.to(num, {
+        v: 100, duration: 1.8, ease: 'power2.inOut',
+        scrollTrigger: { trigger: counter, start: 'top 80%' },
+        onUpdate: () => { counter.textContent = `${num.v.toFixed(num.v < 100 ? 1 : 0)}%`; },
+        onComplete: () => { counter.textContent = '100%'; fireRipple(); },
       });
     });
 
-    // Staggered "mass" rise for grouped content (grids, kpi rows…).
-    const claimed = new Set<HTMLElement>();
-    gsap.utils.toArray<HTMLElement>('[data-stagger]').forEach((group) => {
-      const items = gsap.utils.toArray<HTMLElement>('[data-rise]', group);
-      items.forEach((i) => claimed.add(i));
-      gsap.from(items, {
-        y: 34, autoAlpha: 0, scale: 0.992,
-        duration: 0.82, ease: 'power3.out', stagger: 0.075,
-        scrollTrigger: { trigger: group, start: 'top 86%' },
-      });
-    });
-
-    // Individual rises (eyebrows, ledes, lone panels).
-    gsap.utils.toArray<HTMLElement>('[data-rise]').forEach((el) => {
-      if (claimed.has(el)) return;
-      gsap.from(el, {
-        y: 30, autoAlpha: 0,
-        duration: 0.78, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 88%' },
-      });
-    });
-
-    // Depth parallax — decorative layers drift against the scroll.
-    gsap.utils.toArray<HTMLElement>('[data-parallax]').forEach((el) => {
-      const depth = parseFloat(el.dataset.parallax || '1');
-      gsap.fromTo(el,
-        { yPercent: 9 * depth },
-        { yPercent: -9 * depth, ease: 'none', scrollTrigger: { trigger: el.closest('section') ?? el, start: 'top bottom', end: 'bottom top', scrub: 0.6 } },
-      );
-    });
-
-    // Count-up on big numerics.
-    gsap.utils.toArray<HTMLElement>('[data-count]').forEach((el) => {
-      const end = parseFloat(el.dataset.count || '0');
-      const suffix = el.dataset.suffix ?? '';
-      const obj = { v: 0 };
-      gsap.to(obj, {
-        v: end, duration: 1.5, ease: 'power2.out',
-        scrollTrigger: { trigger: el, start: 'top 86%' },
-        onUpdate: () => { el.textContent = `${Math.round(obj.v)}${suffix}`; },
-        onComplete: () => { el.textContent = `${end}${suffix}`; },
-      });
-    });
+    return () => mm.revert();
   }, { scope: rootRef });
 
-  // ---- Scroll progress + charts (lazy ECharts) ----------------------------
+  // ---- Scroll progress + lazy ECharts --------------------------------------
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = 'Compliance for Masala Design System — Atulya';
 
+    // Unlock WebAudio on the first real gesture so the completion chime can play.
+    const unlockAudio = () => { ensureAudio(); };
+    window.addEventListener('pointerdown', unlockAudio, { once: true, passive: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
+    window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const root = rootRef.current;
     let disposed = false;
-    const charts: Array<{ node: HTMLElement; chart: { resize: () => void; clear: () => void; setOption: (o: unknown, b?: boolean) => void; dispose: () => void }; built: Record<string, unknown>; drawn: boolean }> = [];
+    const charts: Array<{ node: HTMLElement; chart: { resize: () => void; setOption: (o: unknown, b?: boolean) => void; dispose: () => void }; built: Record<string, unknown>; drawn: boolean }> = [];
     const observers: IntersectionObserver[] = [];
 
     const updateProgress = () => {
@@ -246,10 +522,6 @@ export default function CaseStudy() {
 
     import('echarts').then((echarts) => {
       if (disposed || !root) return;
-
-      // Init each chart EMPTY — it stays blank until scrolled into view, then
-      // draws/grows in with a per-series stagger. Guarantees the "load up"
-      // happens on screen, every time, instead of unseen on mount.
       CHARTS.forEach(({ id, option }) => {
         const node = root.querySelector<HTMLElement>(`[data-chart="${id}"]`);
         if (!node) return;
@@ -284,7 +556,6 @@ export default function CaseStudy() {
         charts.forEach((c) => io.observe(c.node));
         observers.push(io);
       } else {
-        // Reduced motion / no IO: draw everything statically up front.
         charts.forEach((c) => { (c.chart.setOption as (o: unknown) => void)({ ...c.built, animation: false }); c.drawn = true; });
       }
 
@@ -293,6 +564,9 @@ export default function CaseStudy() {
 
     return () => {
       disposed = true;
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
       window.removeEventListener('scroll', updateProgress);
       window.removeEventListener('resize', updateProgress);
       window.removeEventListener('resize', onResize);
@@ -302,127 +576,127 @@ export default function CaseStudy() {
     };
   }, []);
 
-  return (
-    <div className="cs-root" ref={rootRef}>
-      <div className="cs-progress" aria-hidden="true"><span ref={progressRef} /></div>
+  const jumpTo = (id: string) => {
+    playTick();
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
-      <header className="cs-topbar">
-        <a className="cs-back" href="#/">
-          <span className="cs-back-arrow" aria-hidden="true">←</span>
-          <span>Back to portfolio</span>
+  return (
+    <div className="csx-root" ref={rootRef}>
+      <div className="csx-progress" aria-hidden="true"><span ref={progressRef} /></div>
+
+      {/* Chapter rail (desktop): index ticks + scroll progress */}
+      <nav className="csx-rail" aria-label="Chapters">
+        <span className="csx-rail-line" aria-hidden="true"><span ref={railFillRef} /></span>
+        <ul>
+          {CHAPTERS.map((ch) => (
+            <li key={ch.id}>
+              <button type="button" data-rail={ch.id} onClick={() => jumpTo(ch.id)}>
+                <i className="csx-rail-tick" aria-hidden="true" />
+                <span className="csx-rail-num">{ch.num}</span>
+                <span className="csx-rail-label">{ch.label}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <header className="csx-topbar">
+        <a className="csx-back csx-magnetic" href="#/">
+          <span aria-hidden="true">←</span><span>Back to portfolio</span>
         </a>
-        <span className="cs-topbar-tag">Masala Design System</span>
+        <span className="csx-topbar-tag">Masala Design System</span>
       </header>
 
-      <main className="cs-main">
-        {/* ===== HERO ===== */}
-        <section className="cs-section cs-hero" aria-labelledby="cs-hero-title">
-          <span className="cs-ghost" data-parallax="1.6" aria-hidden="true">AA</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>WCAG 2.2 AA · Section 508</p>
-            <H id="cs-hero-title" level={1}>Compliance for Masala Design System</H>
-            <p className="cs-lede cs-hero-lede" data-rise>How a small team took Innovaccer's Masala Design System from 27.6% to 100% compliance and pulled 20+ healthcare products along with it.</p>
-
-            <div className="cs-meta-grid" aria-label="Project metadata" data-stagger>
-              <div className="cs-meta-item" data-rise><span className="cs-label">Role</span><span className="cs-meta-value">Product Designer</span></div>
-              <div className="cs-meta-item" data-rise><span className="cs-label">Surface</span><span className="cs-meta-value">110+ components</span></div>
-              <div className="cs-meta-item" data-rise><span className="cs-label">Duration</span><span className="cs-meta-value">Oct 2025 - Apr 2026</span></div>
-              <div className="cs-meta-item" data-rise><span className="cs-label">Stack</span><span className="cs-meta-value">React · TS · jest-axe</span></div>
-            </div>
-
-            <div className="cs-kpi-grid" aria-label="Hero KPIs" data-stagger>
-              <article className="cs-kpi-card cs-kpi-feature" data-rise>
-                <span className="cs-label">Baseline to current</span>
-                <div>
-                  <div className="cs-kpi-value cs-kpi-range" aria-label="27.6% to 100%"><span>27.6%</span><span className="cs-range-sep" aria-hidden="true">→</span><strong>100%</strong></div>
-                  <p className="cs-kpi-hint">WCAG 2.2 AA and Section 508 compliance.</p>
-                </div>
-              </article>
-              <article className="cs-kpi-card" data-rise>
-                <span className="cs-label">Issues catalogued</span>
-                <div><div className="cs-kpi-value"><span data-count="520" data-suffix="+">520+</span></div><p className="cs-kpi-hint">193 Deque issues plus 327 source-aware findings.</p></div>
-              </article>
-              <article className="cs-kpi-card" data-rise>
-                <span className="cs-label">Components rebuilt</span>
-                <div><div className="cs-kpi-value"><span data-count="99">99</span></div><p className="cs-kpi-hint">Atoms, molecules, and organisms corrected at root.</p></div>
-              </article>
-              <article className="cs-kpi-card" data-rise>
-                <span className="cs-label">Products inheriting</span>
-                <div><div className="cs-kpi-value"><span data-count="20" data-suffix="+">20+</span></div><p className="cs-kpi-hint">Every Innovaccer product starts from the same foundation.</p></div>
-              </article>
+      <main className="csx-main">
+        {/* ================= HERO — ARRIVAL ================= */}
+        <section className="csx-hero" ref={heroRef} aria-labelledby="csx-hero-title">
+          <span className="csx-hero-ghost" aria-hidden="true">AA</span>
+          <div className="csx-hero-inner">
+            <Eyebrow>WCAG 2.2 AA · Section 508 · Case study</Eyebrow>
+            <H id="csx-hero-title" level={1} className="csx-hero-h">Compliance for Masala Design System</H>
+            <p className="csx-hero-lede" data-rise>
+              How a small team took Innovaccer's design system from
+              <strong> 27.6%</strong> to <strong className="csx-blue">100%</strong> accessibility compliance —
+              and pulled 20+ healthcare products along with it.
+            </p>
+            <div className="csx-hero-meta" data-stagger>
+              {[['Role', 'Product Designer'], ['Surface', '110+ components'], ['Duration', 'Oct 2025 – Apr 2026'], ['Stack', 'React · TS · jest-axe']].map(([k, v]) => (
+                <div className="csx-meta-pill" data-rise key={k}><span>{k}</span><strong>{v}</strong></div>
+              ))}
             </div>
           </div>
+          <div className="csx-scrollcue" aria-hidden="true"><span /><p>Scroll</p></div>
         </section>
 
-        {/* ===== 02 CONTEXT ===== */}
-        <section className="cs-section" id="context" aria-labelledby="cs-context-title">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">02</span>
-          <div className="cs-inner cs-split">
-            <div className="cs-copy">
-              <p className="cs-eyebrow" data-rise>02 · Context</p>
-              <H id="cs-context-title">Why 27.6% was worse than it sounded</H>
-              <p className="cs-lede" data-rise>Healthcare products carry statutory accessibility obligations. Every Innovaccer product is built on MDS, so a single missing ARIA state can ship to every customer.</p>
+        <Marquee items={['WCAG 2.2 AA', 'SECTION 508', '110+ COMPONENTS', '20+ PRODUCTS', '520+ ISSUES', '119 AXE BASELINES']} />
+
+        {/* ================= 01 STAKES ================= */}
+        <section className="csx-section" id="stakes" aria-labelledby="csx-stakes-title">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">01</span>
+          <div className="csx-inner csx-split">
+            <div className="csx-copy">
+              <Eyebrow>01 · The stakes</Eyebrow>
+              <H id="csx-stakes-title">Why 27.6% was worse than it sounded</H>
+              <p className="csx-lede" data-rise>Healthcare products carry statutory accessibility obligations. Every Innovaccer product is built on MDS, so a single missing ARIA state can ship to every customer.</p>
               <p data-rise>A Deque audit flagged 193 issues on MDS and 3,823 more across three flagship products. We added a parallel source-aware audit that could trace prop flows, refs, composition, and ARIA relationships inside the design system codebase.</p>
             </div>
-            <aside className="cs-panel" data-rise>
-              <div className="cs-panel-header">
-                <div className="cs-panel-title"><span className="cs-label">Baseline ledger</span><h3>Before the rebuild</h3></div>
+            <aside className="csx-panel" data-rise>
+              <div className="csx-panel-title"><span className="csx-label">Baseline ledger</span><h3>Before the rebuild</h3></div>
+              <div className="csx-ledger" role="list" aria-label="Baseline metrics">
+                <div className="csx-ledger-hero" role="listitem"><span className="csx-label">Compliance</span><strong>27.6%</strong></div>
+                <div role="listitem"><span className="csx-label">MDS Deque audit</span><strong>193</strong></div>
+                <div role="listitem"><span className="csx-label">AI-skill audit</span><strong>327</strong></div>
+                <div role="listitem"><span className="csx-label">Products at risk</span><strong>20+</strong></div>
               </div>
-              <div className="cs-ledger-grid" role="list" aria-label="Baseline metrics">
-                <div className="cs-ledger-hero" role="listitem"><span className="cs-label">Compliance</span><div className="cs-kpi-value">27.6%</div></div>
-                <div className="cs-ledger-stat" role="listitem"><span className="cs-label">MDS Deque audit</span><div className="cs-kpi-value">193</div></div>
-                <div className="cs-ledger-stat" role="listitem"><span className="cs-label">AI-skill audit</span><div className="cs-kpi-value">327</div></div>
-                <div className="cs-ledger-stat" role="listitem"><span className="cs-label">Products at risk</span><div className="cs-kpi-value">20+</div></div>
-              </div>
-              <p className="cs-chart-summary">One focus-ring token change closed 262 downstream violations across audited products.</p>
+              <p className="csx-note">One focus-ring token change closed 262 downstream violations across audited products.</p>
             </aside>
           </div>
         </section>
 
-        {/* ===== 03 AUDIT ===== */}
-        <section className="cs-section" id="audit" aria-labelledby="cs-audit-title">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">03</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>03 · Audit Depth</p>
-            <H id="cs-audit-title">Two audits, two vantage points</H>
-            <div className="cs-audit-cards" data-stagger>
-              <article className="cs-audit-card" data-rise>
-                <span className="cs-label">Deque axe auditor</span>
-                <div className="cs-audit-number"><span data-count="193">193</span></div>
+        {/* ================= 02 AUDITS ================= */}
+        <section className="csx-section" id="audits" aria-labelledby="csx-audits-title">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">02</span>
+          <div className="csx-inner">
+            <Eyebrow>02 · Audit depth</Eyebrow>
+            <H id="csx-audits-title">Two audits, two vantage points</H>
+            <div className="csx-versus" data-stagger>
+              <article className="csx-versus-card" data-rise>
+                <span className="csx-label">Deque axe auditor</span>
+                <div className="csx-versus-num"><span data-count="193">193</span></div>
                 <p>Across 14 success criteria on MDS, strongest on what the rendered page exposes: contrast, labels, heading semantics.</p>
               </article>
-              <article className="cs-audit-card" data-rise>
-                <span className="cs-label">Source-aware audit</span>
-                <div className="cs-audit-number"><span data-count="327">327</span></div>
+              <span className="csx-versus-vs" data-rise aria-hidden="true">vs</span>
+              <article className="csx-versus-card csx-versus-blue" data-rise>
+                <span className="csx-label">Source-aware audit</span>
+                <div className="csx-versus-num"><span data-count="327">327</span></div>
                 <p>Across 54 success criteria, tagged to exact code paths and strongest on ARIA, keyboard, focus, and composition invariants.</p>
               </article>
             </div>
-            <div className="cs-panel" data-rise style={{ marginTop: 24 }}>
-              <div className="cs-panel-header">
-                <div className="cs-panel-title"><span className="cs-label">Issues by success criterion</span><h3>Rendered audit vs source-aware audit</h3></div>
-              </div>
-              <div className="cs-chart cs-chart-tall" data-chart="auditChart" role="img" aria-label="Bar chart comparing Deque and source-aware audit findings by WCAG success criterion." />
-              <p className="cs-chart-summary">The source-aware audit found the largest gaps in Info &amp; Relationships, Name Role Value, and Keyboard, while Deque was stronger on rendered contrast and heading issues.</p>
+            <div className="csx-panel" data-rise>
+              <div className="csx-panel-title"><span className="csx-label">Issues by success criterion</span><h3>Rendered audit vs source-aware audit</h3></div>
+              <div className="csx-chart csx-chart-tall" data-chart="auditChart" role="img" aria-label="Bar chart comparing Deque and source-aware audit findings by WCAG success criterion." />
+              <p className="csx-note">The source-aware audit found the largest gaps in Info &amp; Relationships, Name Role Value, and Keyboard, while Deque was stronger on rendered contrast and heading issues.</p>
             </div>
           </div>
         </section>
 
-        {/* ===== 04 METHOD ===== */}
-        <section className="cs-section" id="method" aria-labelledby="cs-method-title">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">04</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>04 · Method</p>
-            <H id="cs-method-title">A code-aware audit pipeline</H>
-            <div className="cs-method-list" data-stagger>
+        {/* ================= 03 METHOD ================= */}
+        <section className="csx-section" id="method" aria-labelledby="csx-method-title">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">03</span>
+          <div className="csx-inner">
+            <Eyebrow>03 · Method</Eyebrow>
+            <H id="csx-method-title">A code-aware audit pipeline</H>
+            <div className="csx-steps" data-stagger>
               {[
                 ['01', 'Custom Claude skills', <>Component-specific prompts read <code>core/components/**</code> directly, following composition, prop plumbing, ref flows, and portal boundaries.</>],
                 ['02', 'Automated contrast script', <>Every SCSS and TSX token pair was checked across default, hover, active, focus, and disabled states against a WCAG AA contrast budget.</>],
                 ['03', 'AI-reviewed exceptions', <>Decorative, disabled, and icon-as-text cases were routed through a context-aware classifier instead of a blunt contrast heuristic.</>],
                 ['04', 'Design research pass', <>Spectrum, Carbon, Material, Polaris, and WAI-ARIA patterns were compared before choosing remediation patterns.</>],
-                ['05', 'Design to Figma MCP to Codex review', <>Design moved to code, PRs were reviewed for ARIA and keyboard gaps, and the cycle repeated until no review flags remained.</>],
+                ['05', 'Design → Figma MCP → Codex review', <>Design moved to code, PRs were reviewed for ARIA and keyboard gaps, and the cycle repeated until no review flags remained.</>],
               ].map(([idx, title, body]) => (
-                <article className="cs-method-item" data-rise key={idx as string}>
-                  <span className="cs-method-index">{idx}</span>
+                <article className="csx-step" data-rise key={idx as string}>
+                  <span className="csx-step-num">{idx}</span>
                   <div><h3>{title}</h3><p>{body}</p></div>
                 </article>
               ))}
@@ -430,91 +704,56 @@ export default function CaseStudy() {
           </div>
         </section>
 
-        {/* ===== 05 BENCHMARK ===== */}
-        <section className="cs-section" id="benchmark" aria-labelledby="cs-benchmark-title">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">05</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>05 · Benchmark</p>
-            <H id="cs-benchmark-title">We studied the best before fixing ours</H>
-            <p className="cs-lede" data-rise>The goal was not to copy large design systems. It was to identify where MDS could exceed them in developer ergonomics and accessibility resilience.</p>
-            <div className="cs-benchmark" role="table" aria-label="Benchmark comparison across design systems" data-rise>
-              <div className="cs-bench-row cs-bench-head" role="row">
-                <div role="columnheader">Pattern</div><div role="columnheader">Spectrum</div><div role="columnheader">Carbon</div><div role="columnheader">Material</div><div role="columnheader">Polaris</div><div role="columnheader">MDS now</div>
+        {/* ================= 04 INVENTORY ================= */}
+        <section className="csx-section" id="inventory" aria-labelledby="csx-inventory-title">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">04</span>
+          <div className="csx-inner">
+            <Eyebrow>04 · Inventory</Eyebrow>
+            <H id="csx-inventory-title">327 issues, classified and prioritised</H>
+            <p className="csx-lede" data-rise>Every finding was tagged by severity, component, success criterion, and fix path. The work became an engineering backlog, not a vague accessibility wishlist — 54 success criteria, 55 components, 100% tracked to closure.</p>
+            <div className="csx-duo" data-stagger>
+              <div className="csx-panel" data-rise>
+                <div className="csx-panel-title"><span className="csx-label">Severity split</span><h3>P0, P1, P2 distribution</h3></div>
+                <div className="csx-chart csx-chart-short" data-chart="severityChart" role="img" aria-label="Donut chart showing 34 P0 critical, 144 P1 high, and 149 P2 medium findings." />
+                <p className="csx-note">P0s blocked core interaction and received first-pass priority.</p>
               </div>
-              {[
-                ['Auto-labelled clear buttons', 'manual prop', 'manual prop', 'manual prop', 'manual prop', ['Yes', 'mds']],
-                ['Overlay stack across full overlay family', 'per primitive', 'No', 'Modal only', 'No', ['Yes', 'mds']],
-                ['Native checkbox with switch semantics', ['Yes', 'win'], 'button-based', ['Yes', 'win'], 'No primitive', ['Yes', 'mds']],
-                ['Forced-colors coverage across stateful components', 'partial', 'partial', 'minimal', 'minimal', ['19 components', 'mds']],
-                ['Repo-shipped custom audit skill', 'No', 'No', 'No', 'No', ['Yes', 'mds']],
-              ].map((row, ri) => (
-                <div className="cs-bench-row" role="row" key={ri}>
-                  {row.map((cell, ci) => {
-                    const [text, cls] = Array.isArray(cell) ? cell : [cell, ''];
-                    return <div key={ci} className={cls ? `cs-bench-${cls}` : undefined}>{text}</div>;
-                  })}
-                </div>
-              ))}
+              <div className="csx-panel" data-rise>
+                <div className="csx-panel-title"><span className="csx-label">Top components</span><h3>Issue count by severity</h3></div>
+                <div className="csx-chart csx-chart-short" data-chart="componentChart" role="img" aria-label="Stacked bar chart showing the top ten components by accessibility issue count." />
+                <p className="csx-note">Fixing the shared ListBody primitive closed P0 issues in Select, Combobox, Menu, and Listbox together.</p>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ===== 06 INVENTORY ===== */}
-        <section className="cs-section" id="inventory" aria-labelledby="cs-inventory-title">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">06</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise><span className="cs-eyebrow-muted">06 ·</span> <span className="cs-eyebrow-accent">Inventory</span></p>
-            <H id="cs-inventory-title"><span className="cs-head-stat">327</span> issues classified and prioritised</H>
-            <p className="cs-lede" data-rise>Every finding was tagged by severity, component, success criterion, and fix path. The work became an engineering backlog, not a vague accessibility wishlist.</p>
-            <p data-rise>54 success criteria, 55 components, and 100% tracked to closure.</p>
-            <div className="cs-panel" data-rise style={{ marginTop: 32 }}>
-              <div className="cs-panel-header"><div className="cs-panel-title"><span className="cs-label">Severity split</span><h3>P0, P1, P2 distribution</h3></div></div>
-              <div className="cs-chart cs-chart-short" data-chart="severityChart" role="img" aria-label="Donut chart showing 34 P0 critical, 144 P1 high, and 149 P2 medium findings." />
-              <p className="cs-chart-summary">P1 and P2 made up most of the backlog, but P0s blocked core interaction and received first-pass priority.</p>
+        {/* ================= 05 ARCHITECTURE — horizontal gallery ================= */}
+        <section className="csx-arch" id="architecture" ref={archRef} aria-labelledby="csx-arch-title">
+          <div className="csx-arch-head">
+            <div className="csx-inner">
+              <Eyebrow>05 · Architecture</Eyebrow>
+              <H id="csx-arch-title">Nine choices that repaid themselves</H>
             </div>
-            <div className="cs-panel" data-rise style={{ marginTop: 24 }}>
-              <div className="cs-panel-header"><div className="cs-panel-title"><span className="cs-label">Top components</span><h3>Issue count by severity</h3></div></div>
-              <div className="cs-chart" data-chart="componentChart" role="img" aria-label="Stacked bar chart showing the top ten components by accessibility issue count." />
-              <p className="cs-chart-summary">Shared primitive fixes mattered: fixing the shared ListBody primitive closed P0 issues in Select, Combobox, Menu, and Listbox together.</p>
-            </div>
+            <span className="csx-arch-count" aria-hidden="true"><span ref={archCountRef}>01</span>/09</span>
+          </div>
+          <div className="csx-arch-track" ref={archTrackRef}>
+            {ARCH_CARDS.map(([idx, title, body, chip]) => (
+              <article className="csx-arch-card" key={idx}>
+                <span className="csx-arch-num">{idx}</span>
+                <div><h3>{title}</h3><p>{body}</p></div>
+                <span className="csx-chip">{chip}</span>
+              </article>
+            ))}
           </div>
         </section>
 
-        {/* ===== 07 ARCHITECTURE ===== */}
-        <section className="cs-section" id="architecture" aria-labelledby="cs-arch-title">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">07</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>07 · Architecture</p>
-            <H id="cs-arch-title">Nine choices that repaid themselves across the system</H>
-            <div className="cs-architecture-grid" data-stagger>
-              {[
-                ['01', 'Auto-labelled clear buttons', 'Derived clear-button names from labels developers already wrote, avoiding a new prop every consumer would forget.', 'Input · Chip · Combobox'],
-                ['02', 'useAccessibilityProps', 'Interactive attributes are gated behind real interaction, preventing decorative icons from becoming fake controls.', 'Icon · StatusHint · Card'],
-                ['03', 'OverlayManager', 'A singleton stack lets overlays ask whether they are on top before handling Escape.', 'Modal · Tooltip · Dropdown'],
-                ['04', 'Focus trap respecting inert', 'The trap skips inert ancestors, supports static heading focus, and avoids restoring focus under newer dialogs.', 'Modal · Sidesheet · Popper'],
-                ['05', 'View-aware calendar labels', 'Chevron labels now change by calendar view: month, year, or year block.', 'Calendar · DatePicker'],
-                ['06', 'Hydration-safe unique IDs', 'Lazy refs created stable IDs without random churn, module counters, or a React 18 dependency.', 'Input · Radio · Switch'],
-                ['07', 'Adaptive touch-target padding', "Small glyphs stay visually delicate while the interactive target reaches WCAG's 24 by 24 minimum.", 'Input · Tabs · Select'],
-                ['08', 'Native checkbox with switch semantics', 'SwitchInput keeps native form behavior while presenting as a WAI-ARIA switch, avoiding a custom div that would break name, value, labels, and form submission.', 'role="switch" · SwitchInput'],
-                ['09', 'Forced-colors fallbacks', 'Box-shadow affordances became real borders and outlines in Windows High Contrast Mode.', '19 CSS modules · +421 lines'],
-              ].map(([idx, title, body, chip]) => (
-                <article className="cs-architecture-card" data-rise key={idx}>
-                  <div><span className="cs-label">{idx}</span><h3>{title}</h3><p>{body}</p></div>
-                  <span className="cs-code-chip">{chip}</span>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ===== 08 DESIGN ===== */}
-        <section className="cs-section" id="design" aria-labelledby="cs-design-title">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">08</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>08 · Design Changes</p>
-            <H id="cs-design-title">Not just code. Design had to move too.</H>
-            <p className="cs-lede" data-rise>A lot of the compliance gap sat in visual language: focus rings, selection states, disabled states, and calendar colors.</p>
-            <div className="cs-design-grid" aria-label="Design remediation cards" data-stagger>
+        {/* ================= 06 DESIGN ================= */}
+        <section className="csx-section" id="design" aria-labelledby="csx-design-title">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">06</span>
+          <div className="csx-inner">
+            <Eyebrow>06 · Design changes</Eyebrow>
+            <H id="csx-design-title">Not just code. Design had to move too.</H>
+            <p className="csx-lede" data-rise>A lot of the compliance gap sat in visual language: focus rings, selection states, disabled states, and calendar colors.</p>
+            <div className="csx-grid-3" data-stagger>
               {[
                 ['Focus', 'Box-shadow to outline with offset', 'Outline survives forced-colors mode and reads cleaner at 200% zoom.', 'SC 2.4.7 · 1.4.11'],
                 ['Token', 'Focus token darkened', 'Old #F8F8F8 measured 1.06:1 on white. New #00509f reaches 7.93:1.', '2px offset'],
@@ -524,96 +763,107 @@ export default function CaseStudy() {
                 ['Calendar', 'Palette refresh', 'Today, hover, and selected cells were recomputed against the new contrast budget.', 'Calendar · DatePicker'],
                 ['Listbox', 'Sticky drag states', 'Persistent activated states keep selection stable during keyboard and pointer interaction.', 'zero-drift UI'],
               ].map(([label, title, body, chip]) => (
-                <article className="cs-design-change" data-rise key={title}>
-                  <div><span className="cs-label">{label}</span><h3>{title}</h3><p>{body}</p></div>
-                  <span className="cs-code-chip">{chip}</span>
+                <article className="csx-card" data-rise key={title}>
+                  <div><span className="csx-label">{label}</span><h3>{title}</h3><p>{body}</p></div>
+                  <span className="csx-chip">{chip}</span>
                 </article>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ===== 09 VERIFICATION ===== */}
-        <section className="cs-section" id="verification" aria-labelledby="cs-verify-title">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">09</span>
-          <div className="cs-inner cs-split">
-            <div className="cs-copy">
-              <p className="cs-eyebrow" data-rise>09 · Verification</p>
-              <H id="cs-verify-title">Every component carries a jest-axe baseline</H>
-              <p className="cs-lede" data-rise>119 test files call <code>toHaveNoViolations</code>. Every shipping component has an axe baseline, and the rule runs in <code>npm test</code>.</p>
-              <p data-rise>The wrapper disables the region rule inside isolated RTL tests and toggles real timers around the async engine so Jest fake timers do not deadlock it.</p>
+        {/* ================= 07 PROOF ================= */}
+        <section className="csx-section" id="proof" aria-labelledby="csx-proof-title">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">07</span>
+          <div className="csx-inner">
+            <Eyebrow>07 · Proof</Eyebrow>
+            <H id="csx-proof-title">Benchmarked, tested, and federal-ready</H>
+            <p className="csx-lede" data-rise>The goal was not to copy large design systems — it was to identify where MDS could exceed them in developer ergonomics and accessibility resilience.</p>
+            <div className="csx-bench" role="table" aria-label="Benchmark comparison across design systems" data-rise>
+              <div className="csx-bench-row csx-bench-head" role="row">
+                <div role="columnheader">Pattern</div><div role="columnheader">Spectrum</div><div role="columnheader">Carbon</div><div role="columnheader">Material</div><div role="columnheader">Polaris</div><div role="columnheader">MDS now</div>
+              </div>
+              {[
+                ['Auto-labelled clear buttons', 'manual prop', 'manual prop', 'manual prop', 'manual prop', ['Yes', 'mds']],
+                ['Overlay stack across full overlay family', 'per primitive', 'No', 'Modal only', 'No', ['Yes', 'mds']],
+                ['Native checkbox with switch semantics', ['Yes', 'win'], 'button-based', ['Yes', 'win'], 'No primitive', ['Yes', 'mds']],
+                ['Forced-colors coverage across stateful components', 'partial', 'partial', 'minimal', 'minimal', ['19 components', 'mds']],
+                ['Repo-shipped custom audit skill', 'No', 'No', 'No', 'No', ['Yes', 'mds']],
+              ].map((row, ri) => (
+                <div className="csx-bench-row" role="row" key={ri}>
+                  {row.map((cell, ci) => {
+                    const [text, cls] = Array.isArray(cell) ? cell : [cell, ''];
+                    return <div key={ci} className={cls ? `csx-bench-${cls}` : undefined}>{text}</div>;
+                  })}
+                </div>
+              ))}
             </div>
-            <div className="cs-panel cs-verify-panel" data-rise>
-              <span className="cs-label">Guardrail</span>
-              <div className="cs-verify-stat"><div className="cs-kpi-value"><span data-count="119">119</span></div></div>
-              <p className="cs-chart-summary">axe-tested components and test files. The next milestone is an explicit CI rule blocking new components without coverage.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ===== 10 IMPACT ===== */}
-        <section className="cs-section cs-impact-band" id="impact" aria-labelledby="cs-impact-title">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">10</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>10 · Impact</p>
-            <H id="cs-impact-title">Compliance, measured</H>
-            <div className="cs-kpi-grid" data-stagger>
-              <article className="cs-kpi-card" data-rise><span className="cs-label">Compliance</span><div className="cs-kpi-value"><span data-count="100" data-suffix="%">100%</span></div><p className="cs-kpi-hint">WCAG 2.2 AA and Section 508.</p></article>
-              <article className="cs-kpi-card" data-rise><span className="cs-label">Open defects</span><div className="cs-kpi-value">327 to 0</div><p className="cs-kpi-hint">Every source-aware finding closed.</p></article>
-              <article className="cs-kpi-card" data-rise><span className="cs-label">Products inheriting</span><div className="cs-kpi-value"><span data-count="20" data-suffix="+">20+</span></div><p className="cs-kpi-hint">Shared compliance foundation.</p></article>
-              <article className="cs-kpi-card" data-rise><span className="cs-label">Axe baselines</span><div className="cs-kpi-value"><span data-count="119">119</span></div><p className="cs-kpi-hint">Regression checks in tests.</p></article>
-            </div>
-            <div className="cs-panel" data-rise style={{ marginTop: 24 }}>
-              <div className="cs-panel-header"><div className="cs-panel-title"><span className="cs-label">Jan 2026 to Apr 2026</span><h3>Compliance rose as open issues fell</h3></div></div>
-              <div className="cs-chart" data-chart="impactChart" role="img" aria-label="Line chart showing compliance rising from 27.6 to 100 percent while open issues fall from 520 to 0." />
-              <p className="cs-chart-summary">Compliance moved from 27.6% to 100% while open issues dropped from 520 to zero over four months.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ===== 11 SECTION 508 ===== */}
-        <section className="cs-section" id="section-508" aria-labelledby="cs-508-title">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">11</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>11 · Compliance</p>
-            <H id="cs-508-title">WCAG 2.2 AA to Section 508, by construction</H>
-            <p className="cs-lede" data-rise>The 2017 ICT Refresh adopts WCAG success criteria by direct reference for web content. Conforming MDS components satisfy the shared foundation federal healthcare customers need.</p>
-            <div className="cs-panel" data-rise style={{ marginTop: 32 }}>
-              <div className="cs-method-list" data-stagger>
-                {[
-                  ['501', 'ICT scope', 'MDS components render in the browser and are covered under E205 web content requirements.'],
-                  ['E205', 'Web content', 'WCAG 2.2 AA conformance satisfies E205.4 by direct reference.'],
-                  ['502', 'AT interoperability', 'Interactive components expose role, state, and name via platform accessibility APIs.'],
-                  ['503', 'No visual-only cues', 'Forced-colors work restores states that depended on box-shadow or color alone.'],
-                  ['302', 'Keyboard and manipulation', 'Full keyboard reach, roving tabindex, skip-on-Esc, focus trap, and adaptive touch targets cover limited manipulation scenarios.'],
-                  ['504', 'Authoring tool status', 'MDS is consumed by authoring tools, not an authoring tool itself, so 504 does not apply directly.'],
-                ].map(([idx, title, body]) => (
-                  <article className="cs-method-item" data-rise key={idx}>
-                    <span className="cs-method-index">{idx}</span>
-                    <div><h3>{title}</h3><p>{body}</p></div>
-                  </article>
-                ))}
+            <div className="csx-split csx-proof-split">
+              <div className="csx-copy">
+                <h3 data-rise>Every component carries a jest-axe baseline</h3>
+                <p data-rise>119 test files call <code>toHaveNoViolations</code>. Every shipping component has an axe baseline, and the rule runs in <code>npm test</code>. The wrapper disables the region rule inside isolated RTL tests and toggles real timers around the async engine so Jest fake timers do not deadlock it.</p>
+                <p data-rise>And because the 2017 ICT Refresh adopts WCAG by direct reference, conforming MDS components satisfy Section 508's E205.4 for web content — with role, state, and name exposed via platform accessibility APIs (502), no visual-only cues (503), and full keyboard reach with adaptive touch targets (302).</p>
+              </div>
+              <div className="csx-panel csx-proof-stat" data-rise>
+                <span className="csx-label">Guardrail</span>
+                <strong><span data-count="119">119</span></strong>
+                <p className="csx-note">axe-tested components and test files. Next milestone: an explicit CI rule blocking new components without coverage.</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ===== 12 CROSS-PRODUCT ===== */}
-        <section className="cs-section" id="cross-product" aria-labelledby="cs-cross-title">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">12</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>12 · Cross-Product</p>
-            <H id="cs-cross-title">One DS release resolves 51% of downstream audit findings</H>
-            <p className="cs-lede" data-rise>Of 3,823 accessibility issues across three audited Innovaccer products, 1,951 traced to MDS root causes and close automatically when a product upgrades.</p>
-            <div className="cs-panel" data-rise style={{ marginTop: 32 }}>
-              <div className="cs-panel-header"><div className="cs-panel-title"><span className="cs-label">Attribution</span><h3>MDS-fixable vs product-team work</h3></div></div>
-              <div className="cs-chart" data-chart="crossProductChart" role="img" aria-label="Stacked bar chart showing MDS-fixable and product-team accessibility issues by product." />
-              <p className="cs-chart-summary">Case &amp; Care Management had the largest MDS-owned share at 61.5%; DAP had more product-owned data visualization and custom-pane work.</p>
+        {/* ================= 08 IMPACT — pinned dark detonation ================= */}
+        <section className="csx-impact" id="impact" ref={impactRef} aria-labelledby="csx-impact-title">
+          <div className="csx-impact-veil" aria-hidden="true" />
+          <div className="csx-impact-rings" aria-hidden="true">
+            <i className="csx-impact-ring" /><i className="csx-impact-ring" /><i className="csx-impact-ring" />
+            <i className="csx-impact-completion" />
+          </div>
+          <div className="csx-impact-stage">
+            <p className="csx-impact-eyebrow">08 · Impact</p>
+            <h2 className="csx-visually-hidden" id="csx-impact-title">Compliance, measured</h2>
+            <p className="csx-impact-baseline"><span>Baseline</span><strong>27.6%</strong><i aria-hidden="true">→</i></p>
+            <div className="csx-impact-counter" aria-label="Compliance rose from 27.6% to 100%"><span ref={impactCountRef}>27.6%</span></div>
+            <p className="csx-impact-caption">WCAG 2.2 AA &amp; Section 508 · four months · zero open defects</p>
+            <div className="csx-impact-stats">
+              {[
+                ['Open defects', '327 → 0', 'Every source-aware finding closed.'],
+                ['Products inheriting', '20+', 'Shared compliance foundation.'],
+                ['Axe baselines', '119', 'Regression checks in every test run.'],
+              ].map(([k, v, hint]) => (
+                <div className="csx-impact-stat" key={k}><span className="csx-label">{k}</span><strong>{v}</strong><p>{hint}</p></div>
+              ))}
             </div>
-            <div className="cs-split cs-cross-detail">
-              <div className="cs-panel" data-rise>
-                <div className="cs-panel-header"><div className="cs-panel-title"><span className="cs-label">Top 5 single-fix-many-wins</span><h3>Largest shared closures</h3></div></div>
-                <ul className="cs-top-fixes">
+          </div>
+        </section>
+
+        <section className="csx-section csx-impact-after" aria-label="Impact over time">
+          <div className="csx-inner">
+            <div className="csx-panel" data-rise>
+              <div className="csx-panel-title"><span className="csx-label">Jan 2026 → Apr 2026</span><h3>Compliance rose as open issues fell</h3></div>
+              <div className="csx-chart" data-chart="impactChart" role="img" aria-label="Line chart showing compliance rising from 27.6 to 100 percent while open issues fall from 520 to 0." />
+              <p className="csx-note">Compliance moved from 27.6% to 100% while open issues dropped from 520 to zero over four months.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= 09 RIPPLE ================= */}
+        <section className="csx-section" id="ripple" aria-labelledby="csx-ripple-title">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">09</span>
+          <div className="csx-inner">
+            <Eyebrow>09 · The ripple</Eyebrow>
+            <H id="csx-ripple-title">One release resolves 51% of downstream findings</H>
+            <p className="csx-lede" data-rise>Of 3,823 accessibility issues across three audited Innovaccer products, 1,951 traced to MDS root causes and close automatically when a product upgrades.</p>
+            <div className="csx-panel" data-rise>
+              <div className="csx-panel-title"><span className="csx-label">Attribution</span><h3>MDS-fixable vs product-team work</h3></div>
+              <div className="csx-chart" data-chart="crossProductChart" role="img" aria-label="Stacked bar chart showing MDS-fixable and product-team accessibility issues by product." />
+              <p className="csx-note">Case &amp; Care Management had the largest MDS-owned share at 61.5%; DAP had more product-owned data visualization and custom-pane work.</p>
+            </div>
+            <div className="csx-duo csx-ripple-duo" data-stagger>
+              <div className="csx-panel" data-rise>
+                <div className="csx-panel-title"><span className="csx-label">Top 5 single-fix-many-wins</span><h3>Largest shared closures</h3></div>
+                <ul className="csx-fixes">
                   {[
                     ['01', 'Focus-ring token darkened', '262'],
                     ['02', 'Icon-button accessible names', '191'],
@@ -621,52 +871,59 @@ export default function CaseStudy() {
                     ['04', 'Tooltip dismiss-on-Esc + hover-persist', '123'],
                     ['05', 'Keyboard reach on Grid, Stepper, Slider, Combobox', '107'],
                   ].map(([rank, label, val]) => (
-                    <li key={rank}><span className="cs-rank">{rank}</span><span>{label}</span><span className="cs-resolved">{val}</span></li>
+                    <li key={rank}><span className="csx-rank">{rank}</span><span>{label}</span><span className="csx-resolved">{val}</span></li>
                   ))}
                 </ul>
               </div>
-              <div className="cs-panel" data-rise>
-                <div className="cs-panel-header"><div className="cs-panel-title"><span className="cs-label">Still product-owned</span><h3>What MDS cannot fix</h3></div></div>
-                <div className="cs-chart cs-chart-short" data-chart="cannotFixChart" role="img" aria-label="Bar chart showing product-owned accessibility issue categories that MDS cannot fix." />
+              <div className="csx-panel" data-rise>
+                <div className="csx-panel-title"><span className="csx-label">Still product-owned</span><h3>What MDS cannot fix</h3></div>
+                <div className="csx-chart csx-chart-short" data-chart="cannotFixChart" role="img" aria-label="Bar chart showing product-owned accessibility issue categories that MDS cannot fix." />
               </div>
             </div>
           </div>
         </section>
 
-        {/* ===== 13 NOTES ===== */}
-        <section className="cs-section" id="notes" aria-labelledby="cs-notes-title">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">13</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>13 · Notes</p>
-            <H id="cs-notes-title">What we would do again, and what we do not claim</H>
-            <div className="cs-limits-grid" data-stagger>
+        {/* ================= 10 NOTES ================= */}
+        <section className="csx-section" id="notes" aria-labelledby="csx-notes-title">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">10</span>
+          <div className="csx-inner">
+            <Eyebrow>10 · Notes</Eyebrow>
+            <H id="csx-notes-title">What we would do again — and what we do not claim</H>
+            <div className="csx-grid-2" data-stagger>
               {[
                 'We claim WCAG 2.2 AA, not AAA.',
                 'We claim 51% of downstream product issues resolve by MDS upgrade, not 100%.',
                 'jest-axe baselines exist; a CI block for new components is the next milestone.',
                 'The AI-skill audit complemented Deque. It did not replace it.',
               ].map((text, i) => (
-                <article className="cs-limit-card" data-rise key={i}><span className="cs-label">Limit</span><p>{text}</p></article>
+                <article className="csx-card csx-card-limit" data-rise key={i}><span className="csx-label">Limit</span><p>{text}</p></article>
               ))}
             </div>
-            <p className="cs-eyebrow" data-rise style={{ marginTop: 32 }}>Reflections</p>
-            <div className="cs-limits-grid" data-stagger style={{ marginTop: 24 }}>
+            <div className="csx-reflections" data-stagger>
               {[
-                ['Reflection 01', <><strong>Audit your own code.</strong> Deque found what paint reveals: contrast, labels, and heading semantics. Source access found what props hide: ARIA relationships, keyboard invariants, and ref flows.</>],
-                ['Reflection 02', <><strong>Make the wrong thing harder.</strong> Auto-labelled clear buttons fixed the issue and removed the prop everyone would have forgotten. API design is accessibility design.</>],
-                ['Reflection 03', <><strong>Test like it is an invariant.</strong> 119 axe baselines means no one has to remember the rule manually. The CI does, and regressions get caught before shipping.</>],
-              ].map(([label, body]) => (
-                <article className="cs-limit-card" data-rise key={label as string}><span className="cs-label">{label}</span><p>{body}</p></article>
+                ['01', 'Audit your own code.', 'Deque found what paint reveals: contrast, labels, heading semantics. Source access found what props hide: ARIA relationships, keyboard invariants, ref flows.'],
+                ['02', 'Make the wrong thing harder.', 'Auto-labelled clear buttons fixed the issue and removed the prop everyone would have forgotten. API design is accessibility design.'],
+                ['03', 'Test like it is an invariant.', '119 axe baselines means no one has to remember the rule manually. The CI does, and regressions get caught before shipping.'],
+              ].map(([n, title, body]) => (
+                <article className="csx-reflection" data-rise key={n}>
+                  <span className="csx-reflection-num">{n}</span>
+                  <p><strong>{title}</strong> {body}</p>
+                </article>
               ))}
             </div>
           </div>
         </section>
+
+        <Marquee items={['27.6% → 100%', '327 → 0 OPEN DEFECTS', '99 COMPONENTS REBUILT', '51% DOWNSTREAM RESOLVED']} />
       </main>
 
-      <footer className="cs-footer">
-        <div className="cs-inner cs-footer-grid">
+      <footer className="csx-footer">
+        <div className="csx-inner csx-footer-grid">
           <p>Innovaccer · Masala Design System · WCAG 2.2 AA · Section 508</p>
-          <button className="cs-back-link" type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Back to top</button>
+          <div className="csx-footer-actions">
+            <a className="csx-back csx-magnetic" href="#/work">More case studies →</a>
+            <button className="csx-top-link" type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Back to top</button>
+          </div>
         </div>
       </footer>
     </div>
