@@ -736,6 +736,198 @@
 .csx-top-link { color: var(--blue); font-size: 0.9rem; font-weight: 560; background: none; border: 0; padding: 0; cursor: pointer; }
 .csx-top-link:hover { text-decoration: underline; }
 
+/* ===========================================================================
+   SHARED PRIMITIVES — used by every case study rebuilt onto this system.
+   Same hairline anatomy and blue accent as the panels above. These cover the
+   editorial pieces individual cases need: stat grids, tables, flows, code,
+   palettes, callouts, quotes, figures, def lists.
+   =========================================================================== */
+
+/* ----- Stat grid ---------------------------------------------------------- */
+.csx-stat-grid {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px; margin-top: 24px;
+}
+.csx-stat {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 22px 22px 20px;
+  border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--card); box-shadow: var(--shadow-rest);
+  transition: border-color 380ms var(--ease), transform 380ms var(--ease), box-shadow 380ms var(--ease);
+}
+.csx-stat:hover { border-color: rgba(8, 124, 255, 0.34); transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+.csx-stat strong {
+  font-size: clamp(2rem, 3vw, 2.9rem); font-weight: 620;
+  letter-spacing: -0.04em; line-height: 0.96; color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.csx-stat strong span { color: var(--blue); }
+.csx-stat > span { font-size: 0.9rem; line-height: 1.5; color: var(--body); }
+
+/* ----- Card grids (aliases mapped from the old cs- system) ---------------- */
+.csx-grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.csx-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 18px; }
+.csx-card ul { margin: 4px 0 0; padding-left: 1.1em; }
+.csx-card li { margin: 0 0 8px; font-size: 0.94rem; line-height: 1.55; color: var(--body); }
+.csx-card li strong { color: var(--ink); font-weight: 620; }
+.csx-card h3 { margin: 0 0 8px; }
+.csx-list-panel ul { margin: 6px 0 0; padding-left: 1.1em; }
+.csx-list-panel li { margin: 0 0 8px; font-size: 0.94rem; line-height: 1.55; color: var(--body); }
+.csx-code-chip {
+  display: inline-block; margin-top: 4px; align-self: flex-start;
+  font-family: 'SFMono-Regular', ui-monospace, monospace;
+  font-size: 0.72rem; letter-spacing: 0.01em;
+  padding: 5px 10px; border-radius: 999px;
+  background: rgba(8, 124, 255, 0.09); color: var(--blue);
+}
+
+/* ----- Callout / quote / outcome ------------------------------------------ */
+.csx-callout {
+  margin: 22px 0; padding: 22px clamp(22px, 2.4vw, 30px);
+  border-radius: var(--radius); border: 1px solid rgba(8, 124, 255, 0.22);
+  background: linear-gradient(170deg, #ffffff 30%, #f0f6ff);
+  position: relative; overflow: hidden;
+}
+.csx-callout::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--blue);
+}
+.csx-callout p { margin: 0; max-width: none; color: var(--body); font-size: 1rem; line-height: 1.6; }
+.csx-callout strong { color: var(--ink); font-weight: 620; }
+
+.csx-quote {
+  margin: 32px 0 !important; max-width: 30ch !important;
+  font-size: clamp(1.5rem, 2.6vw, 2.4rem) !important;
+  font-weight: 580; line-height: 1.18; letter-spacing: -0.035em;
+  color: var(--ink) !important;
+}
+.csx-quote::before { content: '“'; color: var(--blue); }
+.csx-quote::after { content: '”'; color: var(--blue); }
+
+.csx-outcome {
+  margin: 28px 0; padding: clamp(26px, 3vw, 40px);
+  border-radius: var(--radius); border: 1px solid var(--line);
+  background: linear-gradient(160deg, #eef4ff, #ffffff);
+  position: relative; overflow: hidden;
+}
+.csx-outcome::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(8, 124, 255, 0.12) 1px, transparent 1px);
+  background-size: 16px 16px;
+  -webkit-mask-image: linear-gradient(125deg, transparent 56%, #000 100%);
+  mask-image: linear-gradient(125deg, transparent 56%, #000 100%);
+  pointer-events: none;
+}
+.csx-outcome h3 { margin: 0 0 12px; color: var(--blue); }
+.csx-outcome p { position: relative; z-index: 1; margin: 0 0 12px; }
+.csx-outcome p:last-child { margin-bottom: 0; }
+
+/* ----- Tables ------------------------------------------------------------- */
+.csx-table {
+  margin: 18px 0; border: 1px solid var(--line); border-radius: var(--radius);
+  overflow: hidden; background: var(--card); box-shadow: var(--shadow-rest);
+}
+.csx-trow {
+  display: grid; grid-template-columns: var(--cols, repeat(3, 1fr));
+  align-items: center; gap: 14px; padding: 14px clamp(16px, 2vw, 26px);
+  border-top: 1px solid var(--line-soft);
+  font-size: 0.9rem; color: var(--body);
+}
+.csx-trow > span:first-child { color: var(--ink); font-weight: 520; }
+.csx-trow code { font-size: 0.8em; }
+.csx-thead {
+  border-top: 0; background: rgba(5, 10, 24, 0.025);
+  font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+}
+.csx-thead > span:first-child { color: var(--muted); font-weight: 650; }
+.csx-cell-accent { color: var(--blue) !important; font-weight: 620; }
+
+/* ----- Flow (stepped) ----------------------------------------------------- */
+.csx-flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 22px 0; }
+.csx-flow-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.csx-flow-step {
+  display: flex; flex-direction: column; gap: 7px;
+  padding: 20px; border-radius: var(--radius);
+  border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow-rest);
+}
+.csx-flow-step i {
+  font-style: normal; font-size: 0.78rem; font-weight: 650; letter-spacing: 0.06em;
+  color: var(--blue); font-variant-numeric: tabular-nums; margin-bottom: 2px;
+}
+.csx-flow-step b { font-size: 0.98rem; font-weight: 620; letter-spacing: -0.02em; color: var(--ink); }
+.csx-flow-step span { font-size: 0.88rem; line-height: 1.5; color: var(--body); }
+
+/* ----- Definition list ---------------------------------------------------- */
+.csx-deflist { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0; }
+.csx-def {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 18px 20px; border-radius: 12px;
+  border: 1px solid var(--line-soft); background: var(--paper-2);
+}
+.csx-def b { font-size: 0.92rem; font-weight: 640; letter-spacing: -0.01em; color: var(--ink); }
+.csx-def span { font-size: 0.9rem; line-height: 1.5; color: var(--body); }
+.csx-def strong { color: var(--ink); font-weight: 620; }
+
+/* ----- Code block --------------------------------------------------------- */
+.csx-code {
+  margin: 18px 0; border-radius: var(--radius);
+  border: 1px solid var(--line); background: #0b0e15;
+  overflow: auto; box-shadow: var(--shadow-rest);
+}
+.csx-code pre {
+  margin: 0; padding: clamp(18px, 2vw, 26px);
+  font-family: 'SFMono-Regular', ui-monospace, 'JetBrains Mono', monospace;
+  font-size: 0.82rem; line-height: 1.65; color: #c6d4ea;
+  white-space: pre; tab-size: 2;
+}
+
+/* ----- Palette swatches --------------------------------------------------- */
+.csx-palette { display: flex; flex-direction: column; gap: 10px; margin: 18px 0; }
+.csx-swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.csx-swatches span {
+  height: 44px; border-radius: 8px; border: 1px solid var(--line-soft);
+}
+.csx-sentiment { display: flex; gap: 6px; }
+.csx-sentiment span {
+  flex: 1; padding: 10px; text-align: center; border-radius: 8px;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  border: 1px solid var(--line-soft); color: var(--muted); background: var(--paper-2);
+}
+
+/* ----- Check tags / chip row ---------------------------------------------- */
+.csx-checks { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.csx-checks span {
+  font-size: 0.84rem; font-weight: 520; color: var(--body);
+  padding: 8px 14px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--card);
+}
+.csx-checks span::before { content: '✓  '; color: var(--blue); font-weight: 700; }
+.csx-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.csx-chips span {
+  font-size: 0.82rem; font-weight: 560; color: var(--blue);
+  padding: 7px 14px; border-radius: 999px;
+  border: 1px solid rgba(8, 124, 255, 0.22); background: rgba(8, 124, 255, 0.06);
+}
+
+/* ----- Figure (asset placeholder) ----------------------------------------- */
+.csx-figure { margin: 22px 0; }
+.csx-figure-ph {
+  display: grid; place-items: center; padding: clamp(40px, 7vw, 90px) 28px;
+  border-radius: var(--radius); border: 1px dashed var(--line);
+  background:
+    radial-gradient(circle at 50% 40%, rgba(8, 124, 255, 0.05), transparent 70%),
+    var(--paper-2);
+  text-align: center;
+}
+.csx-figure-ph span { font-size: 0.9rem; color: var(--muted); max-width: 52ch; line-height: 1.5; }
+.csx-figure figcaption { margin-top: 12px; font-size: 0.84rem; color: var(--muted); line-height: 1.5; }
+
+/* ----- Chart summary note ------------------------------------------------- */
+.csx-chart-summary {
+  margin: 16px 0 0 !important; font-size: 0.9rem !important;
+  color: var(--muted) !important; max-width: none !important;
+}
+
 /* ===== Responsive ========================================================= */
 @media (max-width: 1280px) {
   .csx-rail button { grid-template-columns: 30px 2.7ch; }
@@ -744,6 +936,8 @@
 
 @media (max-width: 1100px) {
   .csx-grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .csx-stat-grid, .csx-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .csx-flow, .csx-flow-5 { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 920px) {
@@ -773,6 +967,11 @@
 @media (max-width: 640px) {
   .csx-inner { width: calc(100% - 32px); }
   .csx-grid-3, .csx-grid-2 { grid-template-columns: 1fr; }
+  .csx-stat-grid, .csx-grid-4, .csx-flow, .csx-flow-5, .csx-deflist { grid-template-columns: 1fr; }
+  .csx-swatches { grid-template-columns: repeat(7, 1fr); }
+  .csx-trow { grid-template-columns: 1fr !important; gap: 4px; }
+  .csx-trow > span:first-child { font-weight: 620; margin-bottom: 2px; }
+  .csx-thead { display: none; }
   .csx-ledger { grid-template-columns: 1fr 1fr; }
   .csx-hero-h { font-size: clamp(2.4rem, 11.4vw, 3.6rem); max-width: 10ch; }
   .csx-h { font-size: clamp(1.7rem, 8vw, 2.4rem); max-width: none; }
@@ -798,5 +997,5 @@
   .csx-rail-line span { transform: scaleY(1); }
   .csx-impact-veil { opacity: 1; }
   .csx-impact-ring { opacity: 1; }
-  .csx-card, .csx-back, .csx-arch-card { transition: none; }
+  .csx-card, .csx-back, .csx-arch-card, .csx-stat { transition: none; }
 }

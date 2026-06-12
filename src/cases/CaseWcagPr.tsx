@@ -1,15 +1,17 @@
 import { useRef } from 'react';
 import {
   H,
-  CaseChrome,
-  CaseFooter,
-  useCaseStudyMotion,
-  useECharts,
-  useCasePage,
+  Eyebrow,
+  Marquee,
+  ExperienceChrome,
+  ExperienceFooter,
+  useExperience,
+  useExperienceCharts,
   P,
   FONT,
   type ChartDef,
-} from './shared';
+  type Chapter,
+} from './experience';
 
 // ---------------------------------------------------------------------------
 // One chart from the source: a donut showing where the 44 PR/branch
@@ -66,7 +68,7 @@ const CHARTS: ChartDef[] = [
 ];
 
 // Pillar data — preserved from the source accordion (problem, decision, PR
-// evidence, key files, why). Reinterpreted into the cs- vocabulary below.
+// evidence, key files, why). Reinterpreted into the csx- vocabulary below.
 const PILLARS: Array<{
   id: string;
   label: string;
@@ -352,297 +354,339 @@ const SUPPORTING: Array<[string, string, string]> = [
   ['#1890', 'fix(chipInput): update state for custom icon button', 'Older custom icon-button state reference.'],
 ];
 
+const CHAPTERS: Chapter[] = [
+  { id: 'context', num: '02', label: 'Why' },
+  { id: 'model', num: '03', label: 'Model' },
+  { id: 'pillars', num: '04', label: 'Pillars' },
+  { id: 'inventory', num: '05', label: 'Inventory' },
+  { id: 'evidence', num: '06', label: 'Evidence' },
+  { id: 'framing', num: '07', label: 'Framing' },
+  { id: 'mapping', num: '08', label: 'Mapping' },
+  { id: 'impact', num: '09', label: 'Impact' },
+  { id: 'card', num: '10', label: 'Card' },
+];
+
 export default function CaseWcagPr() {
   const rootRef = useRef<HTMLDivElement>(null);
-  useCasePage('WCAG into component contracts');
-  useCaseStudyMotion(rootRef);
-  useECharts(rootRef, CHARTS);
+  useExperience(rootRef, { chapters: CHAPTERS, title: 'WCAG into component contracts' });
+  useExperienceCharts(rootRef, CHARTS);
 
   return (
-    <div className="cs-root" ref={rootRef}>
-      <CaseChrome tag="WCAG · PR Contributions" />
+    <div className="csx-root" ref={rootRef}>
+      <ExperienceChrome chapters={CHAPTERS} tag="WCAG · PR Contributions" />
 
-      <main>
-        {/* HERO */}
-        <section className="cs-section cs-hero" aria-labelledby="wp-hero">
-          <span className="cs-ghost" data-parallax="1.6" aria-hidden="true">01</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>Case Study Extension · Personal Contribution Map</p>
-            <H id="wp-hero" level={1}>WCAG into component contracts</H>
-            <p className="cs-lede cs-hero-lede" data-rise>How I translated WCAG 2.2 accessibility requirements into design-system decisions, interaction specs, and production code across Innovaccer's Masala Design System.</p>
-            <div className="cs-meta-grid" aria-label="Project metadata" data-stagger>
-              <div className="cs-meta-item" data-rise><span className="cs-label">Role</span><span className="cs-meta-value">Product Designer — design, accessibility strategy, and code</span></div>
-              <div className="cs-meta-item" data-rise><span className="cs-label">Product</span><span className="cs-meta-value">Innovaccer Masala Design System</span></div>
-              <div className="cs-meta-item" data-rise><span className="cs-label">Project</span><span className="cs-meta-value">WCAG 2.2 AA + Section 508 remediation</span></div>
-              <div className="cs-meta-item" data-rise><span className="cs-label">Period</span><span className="cs-meta-value">Feb 2026 – Apr 2026</span></div>
+      <main className="csx-main">
+        {/* ================= HERO ================= */}
+        <section className="csx-hero" aria-labelledby="wp-hero">
+          <span className="csx-hero-ghost" aria-hidden="true">01</span>
+          <div className="csx-hero-inner">
+            <Eyebrow>Case Study Extension · Personal Contribution Map</Eyebrow>
+            <H id="wp-hero" level={1} className="csx-hero-h">WCAG into component contracts</H>
+            <p className="csx-hero-lede" data-rise>How I translated WCAG 2.2 accessibility requirements into design-system decisions, interaction specs, and production code across Innovaccer's Masala Design System.</p>
+            <div className="csx-hero-meta" data-stagger>
+              <div className="csx-meta-pill" data-rise><span>Role</span><strong>Product Designer — design, accessibility strategy, and code</strong></div>
+              <div className="csx-meta-pill" data-rise><span>Product</span><strong>Innovaccer Masala Design System</strong></div>
+              <div className="csx-meta-pill" data-rise><span>Project</span><strong>WCAG 2.2 AA + Section 508 remediation</strong></div>
+              <div className="csx-meta-pill" data-rise><span>Period</span><strong>Feb 2026 – Apr 2026</strong></div>
             </div>
-            <div className="cs-stat-grid" data-stagger>
-              <div className="cs-stat" data-rise><strong><span data-count="44">44</span></strong><span>PR / branch contributions — 42 public PRs plus 2 latest submitted PR branches.</span></div>
-              <div className="cs-stat" data-rise><strong><span data-count="161">161</span></strong><span>public PR branch commits, from public PR metadata.</span></div>
-              <div className="cs-stat" data-rise><strong><span data-count="435">435</span></strong><span>changed-file entries across public PR metadata.</span></div>
-              <div className="cs-stat" data-rise><strong><span data-count="124">124</span></strong><span>unique files touched in local author history.</span></div>
+          </div>
+          <div className="csx-scrollcue" aria-hidden="true"><span /><p>Scroll</p></div>
+        </section>
+
+        <Marquee items={['44 PR / BRANCHES', '27.6% → 100%', '124 FILES', 'WCAG INTO THE CONTRACT']} />
+
+        {/* ================= 01 BY THE NUMBERS — interstitial (no rail id) ================= */}
+        <section className="csx-section">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">01</span>
+          <div className="csx-inner">
+            <Eyebrow>01 · By the numbers</Eyebrow>
+            <H id="wp-numbers">The contribution map, in figures</H>
+            <div className="csx-stat-grid" data-stagger>
+              <div className="csx-stat" data-rise><strong><span data-count="44">44</span></strong><span>PR / branch contributions — 42 public PRs plus 2 latest submitted PR branches.</span></div>
+              <div className="csx-stat" data-rise><strong><span data-count="161">161</span></strong><span>public PR branch commits, from public PR metadata.</span></div>
+              <div className="csx-stat" data-rise><strong><span data-count="435">435</span></strong><span>changed-file entries across public PR metadata.</span></div>
+              <div className="csx-stat" data-rise><strong><span data-count="124">124</span></strong><span>unique files touched in local author history.</span></div>
             </div>
-            <div className="cs-stat-grid" data-stagger>
-              <div className="cs-stat" data-rise><strong><span data-count="86">86</span></strong><span>local author commits under atulya.v@innovaccer.com.</span></div>
-              <div className="cs-stat" data-rise><strong>33,052</strong><span>lines added in local author history.</span></div>
-              <div className="cs-stat" data-rise><strong>atulya-innovaccer</strong><span>public PR account in the Innovaccer Design System.</span></div>
-              <div className="cs-stat" data-rise><strong>DS</strong><span>WCAG converted from a checklist into the component contract.</span></div>
+            <div className="csx-stat-grid" data-stagger>
+              <div className="csx-stat" data-rise><strong><span data-count="86">86</span></strong><span>local author commits under atulya.v@innovaccer.com.</span></div>
+              <div className="csx-stat" data-rise><strong>33,052</strong><span>lines added in local author history.</span></div>
+              <div className="csx-stat" data-rise><strong>atulya-innovaccer</strong><span>public PR account in the Innovaccer Design System.</span></div>
+              <div className="csx-stat" data-rise><strong>DS</strong><span>WCAG converted from a checklist into the component contract.</span></div>
             </div>
           </div>
         </section>
 
-        {/* 02 WHY THIS MATTERED */}
-        <section className="cs-section" aria-labelledby="wp-context">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">02</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>02 · Why this mattered</p>
+        {/* ================= 02 WHY THIS MATTERED ================= */}
+        <section className="csx-section" id="context" aria-labelledby="wp-context">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">02</span>
+          <div className="csx-inner">
+            <Eyebrow>02 · Why this mattered</Eyebrow>
             <H id="wp-context">A design-system accessibility issue does not stay local</H>
-            <p className="cs-lede" data-rise>MDS is the foundation for 20+ Innovaccer products. One unclear focus ring, one unnamed icon button, or one tiny action target can repeat across product screens at scale.</p>
+            <p className="csx-lede" data-rise>MDS is the foundation for 20+ Innovaccer products. One unclear focus ring, one unnamed icon button, or one tiny action target can repeat across product screens at scale.</p>
             <p data-rise>This case study adds the personal contribution proof behind the larger WCAG program: the PRs, component files, and design decisions I directly influenced.</p>
-            <div className="cs-callout" data-rise><p>The portfolio one-liner: I helped move accessibility from a checklist into the component contract.</p></div>
-            <div className="cs-stat-grid" data-stagger aria-label="Program scale metrics">
-              <div className="cs-stat" data-rise><strong>27.6%</strong><span>Starting compliance — WCAG 2.2 AA baseline for MDS.</span></div>
-              <div className="cs-stat" data-rise><strong><span data-count="100" data-suffix="%">100%</span></strong><span>Current compliance — target reached for the program.</span></div>
-              <div className="cs-stat" data-rise><strong>520+</strong><span>Issues catalogued across the remediation effort.</span></div>
-              <div className="cs-stat" data-rise><strong>99+</strong><span>Components rebuilt — design-system components brought to spec.</span></div>
+            <div className="csx-callout" data-rise><p>The portfolio one-liner: I helped move accessibility from a checklist into the component contract.</p></div>
+            <div className="csx-stat-grid" data-stagger aria-label="Program scale metrics">
+              <div className="csx-stat" data-rise><strong>27.6%</strong><span>Starting compliance — WCAG 2.2 AA baseline for MDS.</span></div>
+              <div className="csx-stat" data-rise><strong><span data-count="100" data-suffix="%">100%</span></strong><span>Current compliance — target reached for the program.</span></div>
+              <div className="csx-stat" data-rise><strong>520+</strong><span>Issues catalogued across the remediation effort.</span></div>
+              <div className="csx-stat" data-rise><strong>99+</strong><span>Components rebuilt — design-system components brought to spec.</span></div>
             </div>
-            <p className="cs-chart-summary" data-rise>These program-level figures frame the larger WCAG work; the sections that follow map personal PR and design contributions into that context.</p>
+            <p className="csx-chart-summary" data-rise>These program-level figures frame the larger WCAG work; the sections that follow map personal PR and design contributions into that context.</p>
           </div>
         </section>
 
-        {/* 03 CONTRIBUTION MODEL */}
-        <section className="cs-section" aria-labelledby="wp-model">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">03</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>03 · My contribution model</p>
+        {/* ================= 03 CONTRIBUTION MODEL ================= */}
+        <section className="csx-section" id="model" aria-labelledby="wp-model">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">03</span>
+          <div className="csx-inner">
+            <Eyebrow>03 · My contribution model</Eyebrow>
             <H id="wp-model">Design decisions, implemented where the system actually ships</H>
-            <div className="cs-flow cs-flow-5" data-stagger>
-              <div className="cs-flow-step" data-rise><i>01</i><b>Accessibility diagnosis</b><span>Identified invisible focus, small icon targets, color-only states, unclear disabled states, and interaction patterns that failed WCAG.</span></div>
-              <div className="cs-flow-step" data-rise><i>02</i><b>Design remediation</b><span>Defined focus, hover, active, disabled, selected, error, and read-only behavior across reusable components.</span></div>
-              <div className="cs-flow-step" data-rise><i>03</i><b>Code contribution</b><span>Contributed CSS modules, token changes, component behavior, tests, snapshots, and docs updates.</span></div>
-              <div className="cs-flow-step" data-rise><i>04</i><b>Implementation direction</b><span>Drove decisions for MetricInput, action icons, clear buttons, focus rings, and accessible touch targets.</span></div>
-              <div className="cs-flow-step" data-rise><i>05</i><b>Evidence building</b><span>Mapped PRs back to files and WCAG outcomes so the design impact is inspectable, not just claimed.</span></div>
+            <div className="csx-flow csx-flow-5" data-stagger>
+              <div className="csx-flow-step" data-rise><i>01</i><b>Accessibility diagnosis</b><span>Identified invisible focus, small icon targets, color-only states, unclear disabled states, and interaction patterns that failed WCAG.</span></div>
+              <div className="csx-flow-step" data-rise><i>02</i><b>Design remediation</b><span>Defined focus, hover, active, disabled, selected, error, and read-only behavior across reusable components.</span></div>
+              <div className="csx-flow-step" data-rise><i>03</i><b>Code contribution</b><span>Contributed CSS modules, token changes, component behavior, tests, snapshots, and docs updates.</span></div>
+              <div className="csx-flow-step" data-rise><i>04</i><b>Implementation direction</b><span>Drove decisions for MetricInput, action icons, clear buttons, focus rings, and accessible touch targets.</span></div>
+              <div className="csx-flow-step" data-rise><i>05</i><b>Evidence building</b><span>Mapped PRs back to files and WCAG outcomes so the design impact is inspectable, not just claimed.</span></div>
             </div>
           </div>
         </section>
 
-        {/* 04 CONTRIBUTION PILLARS */}
-        <section className="cs-section" aria-labelledby="wp-pillars">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">04</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>04 · Contribution pillars</p>
+        {/* ================= 04 CONTRIBUTION PILLARS ================= */}
+        <section className="csx-section" id="pillars" aria-labelledby="wp-pillars">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">04</span>
+          <div className="csx-inner">
+            <Eyebrow>04 · Contribution pillars</Eyebrow>
             <H id="wp-pillars">Seven reusable accessibility patterns</H>
-            <p className="cs-lede" data-rise>The story is not a pile of PRs. It is a set of component-contract rules that product teams inherit when they upgrade MDS.</p>
+            <p className="csx-lede" data-rise>The story is not a pile of PRs. It is a set of component-contract rules that product teams inherit when they upgrade MDS.</p>
             <p data-rise>Each pattern carries the problem, design decision, full PR evidence table, key files, and why it mattered.</p>
 
             {PILLARS.map((pillar) => (
               <div key={pillar.id} data-rise>
-                <div className="cs-chips" data-rise>
+                <div className="csx-chips" data-rise>
                   <span>{pillar.label}</span>
                   <span>{pillar.prCount}</span>
                 </div>
                 <h3 id={pillar.id} data-rise>{pillar.heading}</h3>
-                <div className="cs-cards cs-cards-2" data-stagger>
-                  <article className="cs-card" data-rise><span className="cs-label">Problem</span><p>{pillar.problem}</p></article>
-                  <article className="cs-card cs-list-panel" data-rise>
-                    <span className="cs-label">Design decision</span>
-                    <p>{pillar.decision}</p>
-                    {pillar.decisionList ? <ul>{pillar.decisionList.map((d) => <li key={d}>{d}</li>)}</ul> : null}
+                <div className="csx-grid-2" data-stagger>
+                  <article className="csx-card" data-rise><div><span className="csx-label">Problem</span><p>{pillar.problem}</p></div></article>
+                  <article className="csx-card csx-list-panel" data-rise>
+                    <div>
+                      <span className="csx-label">Design decision</span>
+                      <p>{pillar.decision}</p>
+                      {pillar.decisionList ? <ul>{pillar.decisionList.map((d) => <li key={d}>{d}</li>)}</ul> : null}
+                    </div>
                   </article>
                 </div>
                 <h3 data-rise>PR evidence</h3>
-                <div className="cs-table" role="table" aria-label={`${pillar.heading} — PR evidence`} data-rise style={{ ['--cols' as string]: pillar.cols }}>
-                  <div className="cs-trow cs-thead" role="row">{pillar.prHead.map((h) => <span key={h}>{h}</span>)}</div>
+                <div className="csx-table" role="table" aria-label={`${pillar.heading} — PR evidence`} data-rise style={{ ['--cols' as string]: pillar.cols }}>
+                  <div className="csx-trow csx-thead" role="row">{pillar.prHead.map((h) => <span key={h}>{h}</span>)}</div>
                   {pillar.prRows.map((row) => (
-                    <div className="cs-trow" role="row" key={row[0] + row[1]}>{row.map((cell, ci) => <span key={ci}>{cell}</span>)}</div>
+                    <div className="csx-trow" role="row" key={row[0] + row[1]}>{row.map((cell, ci) => <span key={ci}>{cell}</span>)}</div>
                   ))}
                 </div>
                 <h3 data-rise>Key files</h3>
-                <div className="cs-table" role="table" aria-label={`${pillar.heading} — key files`} data-rise style={{ ['--cols' as string]: '1fr 2fr' }}>
-                  <div className="cs-trow cs-thead" role="row">{pillar.filesHead.map((h) => <span key={h}>{h}</span>)}</div>
+                <div className="csx-table" role="table" aria-label={`${pillar.heading} — key files`} data-rise style={{ ['--cols' as string]: '1fr 2fr' }}>
+                  <div className="csx-trow csx-thead" role="row">{pillar.filesHead.map((h) => <span key={h}>{h}</span>)}</div>
                   {pillar.fileRows.map((row) => (
-                    <div className="cs-trow" role="row" key={row[0]}><span>{row[0]}</span><span><code>{row[1]}</code></span></div>
+                    <div className="csx-trow" role="row" key={row[0]}><span>{row[0]}</span><span><code>{row[1]}</code></span></div>
                   ))}
                 </div>
-                <div className="cs-callout" data-rise><p>{pillar.why}</p></div>
+                <div className="csx-callout" data-rise><p>{pillar.why}</p></div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* FOCUSED EXAMPLE — MetricInput */}
-        <section className="cs-section" aria-labelledby="wp-metric">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">★</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>Focused example</p>
+        {/* ================= FOCUSED EXAMPLE — MetricInput ================= */}
+        <section className="csx-section" aria-labelledby="wp-metric">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">★</span>
+          <div className="csx-inner">
+            <Eyebrow>Focused example</Eyebrow>
             <H id="wp-metric">MetricInput shows why this was design-plus-code work</H>
-            <p className="cs-lede" data-rise>MetricInput is a numeric field plus increment/decrement buttons. The value, min/max boundaries, disabled/read-only state, and stepper controls all needed to be coherent for keyboard and assistive-technology users.</p>
-            <div className="cs-split" style={{ alignItems: 'start' }}>
-              <div className="cs-panel" data-rise>
-                <div className="cs-panel-header"><div className="cs-panel-title"><span className="cs-label">Interaction path · Input to boundary state</span></div></div>
-                <div className="cs-flow" style={{ gridTemplateColumns: '1fr', margin: 0 }} data-stagger>
-                  <div className="cs-flow-step" data-rise><i>01</i><span>Native input receives min and max instead of hiding bounds in JavaScript.</span></div>
-                  <div className="cs-flow-step" data-rise><i>02</i><span>Stepper buttons inherit disabled and read-only state from the field.</span></div>
-                  <div className="cs-flow-step" data-rise><i>03</i><span>Increment and decrement controls communicate unavailable boundary state.</span></div>
-                  <div className="cs-flow-step" data-rise><i>04</i><span>Arrow button hit areas grow while the compact visual rhythm remains intact.</span></div>
+            <p className="csx-lede" data-rise>MetricInput is a numeric field plus increment/decrement buttons. The value, min/max boundaries, disabled/read-only state, and stepper controls all needed to be coherent for keyboard and assistive-technology users.</p>
+            <div className="csx-split" style={{ alignItems: 'start' }}>
+              <div className="csx-panel" data-rise>
+                <div className="csx-panel-title"><span className="csx-label">Interaction path · Input to boundary state</span></div>
+                <div className="csx-flow" style={{ gridTemplateColumns: '1fr', margin: 0 }} data-stagger>
+                  <div className="csx-flow-step" data-rise><i>01</i><span>Native input receives min and max instead of hiding bounds in JavaScript.</span></div>
+                  <div className="csx-flow-step" data-rise><i>02</i><span>Stepper buttons inherit disabled and read-only state from the field.</span></div>
+                  <div className="csx-flow-step" data-rise><i>03</i><span>Increment and decrement controls communicate unavailable boundary state.</span></div>
+                  <div className="csx-flow-step" data-rise><i>04</i><span>Arrow button hit areas grow while the compact visual rhythm remains intact.</span></div>
                 </div>
               </div>
-              <div className="cs-panel" data-rise>
-                <div className="cs-panel-header"><div className="cs-panel-title"><span className="cs-label">PR chain · Remediation moved from focus to semantics</span></div></div>
-                <div className="cs-deflist" style={{ gridTemplateColumns: '1fr', margin: 0 }} data-stagger>
-                  <div className="cs-def" data-rise><b>#2825</b><span>Focus style — visual affordance</span></div>
-                  <div className="cs-def" data-rise><b>#2994</b><span>Target sizing + ARIA — interaction model</span></div>
-                  <div className="cs-def" data-rise><b>#3026</b><span>WCAG remediation notes — decision trace</span></div>
-                  <div className="cs-def" data-rise><b>#3035</b><span>Native bounds direction — semantic refinement</span></div>
-                  <div className="cs-def" data-rise><b>#3044</b><span>Min/max + boundary state — programmatic state</span></div>
-                  <div className="cs-def" data-rise><b>#3085</b><span>Arrow-button touchpoint — target size</span></div>
+              <div className="csx-panel" data-rise>
+                <div className="csx-panel-title"><span className="csx-label">PR chain · Remediation moved from focus to semantics</span></div>
+                <div className="csx-deflist" style={{ gridTemplateColumns: '1fr', margin: 0 }} data-stagger>
+                  <div className="csx-def" data-rise><b>#2825</b><span>Focus style — visual affordance</span></div>
+                  <div className="csx-def" data-rise><b>#2994</b><span>Target sizing + ARIA — interaction model</span></div>
+                  <div className="csx-def" data-rise><b>#3026</b><span>WCAG remediation notes — decision trace</span></div>
+                  <div className="csx-def" data-rise><b>#3035</b><span>Native bounds direction — semantic refinement</span></div>
+                  <div className="csx-def" data-rise><b>#3044</b><span>Min/max + boundary state — programmatic state</span></div>
+                  <div className="csx-def" data-rise><b>#3085</b><span>Arrow-button touchpoint — target size</span></div>
                 </div>
-                <p className="cs-chart-summary" data-rise>This example needed design judgement, DOM semantics, keyboard behavior, and test coverage.</p>
+                <p className="csx-chart-summary" data-rise>This example needed design judgement, DOM semantics, keyboard behavior, and test coverage.</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 05 PR INVENTORY */}
-        <section className="cs-section" aria-labelledby="wp-inventory">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">05</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>05 · PR inventory</p>
+        {/* ================= 05 PR INVENTORY ================= */}
+        <section className="csx-section" id="inventory" aria-labelledby="wp-inventory">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">05</span>
+          <div className="csx-inner">
+            <Eyebrow>05 · PR inventory</Eyebrow>
             <H id="wp-inventory">44 PR and branch contributions grouped by contribution type</H>
-            <p className="cs-lede" data-rise>Public PR metadata under <code>atulya-innovaccer</code> shows 42 PRs and 161 commits across those PR branches. With two latest submitted PR branches, the contribution map covers 44 PR/branch contributions.</p>
-            <div className="cs-table" role="table" aria-label="PR inventory" data-rise style={{ ['--cols' as string]: '0.5fr 1.7fr 0.9fr' }}>
-              <div className="cs-trow cs-thead" role="row"><span>PR</span><span>Title</span><span>Contribution type</span></div>
+            <p className="csx-lede" data-rise>Public PR metadata under <code>atulya-innovaccer</code> shows 42 PRs and 161 commits across those PR branches. With two latest submitted PR branches, the contribution map covers 44 PR/branch contributions.</p>
+            <div className="csx-table" role="table" aria-label="PR inventory" data-rise style={{ ['--cols' as string]: '0.5fr 1.7fr 0.9fr' }}>
+              <div className="csx-trow csx-thead" role="row"><span>PR</span><span>Title</span><span>Contribution type</span></div>
               {INVENTORY.map((row) => (
-                <div className="cs-trow" role="row" key={row[0] + row[1]}><span>{row[0]}</span><span>{row[1]}</span><span>{row[2]}</span></div>
+                <div className="csx-trow" role="row" key={row[0] + row[1]}><span>{row[0]}</span><span>{row[1]}</span><span>{row[2]}</span></div>
               ))}
             </div>
-            <p className="cs-chart-summary" data-rise>The table keeps the main public signal visible without making the entire page feel like raw GitHub metadata.</p>
+            <p className="csx-chart-summary" data-rise>The table keeps the main public signal visible without making the entire page feel like raw GitHub metadata.</p>
           </div>
         </section>
 
-        {/* 06 SUPPORTING EVIDENCE */}
-        <section className="cs-section" aria-labelledby="wp-supporting">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">06</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>06 · Additional PR evidence</p>
+        {/* ================= 06 SUPPORTING EVIDENCE ================= */}
+        <section className="csx-section" id="evidence" aria-labelledby="wp-supporting">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">06</span>
+          <div className="csx-inner">
+            <Eyebrow>06 · Additional PR evidence</Eyebrow>
             <H id="wp-supporting">Supporting proof for MetricInput and action-icon direction</H>
-            <p className="cs-lede" data-rise>These PRs support the design decisions around MetricInput semantics, action-icon touch targets, and older custom icon-button state work. They belong in the case study because they show the decision path, not just the final PR.</p>
-            <div className="cs-table" role="table" aria-label="Supporting PR evidence" data-rise style={{ ['--cols' as string]: '0.5fr 1.1fr 1.4fr' }}>
-              <div className="cs-trow cs-thead" role="row"><span>PR</span><span>Title</span><span>Why it belongs</span></div>
+            <p className="csx-lede" data-rise>These PRs support the design decisions around MetricInput semantics, action-icon touch targets, and older custom icon-button state work. They belong in the case study because they show the decision path, not just the final PR.</p>
+            <div className="csx-table" role="table" aria-label="Supporting PR evidence" data-rise style={{ ['--cols' as string]: '0.5fr 1.1fr 1.4fr' }}>
+              <div className="csx-trow csx-thead" role="row"><span>PR</span><span>Title</span><span>Why it belongs</span></div>
               {SUPPORTING.map((row) => (
-                <div className="cs-trow" role="row" key={row[0] + row[1]}><span>{row[0]}</span><span>{row[1]}</span><span>{row[2]}</span></div>
+                <div className="csx-trow" role="row" key={row[0] + row[1]}><span>{row[0]}</span><span>{row[1]}</span><span>{row[2]}</span></div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* 07 PORTFOLIO FRAMING */}
-        <section className="cs-section" aria-labelledby="wp-framing">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">07</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>07 · Portfolio framing</p>
+        {/* ================= 07 PORTFOLIO FRAMING ================= */}
+        <section className="csx-section" id="framing" aria-labelledby="wp-framing">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">07</span>
+          <div className="csx-inner">
+            <Eyebrow>07 · Portfolio framing</Eyebrow>
             <H id="wp-framing">How this should be presented</H>
-            <div className="cs-cards" data-stagger>
-              <article className="cs-card" data-rise><span className="cs-label">01 · Blast radius</span><p>Start with the fact that MDS powers many products, so component-level accessibility work scales beyond one screen.</p></article>
-              <article className="cs-card" data-rise><span className="cs-label">02 · Designer leverage</span><p>The work was not limited to audit comments; it changed tokens, states, target areas, component APIs, and production behavior.</p></article>
-              <article className="cs-card" data-rise><span className="cs-label">03 · PR proof</span><p>Use actual PRs and affected files so the case study is inspectable and grounded in shipped design-system work.</p></article>
-              <article className="cs-card" data-rise><span className="cs-label">04 · Design plus code</span><p>The strongest angle is that accessible behavior was defined and then helped into the component layer.</p></article>
-              <article className="cs-card" data-rise><span className="cs-label">05 · Reusable patterns</span><p>Focus visibility, target size, clear action behavior, native controls, and color tokens became durable DS rules.</p></article>
+            <div className="csx-grid-3" data-stagger>
+              <article className="csx-card" data-rise><div><span className="csx-label">01 · Blast radius</span><p>Start with the fact that MDS powers many products, so component-level accessibility work scales beyond one screen.</p></div></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">02 · Designer leverage</span><p>The work was not limited to audit comments; it changed tokens, states, target areas, component APIs, and production behavior.</p></div></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">03 · PR proof</span><p>Use actual PRs and affected files so the case study is inspectable and grounded in shipped design-system work.</p></div></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">04 · Design plus code</span><p>The strongest angle is that accessible behavior was defined and then helped into the component layer.</p></div></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">05 · Reusable patterns</span><p>Focus visibility, target size, clear action behavior, native controls, and color tokens became durable DS rules.</p></div></article>
             </div>
             <h3 data-rise>Assets to add per visual section</h3>
-            <div className="cs-table" role="table" aria-label="Assets to add" data-rise style={{ ['--cols' as string]: '0.8fr 1.4fr' }}>
-              <div className="cs-trow cs-thead" role="row"><span>Visual section</span><span>Asset to add</span></div>
-              <div className="cs-trow" role="row"><span>Focus visibility</span><span>Before/after focus ring matrix across Button, Link, ChipInput, Tabs, and MetricInput.</span></div>
-              <div className="cs-trow" role="row"><span>Target size</span><span>Overlay showing visible icon size versus invisible hit target for Input, Select, Tabs, Chip, and MetricInput.</span></div>
-              <div className="cs-trow" role="row"><span>MetricInput</span><span>Keyboard path diagram: input to decrement to increment to boundary disabled state.</span></div>
-              <div className="cs-trow" role="row"><span>Color tokens</span><span>Token-ramp before/after with contrast pass/fail markers.</span></div>
-              <div className="cs-trow" role="row"><span>PR proof</span><span>Small GitHub PR collage with PR numbers, commit count, and component file snippets.</span></div>
+            <div className="csx-table" role="table" aria-label="Assets to add" data-rise style={{ ['--cols' as string]: '0.8fr 1.4fr' }}>
+              <div className="csx-trow csx-thead" role="row"><span>Visual section</span><span>Asset to add</span></div>
+              <div className="csx-trow" role="row"><span>Focus visibility</span><span>Before/after focus ring matrix across Button, Link, ChipInput, Tabs, and MetricInput.</span></div>
+              <div className="csx-trow" role="row"><span>Target size</span><span>Overlay showing visible icon size versus invisible hit target for Input, Select, Tabs, Chip, and MetricInput.</span></div>
+              <div className="csx-trow" role="row"><span>MetricInput</span><span>Keyboard path diagram: input to decrement to increment to boundary disabled state.</span></div>
+              <div className="csx-trow" role="row"><span>Color tokens</span><span>Token-ramp before/after with contrast pass/fail markers.</span></div>
+              <div className="csx-trow" role="row"><span>PR proof</span><span>Small GitHub PR collage with PR numbers, commit count, and component file snippets.</span></div>
             </div>
-            <figure className="cs-figure" data-rise>
-              <div className="cs-figure-ph"><span>Asset · Before/after focus-ring + target-size matrix and PR collage (not shipped).</span></div>
+            <figure className="csx-figure" data-rise>
+              <div className="csx-figure-ph"><span>Asset · Before/after focus-ring + target-size matrix and PR collage (not shipped).</span></div>
               <figcaption>Selected portfolio asset · Focus and target evidence matrix.</figcaption>
             </figure>
           </div>
         </section>
 
-        {/* 08 COMPONENT-TO-WCAG MAPPING */}
-        <section className="cs-section" aria-labelledby="wp-mapping">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">08</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>08 · Component-to-WCAG mapping</p>
+        {/* ================= 08 COMPONENT-TO-WCAG MAPPING ================= */}
+        <section className="csx-section" id="mapping" aria-labelledby="wp-mapping">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">08</span>
+          <div className="csx-inner">
+            <Eyebrow>08 · Component-to-WCAG mapping</Eyebrow>
             <H id="wp-mapping">Each contribution mapped to a reusable accessibility outcome</H>
-            <div className="cs-cards" data-stagger>
-              <article className="cs-card" data-rise><span className="cs-label">Focus ring updates</span><p>Focus became visible and consistent across common controls.</p><span className="cs-code-chip">2.4.7 + 1.4.11</span></article>
-              <article className="cs-card" data-rise><span className="cs-label">Touchpoint updates</span><p>Small visual icons gained larger interactive areas.</p><span className="cs-code-chip">2.5.8 Target Size</span></article>
-              <article className="cs-card" data-rise><span className="cs-label">Clear-action keyboard support</span><p>Clear controls became reachable and understandable.</p><span className="cs-code-chip">2.1.1 + 4.1.2</span></article>
-              <article className="cs-card" data-rise><span className="cs-label">MetricInput bounds</span><p>Numeric limits and unavailable controls became programmatically exposed.</p><span className="cs-code-chip">4.1.2 + 3.3.2</span></article>
-              <article className="cs-card" data-rise><span className="cs-label">Color/token updates</span><p>Palette and semantic tokens supported accessible component states.</p><span className="cs-code-chip">1.4.3 + 1.4.11</span></article>
-              <article className="cs-card" data-rise><span className="cs-label">Native scrollbar</span><p>Scrolling behavior respected browser and OS affordances.</p><span className="cs-code-chip">platform compatibility</span></article>
-              <article className="cs-card" data-rise><span className="cs-label">Chip nested-interactive fix</span><p>Non-action chips stopped announcing as controls by default.</p><span className="cs-code-chip">4.1.2 + 2.1.1</span></article>
-              <article className="cs-card" data-rise><span className="cs-label">Grid scroll region focus</span><p>Keyboard users can focus the horizontally scrollable Grid header.</p><span className="cs-code-chip">2.1.1 + 2.4.3</span></article>
+            <div className="csx-grid-3" data-stagger>
+              <article className="csx-card" data-rise><div><span className="csx-label">Focus ring updates</span><p>Focus became visible and consistent across common controls.</p></div><span className="csx-code-chip">2.4.7 + 1.4.11</span></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">Touchpoint updates</span><p>Small visual icons gained larger interactive areas.</p></div><span className="csx-code-chip">2.5.8 Target Size</span></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">Clear-action keyboard support</span><p>Clear controls became reachable and understandable.</p></div><span className="csx-code-chip">2.1.1 + 4.1.2</span></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">MetricInput bounds</span><p>Numeric limits and unavailable controls became programmatically exposed.</p></div><span className="csx-code-chip">4.1.2 + 3.3.2</span></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">Color/token updates</span><p>Palette and semantic tokens supported accessible component states.</p></div><span className="csx-code-chip">1.4.3 + 1.4.11</span></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">Native scrollbar</span><p>Scrolling behavior respected browser and OS affordances.</p></div><span className="csx-code-chip">platform compatibility</span></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">Chip nested-interactive fix</span><p>Non-action chips stopped announcing as controls by default.</p></div><span className="csx-code-chip">4.1.2 + 2.1.1</span></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">Grid scroll region focus</span><p>Keyboard users can focus the horizontally scrollable Grid header.</p></div><span className="csx-code-chip">2.1.1 + 2.4.3</span></article>
             </div>
           </div>
         </section>
 
-        {/* 09 WHAT THIS PROVES */}
-        <section className="cs-section cs-impact-band" aria-labelledby="wp-proof">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">09</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>09 · What this proves</p>
-            <H id="wp-proof">Designer operating at design-system depth</H>
-            <div className="cs-stat-grid" data-stagger>
-              <div className="cs-stat" data-rise><strong>20+</strong><span>Components or system areas referenced in the case study.</span></div>
-              <div className="cs-stat" data-rise><strong>231k</strong><span>Total line changes — insertions + deletions in local author history.</span></div>
-              <div className="cs-stat" data-rise><strong><span data-count="2">2</span></strong><span>Latest branches — Chip semantic cleanup and Grid keyboard reach.</span></div>
-              <div className="cs-stat" data-rise><strong>DS</strong><span>WCAG converted into scalable system behavior.</span></div>
-            </div>
-            <div className="cs-panel" data-rise>
-              <div className="cs-panel-header"><div className="cs-panel-title"><span className="cs-label">Contribution mix · Where the work landed</span></div></div>
-              <div className="cs-chart" data-chart="wcag-mix" role="img" aria-label="Donut chart showing contribution mix across focus (12), targets (7), clear actions (4), MetricInput (6), color (6), and other (9) — totalling 44 PR and branch contributions." />
-              <p className="cs-chart-summary" data-rise>The strongest story is designer plus accessibility strategist plus contributor: audit findings became component behavior, tests, tokens, and docs.</p>
+        {/* ================= 09 WHAT THIS PROVES — pinned dark scene ================= */}
+        <section className="csx-impact" id="impact" aria-labelledby="wp-proof">
+          <div className="csx-impact-veil" aria-hidden="true" />
+          <div className="csx-impact-rings" aria-hidden="true">
+            <i className="csx-impact-ring" /><i className="csx-impact-ring" /><i className="csx-impact-ring" />
+            <i className="csx-impact-completion" />
+          </div>
+          <div className="csx-impact-stage">
+            <p className="csx-impact-eyebrow">09 · What this proves</p>
+            <h2 className="csx-visually-hidden" id="wp-proof">Designer operating at design-system depth</h2>
+            <p className="csx-impact-baseline"><span>Contribution map</span><strong>42 PRs + 2 branches</strong><i aria-hidden="true">→</i></p>
+            <div className="csx-impact-counter" aria-label="From zero to 44 PR and branch contributions"><span data-impact-counter data-from="0" data-to="44">0</span></div>
+            <p className="csx-impact-caption">PR &amp; branch contributions · WCAG into the component contract</p>
+            <div className="csx-impact-stats">
+              <div className="csx-impact-stat"><span className="csx-label">Components</span><strong>20+</strong><p>Components or system areas referenced in the case study.</p></div>
+              <div className="csx-impact-stat"><span className="csx-label">Line changes</span><strong>231k</strong><p>Total line changes — insertions + deletions in local author history.</p></div>
+              <div className="csx-impact-stat"><span className="csx-label">Latest branches</span><strong>2</strong><p>Chip semantic cleanup and Grid keyboard reach.</p></div>
             </div>
           </div>
         </section>
 
-        {/* 10 PORTFOLIO CARD VERSION */}
-        <section className="cs-section" aria-labelledby="wp-short">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">10</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>10 · Portfolio card version</p>
+        {/* ================= IMPACT AFTER — contribution mix donut ================= */}
+        <section className="csx-section csx-impact-after" aria-labelledby="wp-proof-chart">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">↺</span>
+          <div className="csx-inner">
+            <Eyebrow>Contribution mix</Eyebrow>
+            <H id="wp-proof-chart">Where the work landed</H>
+            <div className="csx-panel" data-rise>
+              <div className="csx-panel-title"><span className="csx-label">Contribution mix · Where the work landed</span><h3>44 PR and branch contributions</h3></div>
+              <div className="csx-chart" data-chart="wcag-mix" role="img" aria-label="Donut chart showing contribution mix across focus (12), targets (7), clear actions (4), MetricInput (6), color (6), and other (9) — totalling 44 PR and branch contributions." />
+              <p className="csx-chart-summary" data-rise>The strongest story is designer plus accessibility strategist plus contributor: audit findings became component behavior, tests, tokens, and docs.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= 10 PORTFOLIO CARD VERSION ================= */}
+        <section className="csx-section" id="card" aria-labelledby="wp-short">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">10</span>
+          <div className="csx-inner">
+            <Eyebrow>10 · Portfolio card version</Eyebrow>
             <H id="wp-short">WCAG 2.2 remediation for Innovaccer's Masala Design System</H>
-            <p className="cs-lede" data-rise>I contributed design and code to a system-wide accessibility remediation effort for MDS, the design system powering 20+ Innovaccer products. My work focused on focus visibility, color contrast, target sizing, keyboard access, and action-icon behavior across core components including Button, Link, Tabs, ChipInput, MetricInput, Input, Select, Textarea, ChatInput, Calendar, and design tokens.</p>
-            <div className="cs-cards" data-stagger>
-              <article className="cs-card" data-rise><span className="cs-label">What I did</span><p>Identified accessibility gaps as reusable design problems, not isolated QA bugs.</p></article>
-              <article className="cs-card" data-rise><span className="cs-label">How I worked</span><p>Converted audit findings into component-level interaction decisions and production PRs.</p></article>
-              <article className="cs-card" data-rise><span className="cs-label">What shipped</span><p>Outline focus rings, accessible clear buttons, larger hit targets, MetricInput semantics, native scrollbars, Grid keyboard reach, Chip semantic cleanup, and semantic color ramps.</p></article>
+            <p className="csx-lede" data-rise>I contributed design and code to a system-wide accessibility remediation effort for MDS, the design system powering 20+ Innovaccer products. My work focused on focus visibility, color contrast, target sizing, keyboard access, and action-icon behavior across core components including Button, Link, Tabs, ChipInput, MetricInput, Input, Select, Textarea, ChatInput, Calendar, and design tokens.</p>
+            <div className="csx-grid-3" data-stagger>
+              <article className="csx-card" data-rise><div><span className="csx-label">What I did</span><p>Identified accessibility gaps as reusable design problems, not isolated QA bugs.</p></div></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">How I worked</span><p>Converted audit findings into component-level interaction decisions and production PRs.</p></div></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">What shipped</span><p>Outline focus rings, accessible clear buttons, larger hit targets, MetricInput semantics, native scrollbars, Grid keyboard reach, Chip semantic cleanup, and semantic color ramps.</p></div></article>
             </div>
           </div>
         </section>
 
-        {/* 11 REFERENCES */}
-        <section className="cs-section" aria-labelledby="wp-references">
-          <span className="cs-ghost" data-parallax="1.3" aria-hidden="true">11</span>
-          <div className="cs-inner">
-            <p className="cs-eyebrow" data-rise>11 · References</p>
+        {/* ================= 11 REFERENCES ================= */}
+        <section className="csx-section" aria-labelledby="wp-references">
+          <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">11</span>
+          <div className="csx-inner">
+            <Eyebrow>11 · References</Eyebrow>
             <H id="wp-references">Contribution evidence and key PR groups</H>
-            <div className="cs-cards cs-cards-2" data-stagger>
-              <article className="cs-card" data-rise><span className="cs-label">Account</span><p><a href="https://github.com/innovaccer/design-system/pulls?q=is%3Apr+author%3Aatulya-innovaccer" target="_blank" rel="noreferrer">atulya-innovaccer PRs in Innovaccer Design System</a></p></article>
-              <article className="cs-card" data-rise><span className="cs-label">Public PR metadata</span><p>42 PRs, 161 commits across those PR branches, and 435 changed-file entries reviewed.</p></article>
-              <article className="cs-card" data-rise><span className="cs-label">Latest branches</span><p><code>fix(nested-interactive)</code> and <code>fix(scrollable-region-focusable)</code>, adding 1,128 insertions and 27 deletions across 8 files.</p></article>
-              <article className="cs-card" data-rise><span className="cs-label">Local author stats</span><p><code>atulya.v@innovaccer.com</code>: 86 commits, 33,052 insertions, 198,313 deletions, 231,365 total line changes, and 124 unique files touched.</p></article>
+            <div className="csx-grid-2" data-stagger>
+              <article className="csx-card" data-rise><div><span className="csx-label">Account</span><p><a href="https://github.com/innovaccer/design-system/pulls?q=is%3Apr+author%3Aatulya-innovaccer" target="_blank" rel="noreferrer">atulya-innovaccer PRs in Innovaccer Design System</a></p></div></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">Public PR metadata</span><p>42 PRs, 161 commits across those PR branches, and 435 changed-file entries reviewed.</p></div></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">Latest branches</span><p><code>fix(nested-interactive)</code> and <code>fix(scrollable-region-focusable)</code>, adding 1,128 insertions and 27 deletions across 8 files.</p></div></article>
+              <article className="csx-card" data-rise><div><span className="csx-label">Local author stats</span><p><code>atulya.v@innovaccer.com</code>: 86 commits, 33,052 insertions, 198,313 deletions, 231,365 total line changes, and 124 unique files touched.</p></div></article>
             </div>
             <h3 data-rise>Key PR groups</h3>
-            <div className="cs-deflist" data-stagger>
-              <div className="cs-def" data-rise><b>Focus visible</b><span>#2802, #2804, #2806, #2811, #2814, #2824, #2825, #2826, #2828, #2952, #2955.</span></div>
-              <div className="cs-def" data-rise><b>Clear-action</b><span>#2957, #2958, #2965, #3008.</span></div>
-              <div className="cs-def" data-rise><b>Color/token</b><span>#2893, #2925, #3075, #2838, #2910.</span></div>
-              <div className="cs-def" data-rise><b>Native behavior</b><span>#2990 removed the custom scrollbar skin and restored browser/OS-native scrolling behavior.</span></div>
+            <div className="csx-deflist" data-stagger>
+              <div className="csx-def" data-rise><b>Focus visible</b><span>#2802, #2804, #2806, #2811, #2814, #2824, #2825, #2826, #2828, #2952, #2955.</span></div>
+              <div className="csx-def" data-rise><b>Clear-action</b><span>#2957, #2958, #2965, #3008.</span></div>
+              <div className="csx-def" data-rise><b>Color/token</b><span>#2893, #2925, #3075, #2838, #2910.</span></div>
+              <div className="csx-def" data-rise><b>Native behavior</b><span>#2990 removed the custom scrollbar skin and restored browser/OS-native scrolling behavior.</span></div>
             </div>
           </div>
         </section>
       </main>
 
-      <CaseFooter>Innovaccer · Masala Design System · WCAG 2.2 AA · PR contribution map</CaseFooter>
+      <Marquee items={['44 PR / BRANCHES', '231K LINE CHANGES', 'WCAG INTO THE CONTRACT', '@ATULYA-INNOVACCER']} />
+
+      <ExperienceFooter>Innovaccer · Masala Design System · WCAG 2.2 AA · PR contribution map</ExperienceFooter>
     </div>
   );
 }
