@@ -634,7 +634,7 @@ export default function CaseStudy() {
         {/* ================= 01 STAKES ================= */}
         <section className="csx-section" id="stakes" aria-labelledby="csx-stakes-title">
           <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">01</span>
-          <div className="csx-inner csx-split">
+          <div className="csx-inner csx-split csx-split--sticky">
             <div className="csx-copy">
               <Eyebrow>01 · The stakes</Eyebrow>
               <H id="csx-stakes-title">Why 27.6% was worse than it sounded</H>

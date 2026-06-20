@@ -67,10 +67,10 @@ export default function CaseChartingLibrary() {
             <H id="cl-overview-title">Designing and shipping a charting library inside MDS</H>
             <p className="csx-lede" data-rise>With components, color, accessibility, and guidelines — so every chart in every Innovaccer product can come from one shared system.</p>
             <div className="csx-stat-grid" data-stagger>
-              <div className="csx-stat" data-rise><strong><span data-count="12">12</span></strong><span>chart types live in Storybook.</span></div>
-              <div className="csx-stat" data-rise><strong><span data-count="3">3</span></strong><span>color families: categorical, sequential, sentiment.</span></div>
-              <div className="csx-stat" data-rise><strong><span data-count="11" data-suffix="+">11+</span></strong><span>guideline pages for chart usage patterns.</span></div>
-              <div className="csx-stat" data-rise><strong><span data-count="1">1</span></strong><span>shared source for components, guidance, and AI-legible props.</span></div>
+              <div className="csx-stat" data-rise><strong>12</strong><span>chart types live in Storybook.</span></div>
+              <div className="csx-stat" data-rise><strong>3</strong><span>color families: categorical, sequential, sentiment.</span></div>
+              <div className="csx-stat" data-rise><strong>11+</strong><span>guideline pages for chart usage patterns.</span></div>
+              <div className="csx-stat" data-rise><strong>1</strong><span>shared source for components, guidance, and AI-legible props.</span></div>
             </div>
             <div className="csx-grid-4" data-stagger>
               <article className="csx-card" data-rise><div><h3>Components</h3><p>A working set of chart types covering common product needs.</p></div></article>
@@ -170,8 +170,8 @@ export default function CaseChartingLibrary() {
           </div>
         </section>
 
-        {/* ================= 04· REQUIREMENTS — horizontal gallery ================= */}
-        <section className="csx-arch" aria-labelledby="cl-req-title">
+        {/* ================= 04· REQUIREMENTS — vertical card stack ================= */}
+        <section className="csx-arch csx-arch--static" aria-labelledby="cl-req-title">
           <div className="csx-arch-head">
             <div className="csx-inner">
               <Eyebrow>04 · Cross-cutting requirements</Eyebrow>
@@ -312,32 +312,37 @@ import { BarChart } from '@atulya_26/charting-library';
           </div>
         </section>
 
-        {/* ================= 07 IMPACT — pinned dark scene ================= */}
-        <section className="csx-impact" id="impact" aria-labelledby="cl-impact-title">
-          <div className="csx-impact-veil" aria-hidden="true" />
-          <div className="csx-impact-rings" aria-hidden="true">
-            <i className="csx-impact-ring" /><i className="csx-impact-ring" /><i className="csx-impact-ring" />
-            <i className="csx-impact-completion" />
-          </div>
-          <div className="csx-impact-stage">
-            <p className="csx-impact-eyebrow">07 · Impact</p>
-            <h2 className="csx-visually-hidden" id="cl-impact-title">One library, twelve chart types</h2>
-            <p className="csx-impact-baseline"><span>Before</span><strong>0 chart components</strong><i aria-hidden="true">→</i></p>
-            <div className="csx-impact-counter" aria-label="From zero to twelve shipped chart types"><span data-impact-counter data-from="0" data-to="12">0</span></div>
-            <p className="csx-impact-caption">chart types shipped · 3 color families · one shared source</p>
-            <div className="csx-impact-stats">
+        {/* ================= 07 IMPACT — editorial closing ================= */}
+        <section className="csx-closing-band" id="impact" aria-labelledby="cl-impact-title">
+          <div className="csx-inner">
+            <Eyebrow>07 · Impact</Eyebrow>
+            <H id="cl-impact-title">From zero chart components to a shippable library</H>
+            <div className="csx-closing-versus" data-stagger>
+              <article className="csx-closing-card" data-rise>
+                <span className="csx-label">Before</span>
+                <strong>0</strong>
+                <p>MDS chart components — every product chose its own library.</p>
+              </article>
+              <span className="csx-closing-arrow" aria-hidden="true">→</span>
+              <article className="csx-closing-card csx-closing-card--accent" data-rise>
+                <span className="csx-label">After</span>
+                <strong>12</strong>
+                <p>Chart types in Storybook, guidelines, and @atulya_26/charting-library.</p>
+              </article>
+            </div>
+            <div className="csx-closing-stats" data-stagger>
               {[
-                ['Chart types', '12', 'Bar to Sankey, in Storybook.'],
-                ['Guideline pages', '11+', 'When-to-use for every chart.'],
-                ['Shared source', '1', 'Components, guidance, AI-legible props.'],
-              ].map(([k, v, hint]) => (
-                <div className="csx-impact-stat" key={k}><span className="csx-label">{k}</span><strong>{v}</strong><p>{hint}</p></div>
+                ['3 color families', 'Categorical, sequential, and sentiment — separate from UI tokens.'],
+                ['11+ guideline pages', 'When-to-use, anatomy, states, and do/don\'t for every chart.'],
+                ['1 shared source', 'Components, guidance, and AI-legible props in one package.'],
+              ].map(([title, body]) => (
+                <div className="csx-closing-stat" data-rise key={title}><strong>{title}</strong><span>{body}</span></div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ================= IMPACT AFTER — reflections ================= */}
+        {/* ================= REFLECTIONS ================= */}
         <section className="csx-section csx-impact-after" aria-labelledby="cl-reflect-title">
           <span className="csx-ghost" data-parallax="1.3" aria-hidden="true">↺</span>
           <div className="csx-inner">

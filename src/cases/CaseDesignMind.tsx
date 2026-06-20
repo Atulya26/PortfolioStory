@@ -139,10 +139,10 @@ export default function CaseDesignMind() {
             <p data-rise>Innovaccer already has a design system: <strong>Masala Design System (MDS)</strong>. Open-sourced in 2020, currently v4.24.0, 111 React components, six years of production traffic.</p>
             <p data-rise>MDS is a serious system — for designers and engineers. The question was simple: can we retrofit it for AI-assisted prototyping, or do we need to start fresh?</p>
             <div className="csx-stat-grid" data-stagger>
-              <div className="csx-stat" data-rise><strong><span data-count="787">787</span>MB</strong><span>Repo on disk. Working copies with <code>node_modules</code> exceed 2 GB.</span></div>
-              <div className="csx-stat" data-rise><strong><span data-count="111">111</span></strong><span>Components in Atomic Design — atoms, molecules, organisms, patterns.</span></div>
-              <div className="csx-stat" data-rise><strong><span data-count="8">8</span></strong><span>Build tools in the pipeline — Babel, Rollup, Gulp, PostCSS, Storybook, and more.</span></div>
-              <div className="csx-stat" data-rise><strong><span data-count="133">133</span>KB</strong><span>CHANGELOG alone — larger than the entire Design Mind genome combined.</span></div>
+              <div className="csx-stat" data-rise><strong>787MB</strong><span>Repo on disk. Working copies with <code>node_modules</code> exceed 2 GB.</span></div>
+              <div className="csx-stat" data-rise><strong>111</strong><span>Components in Atomic Design — atoms, molecules, organisms, patterns.</span></div>
+              <div className="csx-stat" data-rise><strong>8</strong><span>Build tools in the pipeline — Babel, Rollup, Gulp, PostCSS, Storybook, and more.</span></div>
+              <div className="csx-stat" data-rise><strong>133KB</strong><span>CHANGELOG alone — larger than the entire Design Mind genome combined.</span></div>
             </div>
             <p data-rise>MDS is a production library. A language model can&apos;t reason over it in one pass — there&apos;s too much, spread too thin. And the model doesn&apos;t have what it needs most: <strong>rules of selection.</strong> Atomic Design tells a designer what something <em>is</em>; it tells a model nothing about which to <em>pick</em>. With 111 components, the name collisions stack up:</p>
             <div className="csx-grid-3" data-stagger>
@@ -376,26 +376,31 @@ export default function CaseDesignMind() {
           </div>
         </section>
 
-        {/* ================= 09 IMPACT — pinned dark scene ================= */}
-        <section className="csx-impact" id="impact" aria-labelledby="dm-impact-title">
-          <div className="csx-impact-veil" aria-hidden="true" />
-          <div className="csx-impact-rings" aria-hidden="true">
-            <i className="csx-impact-ring" /><i className="csx-impact-ring" /><i className="csx-impact-ring" />
-            <i className="csx-impact-completion" />
-          </div>
-          <div className="csx-impact-stage">
-            <p className="csx-impact-eyebrow">14 · Impact</p>
-            <h2 className="csx-visually-hidden" id="dm-impact-title">What changed</h2>
-            <p className="csx-impact-baseline"><span>Before</span><strong>~480 min</strong><i aria-hidden="true">→</i></p>
-            <div className="csx-impact-counter" aria-label="Time to first prototype fell from roughly 480 minutes to 15 minutes"><span data-impact-counter data-from="480" data-to="15" data-suffix=" min">480 min</span></div>
-            <p className="csx-impact-caption">minutes to first prototype · cleanup → direction</p>
-            <div className="csx-impact-stats">
+        {/* ================= 09 IMPACT — editorial closing ================= */}
+        <section className="csx-closing-band" id="impact" aria-labelledby="dm-impact-title">
+          <div className="csx-inner">
+            <Eyebrow>14 · Impact</Eyebrow>
+            <H id="dm-impact-title">Cleanup gave way to direction</H>
+            <div className="csx-closing-versus" data-stagger>
+              <article className="csx-closing-card" data-rise>
+                <span className="csx-label">Time to first prototype</span>
+                <strong>~480 min</strong>
+                <p>Half a day of token swaps, layout rebuilds, and copy rewrites before the screen felt coherent.</p>
+              </article>
+              <span className="csx-closing-arrow" aria-hidden="true">→</span>
+              <article className="csx-closing-card csx-closing-card--accent" data-rise>
+                <span className="csx-label">Time to first prototype</span>
+                <strong>10–20 min</strong>
+                <p>First pass already on-brand — the designer&apos;s job moved to content judgment, not cleanup.</p>
+              </article>
+            </div>
+            <div className="csx-closing-stats" data-stagger>
               {[
-                ['Time to prototype', 'half-day → 10–20 min', 'First coherent pass, not a cleanup draft.'],
-                ['Visual coherence', 'distinguishable → indistinguishable', 'No more per-engineer tells.'],
-                ['Copy', 'apologetic → clinical & direct', 'Right register on the first pass.'],
-              ].map(([k, v, hint]) => (
-                <div className="csx-impact-stat" key={k}><span className="csx-label">{k}</span><strong>{v}</strong><p>{hint}</p></div>
+                ['Visual coherence', 'Indistinguishable per engineer → indistinguishable per team.'],
+                ['Copy register', 'Apologetic, marketing-shaped → clinical and direct on first pass.'],
+                ['Conversation', '"Fix this, fix that" → "Push variance to 7, dial density back to 5."'],
+              ].map(([title, body]) => (
+                <div className="csx-closing-stat" data-rise key={title}><strong>{title}</strong><span>{body}</span></div>
               ))}
             </div>
           </div>

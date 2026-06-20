@@ -286,8 +286,8 @@ export function useExperience(rootRef: React.RefObject<HTMLElement | null>, { ch
         });
       }
 
-      // -- 3) ARCHITECTURE: pinned horizontal gallery (optional) -------------
-      const arch = root.querySelector<HTMLElement>('.csx-arch');
+      // -- 3) ARCHITECTURE: pinned horizontal gallery (opt-in) ---------------
+      const arch = root.querySelector<HTMLElement>('.csx-arch--scroll');
       const track = arch?.querySelector<HTMLElement>('.csx-arch-track');
       if (arch && track) {
         const cards = gsap.utils.toArray<HTMLElement>('.csx-arch-card', track);
@@ -314,8 +314,8 @@ export function useExperience(rootRef: React.RefObject<HTMLElement | null>, { ch
         });
       }
 
-      // -- 4) IMPACT: pinned dark detonation (optional) ----------------------
-      const impact = root.querySelector<HTMLElement>('.csx-impact');
+      // -- 4) IMPACT: pinned dark detonation (compliance-style only) ---------
+      const impact = root.querySelector<HTMLElement>('.csx-impact--cinematic');
       if (impact && impactCounter) {
         const num = { v: impFrom };
         const range = impTo - impFrom || 1;
@@ -343,7 +343,7 @@ export function useExperience(rootRef: React.RefObject<HTMLElement | null>, { ch
       const railItems = gsap.utils.toArray<HTMLElement>('[data-rail]');
       const setActive = (id: string | null) => {
         const section = id ? root.querySelector<HTMLElement>(`#${id}`) : null;
-        root.classList.toggle('is-dark-rail', !!section && section.classList.contains('csx-impact'));
+        root.classList.toggle('is-dark-rail', !!section && section.classList.contains('csx-impact--cinematic'));
         const activeIdx = chapters.findIndex((c) => c.id === id);
         railItems.forEach((el) => {
           const idx = chapters.findIndex((c) => c.id === el.dataset.rail);
@@ -388,6 +388,7 @@ export function useExperience(rootRef: React.RefObject<HTMLElement | null>, { ch
     // ALL VIEWPORTS — kinetic type + rises
     // ======================================================================
     mm.add('(min-width: 0px)', () => {
+      const stableEditorial = root.classList.contains('dmx-case');
       const splits: SplitText[] = [];
       document.fonts.ready.then(() => {
         gsap.utils.toArray<HTMLElement>('[data-split]').forEach((el) => {
@@ -406,14 +407,21 @@ export function useExperience(rootRef: React.RefObject<HTMLElement | null>, { ch
         const items = gsap.utils.toArray<HTMLElement>('[data-rise]', group);
         items.forEach((i) => claimed.add(i));
         gsap.from(items, {
-          y: 38, autoAlpha: 0, duration: 0.85, ease: 'power3.out', stagger: 0.08,
+          y: stableEditorial ? 0 : 38,
+          autoAlpha: 0,
+          duration: stableEditorial ? 0.42 : 0.85,
+          ease: 'power3.out',
+          stagger: stableEditorial ? 0.025 : 0.08,
           scrollTrigger: { trigger: group, start: 'top 86%' },
         });
       });
       gsap.utils.toArray<HTMLElement>('[data-rise]').forEach((el) => {
         if (claimed.has(el)) return;
         gsap.from(el, {
-          y: 30, autoAlpha: 0, duration: 0.78, ease: 'power3.out',
+          y: stableEditorial ? 0 : 30,
+          autoAlpha: 0,
+          duration: stableEditorial ? 0.42 : 0.78,
+          ease: 'power3.out',
           scrollTrigger: { trigger: el, start: 'top 88%' },
         });
       });
@@ -441,9 +449,10 @@ export function useExperience(rootRef: React.RefObject<HTMLElement | null>, { ch
       return () => splits.forEach((s) => s.revert());
     });
 
-    // Mobile: impact counter has no pin — simple in-view count-up.
+    // Mobile: cinematic impact counter has no pin — simple in-view count-up.
     mm.add('(max-width: 920px)', () => {
-      if (!impactCounter) return;
+      const cinematic = root.querySelector<HTMLElement>('.csx-impact--cinematic');
+      if (!cinematic || !impactCounter) return;
       const num = { v: impFrom };
       gsap.to(num, {
         v: impTo, duration: 1.8, ease: 'power2.inOut',

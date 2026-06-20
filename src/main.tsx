@@ -14,6 +14,7 @@ const caseComponents: Record<string, LazyExoticComponent<ComponentType>> = {
   'mds-color-refresh': lazy(() => import('./cases/CaseColorRefresh')),
   'wcag-pr': lazy(() => import('./cases/CaseWcagPr')),
   'design-mind': lazy(() => import('./cases/CaseDesignMind')),
+  'data-model-explorer': lazy(() => import('./cases/CaseDataModelExplorer')),
 };
 
 function Root() {

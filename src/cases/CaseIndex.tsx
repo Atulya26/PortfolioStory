@@ -19,11 +19,11 @@ export default function CaseIndex() {
 
       <main>
         <section className="cs-section cs-hero" aria-labelledby="cw-title">
-          <span className="cs-ghost" data-parallax="1.5" aria-hidden="true">05</span>
+          <span className="cs-ghost" data-parallax="1.5" aria-hidden="true">{String(CASES.length).padStart(2, '0')}</span>
           <div className="cs-inner">
             <p className="cs-eyebrow" data-rise>Selected work · {CASES.length} case studies</p>
             <H id="cw-title" level={1}>Work</H>
-            <p className="cs-lede cs-hero-lede" data-rise>Design-systems work for Innovaccer's Masala Design System — accessibility, color, charts, and an AI-native rebuild. Each one shipped.</p>
+            <p className="cs-lede cs-hero-lede" data-rise>Design-systems and enterprise platform work for Innovaccer — accessibility, color, charts, AI-native systems, and governed data modeling.</p>
 
             <div className="cs-work-list" data-stagger>
               {CASES.map((c) => (

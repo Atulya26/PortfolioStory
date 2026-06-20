@@ -297,12 +297,6 @@ export default function CaseColorRefresh() {
                 <div className="csx-meta-pill" data-rise key={k}><span>{k}</span><strong>{v}</strong></div>
               ))}
             </div>
-            <div className="csx-stat-grid" data-stagger>
-              <div className="csx-stat" data-rise><strong><span data-count="7">7</span>/8</strong><span>Hues passing WCAG AA at base shade — up from 4 of 8.</span></div>
-              <div className="csx-stat" data-rise><strong>1.4</strong><span>Perceptual lightness drift at default shade (excl. Yellow / Orange) — down from 25.9 units.</span></div>
-              <div className="csx-stat" data-rise><strong><span data-count="3">3</span></strong><span>Architecture tiers — primitives, semantics, component color map — replacing one flat hex layer.</span></div>
-              <div className="csx-stat" data-rise><strong>≤1°</strong><span>Hue identity drift from original brand. Enforced in CI on every PR.</span></div>
-            </div>
           </div>
           <div className="csx-scrollcue" aria-hidden="true"><span /><p>Scroll</p></div>
         </section>
@@ -327,9 +321,9 @@ export default function CaseColorRefresh() {
             </div>
             <h3 data-rise>Hero metrics</h3>
             <div className="csx-stat-grid" data-stagger>
-              <div className="csx-stat" data-rise><strong><span data-count="7">7</span>/8</strong><span>Hues passing WCAG AA at base shade — up from 4 of 8.</span></div>
+              <div className="csx-stat" data-rise><strong>7/8</strong><span>Hues passing WCAG AA at base shade — up from 4 of 8.</span></div>
               <div className="csx-stat" data-rise><strong>1.4</strong><span>Perceptual lightness drift at default shade (excl. Yellow / Orange) — down from 25.9 units.</span></div>
-              <div className="csx-stat" data-rise><strong><span data-count="3">3</span></strong><span>Architecture tiers — primitives, semantics, component color map — replacing one flat hex layer.</span></div>
+              <div className="csx-stat" data-rise><strong>3</strong><span>Architecture tiers — primitives, semantics, component color map — replacing one flat hex layer.</span></div>
               <div className="csx-stat" data-rise><strong>≤1°</strong><span>Hue identity drift from original brand. Enforced in CI on every PR.</span></div>
             </div>
             <figure className="csx-figure" data-rise>
@@ -913,26 +907,31 @@ const _axe = configureAxe({
           </div>
         </section>
 
-        {/* ================= 12 IMPACT — pinned dark scene ================= */}
-        <section className="csx-impact" id="impact" aria-labelledby="cr-impact-title">
-          <div className="csx-impact-veil" aria-hidden="true" />
-          <div className="csx-impact-rings" aria-hidden="true">
-            <i className="csx-impact-ring" /><i className="csx-impact-ring" /><i className="csx-impact-ring" />
-            <i className="csx-impact-completion" />
-          </div>
-          <div className="csx-impact-stage">
-            <p className="csx-impact-eyebrow">12 · Impact</p>
-            <h2 className="csx-visually-hidden" id="cr-impact-title">The numbers</h2>
-            <p className="csx-impact-baseline"><span>Before</span><strong>4 / 8 passing</strong><i aria-hidden="true">→</i></p>
-            <div className="csx-impact-counter" aria-label="Hues passing WCAG AA rose from 4 to 7 of 8"><span data-impact-counter data-from="4" data-to="7" data-suffix=" / 8">4 / 8</span></div>
-            <p className="csx-impact-caption">hues passing WCAG AA at base · 1 brand identity preserved · no rebrand</p>
-            <div className="csx-impact-stats">
+        {/* ================= 12 IMPACT — editorial closing ================= */}
+        <section className="csx-closing-band" id="impact" aria-labelledby="cr-impact-title">
+          <div className="csx-inner">
+            <Eyebrow>12 · Impact</Eyebrow>
+            <H id="cr-impact-title">Same brand hues. A system that can hold them.</H>
+            <div className="csx-closing-versus" data-stagger>
+              <article className="csx-closing-card" data-rise>
+                <span className="csx-label">WCAG AA at base</span>
+                <strong>4/8</strong>
+                <p>Half the brand colors failed at the default shade — and base meant something different for every hue.</p>
+              </article>
+              <span className="csx-closing-arrow" aria-hidden="true">→</span>
+              <article className="csx-closing-card csx-closing-card--accent" data-rise>
+                <span className="csx-label">WCAG AA at base</span>
+                <strong>7/8</strong>
+                <p>Aligned to an OKLCH anchor, three architecture tiers, and CI-enforced hue identity — no rebrand.</p>
+              </article>
+            </div>
+            <div className="csx-closing-stats" data-stagger>
               {[
-                ['Lightness drift', '25.9 → 1.4', 'Default-shade perceptual spread, excl. Yellow & Orange.'],
-                ['Architecture tiers', '1 → 3', 'T1 primitives → T2 semantics → T3 component map.'],
-                ['Hue identity', '≤1° CI-enforced', 'Every original hue locked to its brand H value.'],
-              ].map(([k, v, hint]) => (
-                <div className="csx-impact-stat" key={k}><span className="csx-label">{k}</span><strong>{v}</strong><p>{hint}</p></div>
+                ['25.9 → 1.4', 'Perceptual lightness spread at default shade, excluding Yellow and Orange.'],
+                ['1 → 3 tiers', 'Primitives, semantics, and component color maps replace one flat hex layer.'],
+                ['≤1° drift', 'Every original hue locked to its brand angle — enforced on every PR.'],
+              ].map(([title, body]) => (
+                <div className="csx-closing-stat" data-rise key={title}><strong>{title}</strong><span>{body}</span></div>
               ))}
             </div>
           </div>

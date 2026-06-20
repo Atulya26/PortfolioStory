@@ -50,4 +50,12 @@ export const CASES: CaseMeta[] = [
     tag: 'AI · Design Systems',
     year: '2026',
   },
+  {
+    slug: 'data-model-explorer',
+    num: '06',
+    title: 'Data Model Explorer',
+    blurb: 'A governed workspace for browsing, extending, reviewing, and versioning enterprise healthcare data models.',
+    tag: 'Enterprise UX · Data Platform',
+    year: '2026',
+  },
 ];

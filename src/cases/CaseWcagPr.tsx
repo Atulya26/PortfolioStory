@@ -402,13 +402,13 @@ export default function CaseWcagPr() {
             <Eyebrow>01 · By the numbers</Eyebrow>
             <H id="wp-numbers">The contribution map, in figures</H>
             <div className="csx-stat-grid" data-stagger>
-              <div className="csx-stat" data-rise><strong><span data-count="44">44</span></strong><span>PR / branch contributions — 42 public PRs plus 2 latest submitted PR branches.</span></div>
-              <div className="csx-stat" data-rise><strong><span data-count="161">161</span></strong><span>public PR branch commits, from public PR metadata.</span></div>
-              <div className="csx-stat" data-rise><strong><span data-count="435">435</span></strong><span>changed-file entries across public PR metadata.</span></div>
-              <div className="csx-stat" data-rise><strong><span data-count="124">124</span></strong><span>unique files touched in local author history.</span></div>
+              <div className="csx-stat" data-rise><strong>44</strong><span>PR / branch contributions — 42 public PRs plus 2 latest submitted PR branches.</span></div>
+              <div className="csx-stat" data-rise><strong>161</strong><span>public PR branch commits, from public PR metadata.</span></div>
+              <div className="csx-stat" data-rise><strong>435</strong><span>changed-file entries across public PR metadata.</span></div>
+              <div className="csx-stat" data-rise><strong>124</strong><span>unique files touched in local author history.</span></div>
             </div>
             <div className="csx-stat-grid" data-stagger>
-              <div className="csx-stat" data-rise><strong><span data-count="86">86</span></strong><span>local author commits under atulya.v@innovaccer.com.</span></div>
+              <div className="csx-stat" data-rise><strong>86</strong><span>local author commits under atulya.v@innovaccer.com.</span></div>
               <div className="csx-stat" data-rise><strong>33,052</strong><span>lines added in local author history.</span></div>
               <div className="csx-stat" data-rise><strong>atulya-innovaccer</strong><span>public PR account in the Innovaccer Design System.</span></div>
               <div className="csx-stat" data-rise><strong>DS</strong><span>WCAG converted from a checklist into the component contract.</span></div>
@@ -427,7 +427,7 @@ export default function CaseWcagPr() {
             <div className="csx-callout" data-rise><p>The portfolio one-liner: I helped move accessibility from a checklist into the component contract.</p></div>
             <div className="csx-stat-grid" data-stagger aria-label="Program scale metrics">
               <div className="csx-stat" data-rise><strong>27.6%</strong><span>Starting compliance — WCAG 2.2 AA baseline for MDS.</span></div>
-              <div className="csx-stat" data-rise><strong><span data-count="100" data-suffix="%">100%</span></strong><span>Current compliance — target reached for the program.</span></div>
+              <div className="csx-stat" data-rise><strong>100%</strong><span>Program target reached across the broader remediation effort.</span></div>
               <div className="csx-stat" data-rise><strong>520+</strong><span>Issues catalogued across the remediation effort.</span></div>
               <div className="csx-stat" data-rise><strong>99+</strong><span>Components rebuilt — design-system components brought to spec.</span></div>
             </div>
@@ -461,7 +461,7 @@ export default function CaseWcagPr() {
             <p data-rise>Each pattern carries the problem, design decision, full PR evidence table, key files, and why it mattered.</p>
 
             {PILLARS.map((pillar) => (
-              <div key={pillar.id} data-rise>
+              <div key={pillar.id} className="csx-pillar-block" data-rise>
                 <div className="csx-chips" data-rise>
                   <span>{pillar.label}</span>
                   <span>{pillar.prCount}</span>
@@ -611,23 +611,32 @@ export default function CaseWcagPr() {
           </div>
         </section>
 
-        {/* ================= 09 WHAT THIS PROVES — pinned dark scene ================= */}
-        <section className="csx-impact" id="impact" aria-labelledby="wp-proof">
-          <div className="csx-impact-veil" aria-hidden="true" />
-          <div className="csx-impact-rings" aria-hidden="true">
-            <i className="csx-impact-ring" /><i className="csx-impact-ring" /><i className="csx-impact-ring" />
-            <i className="csx-impact-completion" />
-          </div>
-          <div className="csx-impact-stage">
-            <p className="csx-impact-eyebrow">09 · What this proves</p>
-            <h2 className="csx-visually-hidden" id="wp-proof">Designer operating at design-system depth</h2>
-            <p className="csx-impact-baseline"><span>Contribution map</span><strong>42 PRs + 2 branches</strong><i aria-hidden="true">→</i></p>
-            <div className="csx-impact-counter" aria-label="From zero to 44 PR and branch contributions"><span data-impact-counter data-from="0" data-to="44">0</span></div>
-            <p className="csx-impact-caption">PR &amp; branch contributions · WCAG into the component contract</p>
-            <div className="csx-impact-stats">
-              <div className="csx-impact-stat"><span className="csx-label">Components</span><strong>20+</strong><p>Components or system areas referenced in the case study.</p></div>
-              <div className="csx-impact-stat"><span className="csx-label">Line changes</span><strong>231k</strong><p>Total line changes — insertions + deletions in local author history.</p></div>
-              <div className="csx-impact-stat"><span className="csx-label">Latest branches</span><strong>2</strong><p>Chip semantic cleanup and Grid keyboard reach.</p></div>
+        {/* ================= 09 WHAT THIS PROVES — editorial closing ================= */}
+        <section className="csx-closing-band" id="impact" aria-labelledby="wp-proof">
+          <div className="csx-inner">
+            <Eyebrow>09 · What this proves</Eyebrow>
+            <H id="wp-proof">Designer operating at design-system depth</H>
+            <div className="csx-closing-versus" data-stagger>
+              <article className="csx-closing-card" data-rise>
+                <span className="csx-label">Public PR metadata</span>
+                <strong>42</strong>
+                <p>Merged PRs under atulya-innovaccer — each mapped back to component files and WCAG outcomes.</p>
+              </article>
+              <span className="csx-closing-arrow" aria-hidden="true">+</span>
+              <article className="csx-closing-card csx-closing-card--accent" data-rise>
+                <span className="csx-label">Contribution map</span>
+                <strong>44</strong>
+                <p>PR and branch contributions including Chip semantic cleanup and Grid keyboard reach.</p>
+              </article>
+            </div>
+            <div className="csx-closing-stats" data-stagger>
+              {[
+                ['20+ components', 'Focus, targets, clear actions, MetricInput, color tokens, and native behavior.'],
+                ['231k line changes', 'Insertions and deletions in local author history across 124 unique files.'],
+                ['7 patterns', 'Reusable accessibility rules product teams inherit on MDS upgrade.'],
+              ].map(([title, body]) => (
+                <div className="csx-closing-stat" data-rise key={title}><strong>{title}</strong><span>{body}</span></div>
+              ))}
             </div>
           </div>
         </section>
