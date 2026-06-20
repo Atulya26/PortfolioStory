@@ -58,4 +58,12 @@ export const CASES: CaseMeta[] = [
     tag: 'Enterprise UX · Data Platform',
     year: '2026',
   },
+  {
+    slug: 'data-model-explorer-improved',
+    num: '07',
+    title: 'Data Model Explorer — Product Story Edit',
+    blurb: 'A clearer product-design version that explains healthcare data models as a shared map for trust, change, review, and accountability.',
+    tag: 'Product Design · Enterprise UX',
+    year: '2026',
+  },
 ];

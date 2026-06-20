@@ -15,6 +15,7 @@ const caseComponents: Record<string, LazyExoticComponent<ComponentType>> = {
   'wcag-pr': lazy(() => import('./cases/CaseWcagPr')),
   'design-mind': lazy(() => import('./cases/CaseDesignMind')),
   'data-model-explorer': lazy(() => import('./cases/CaseDataModelExplorer')),
+  'data-model-explorer-improved': lazy(() => import('./cases/CaseDataModelExplorerImproved')),
 };
 
 function Root() {
