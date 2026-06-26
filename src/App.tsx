@@ -257,6 +257,16 @@ const cardImages = [
   fallback: `/cards/${image.id}.png`,
 }));
 
+// Gallery shots that ride the cover-flow behind the "experience more" pill.
+// A dedicated set, separate from the spiral `cardImages`.
+const orbitImages = [
+  { id: 'g1', src: '/cards/gallery/gallery-1.webp' },
+  { id: 'g2', src: '/cards/gallery/gallery-2.webp' },
+  { id: 'g3', src: '/cards/gallery/gallery-3.webp' },
+  { id: 'g4', src: '/cards/gallery/gallery-4.webp' },
+  { id: 'g5', src: '/cards/gallery/gallery-5.webp' },
+];
+
 type SpiralCaption = {
   side: 'left' | 'right';
   kicker: string;
@@ -264,14 +274,14 @@ type SpiralCaption = {
 };
 
 const spiralCaptions: SpiralCaption[] = [
-  { side: 'left', kicker: '01 / Studio', line: 'AI product shots shaped into brand-ready systems.' },
-  { side: 'right', kicker: '02 / Activity', line: 'Mobile dashboards with dense data made calm and scannable.' },
-  { side: 'left', kicker: '03 / Ops', line: 'Workflow screens for teams moving from signal to decision.' },
-  { side: 'right', kicker: '04 / Maps', line: 'Spatial product UI with layered controls and route context.' },
-  { side: 'left', kicker: '05 / Finance', line: 'Charting surfaces tuned for precision, states, and confidence.' },
-  { side: 'right', kicker: '06 / Library', line: 'Reusable interface patterns built to scale across products.' },
-  { side: 'left', kicker: '07 / Systems', line: 'Design-system documentation that turns rules into usable tools.' },
-  { side: 'right', kicker: '08 / Detail', line: 'Micro-interactions that make product moments feel deliberate.' },
+  { side: 'left', kicker: '01', line: 'Fitness & Health Tracker Application' },
+  { side: 'right', kicker: '02', line: 'HMI Car Dashboard' },
+  { side: 'left', kicker: '03', line: 'Weather Application' },
+  { side: 'right', kicker: '04', line: 'Professional Camera Application' },
+  { side: 'left', kicker: '05', line: 'Vintage Casio Watchface' },
+  { side: 'right', kicker: '06', line: 'Dyson App Experience' },
+  { side: 'left', kicker: '07', line: 'Feature Bento Experience' },
+  { side: 'right', kicker: '08', line: 'Car HMI Experience' },
 ];
 
 const caseStudies = [
@@ -420,7 +430,6 @@ export default function App() {
   const lightPortalRef = useRef<HTMLDivElement>(null);
   const lightPortalGridRef = useRef<HTMLDivElement>(null);
   const lightPortalRippleRef = useRef<HTMLCanvasElement>(null);
-  const portalSelectedWorkRef = useRef<HTMLDivElement>(null);
   const worksTitleRef = useRef<HTMLDivElement>(null);
   const impactRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
@@ -430,7 +439,9 @@ export default function App() {
   const spiralCaptionsRef = useRef<HTMLDivElement>(null);
   const experienceCtaRef = useRef<HTMLAnchorElement>(null);
   const experienceLabelRef = useRef<HTMLSpanElement>(null);
-  const ctaHelperRef = useRef<HTMLDivElement>(null);
+  const experienceCreditRef = useRef<HTMLParagraphElement>(null);
+  const portalSelectedWorkRef = useRef<HTMLDivElement>(null);
+  const experienceThresholdRef = useRef<HTMLDivElement>(null);
   const caseFlowRef = useRef<HTMLElement>(null);
   const caseChromeRef = useRef<HTMLDivElement>(null);
   const runtimeRef = useRef<Runtime | null>(null);
@@ -444,6 +455,7 @@ export default function App() {
   const ctaHoverSoundAtRef = useRef<number>(0);
   const scrambleTweenRef = useRef<gsap.core.Tween | null>(null);
   const caseButtonScrambleTweensRef = useRef<Map<HTMLElement, gsap.core.Tween>>(new Map());
+  const flowTickerRef = useRef<((time: number, deltaTime: number) => void) | null>(null);
 
   const scrambleExperienceLabel = useCallback(() => {
     const label = experienceLabelRef.current;
@@ -465,12 +477,17 @@ export default function App() {
 
   const handleExperienceEnter = useCallback(() => {
     scrambleExperienceLabel();
+    experienceCreditRef.current?.classList.add('is-visible');
 
     const now = performance.now();
     if (now - ctaHoverSoundAtRef.current < 480) return;
     ctaHoverSoundAtRef.current = now;
     soundRef.current?.ctaHover();
   }, [scrambleExperienceLabel]);
+
+  const handleExperienceLeave = useCallback(() => {
+    experienceCreditRef.current?.classList.remove('is-visible');
+  }, []);
 
   const handleExperienceClick = useCallback(() => {
     soundRef.current?.ctaSelect();
@@ -1113,7 +1130,7 @@ export default function App() {
     const captionsRoot = spiralCaptionsRef.current;
     const experienceCta = experienceCtaRef.current;
     const experienceLabel = experienceLabelRef.current;
-    const ctaHelper = ctaHelperRef.current;
+    const threshold = experienceThresholdRef.current;
     const lightPortal = lightPortalRef.current;
     const lightPortalGrid = lightPortalGridRef.current;
     const lightPortalRipple = lightPortalRippleRef.current;
@@ -1121,7 +1138,6 @@ export default function App() {
     const chrome = caseChromeRef.current;
     const experienceFill = experienceCta?.querySelector<HTMLElement>('.experience-cta-fill');
     const experienceStroke = experienceCta?.querySelector<SVGPathElement>('.experience-cta-stroke');
-    const experienceDot = experienceCta?.querySelector<HTMLElement>('.experience-cta-dot');
 
     if (
       !section ||
@@ -1129,15 +1145,14 @@ export default function App() {
       !captionsRoot ||
       !experienceCta ||
       !experienceLabel ||
-      !ctaHelper ||
+      !threshold ||
       !lightPortal ||
       !lightPortalGrid ||
       !lightPortalRipple ||
       !portalSelectedWork ||
       !chrome ||
       !experienceFill ||
-      !experienceStroke ||
-      !experienceDot
+      !experienceStroke
     ) return;
 
     if (experienceSetupRef.current) return;
@@ -1154,8 +1169,7 @@ export default function App() {
     gsap.set(experienceFill, { scaleX: 0, transformOrigin: '100% 50%' });
     gsap.set(experienceStroke, { drawSVG: '0% 0%' });
     gsap.set(experienceLabel, { autoAlpha: 0, textContent: '' });
-    gsap.set(experienceDot, { autoAlpha: 0, scale: 0.35 });
-    gsap.set(ctaHelper, { autoAlpha: 0, y: 10 });
+    gsap.set(threshold, { autoAlpha: 0, y: 10 });
     gsap.set(lightPortal, { autoAlpha: 0 });
     gsap.set(lightPortalGrid, { autoAlpha: 0 });
     gsap.set(lightPortalRipple, { autoAlpha: 0 });
@@ -1285,12 +1299,103 @@ export default function App() {
     ) * (mobile ? 1.28 : 1.42);
     const rippleState = { progress: 0 };
 
+    // ---- Cover-flow gallery behind the pill -----------------------------
+    // The cards ride a concave, sphere-like arc: sharp and forward at each
+    // flank, then curving back into the screen and sinking as they travel
+    // toward the edges, dissolving as they near the pill. Kept dim + softly
+    // blurred so it reads as an ambient backdrop, not a competing element.
+    const flowCards = Array.from(threshold.querySelectorAll<HTMLElement>('.threshold-flow-card'));
+    let flowVisible = false;
+
+    type FlowState = { x: number; y: number; tz: number; ry: number; s: number; o: number; b: number; zi: number };
+
+    const applyCard = (card: HTMLElement, e: FlowState) => {
+      card.style.transform =
+        `translate(calc(${e.x.toFixed(1)}px - 50%), calc(${e.y.toFixed(1)}px - 50%)) ` +
+        `translateZ(${e.tz.toFixed(1)}px) rotateY(${e.ry.toFixed(1)}deg) scale(${e.s.toFixed(3)})`;
+      card.style.opacity = e.o.toFixed(3);
+      card.style.filter = e.b > 0.05 ? `blur(${e.b.toFixed(2)}px)` : 'none';
+      card.style.zIndex = `${Math.round(e.zi)}`;
+    };
+
+    const FOCUS = 505; // px from centre where a card reads as the hero
+    const DEPTH_SPREAD = 660; // how quickly a card curves away from the focal plane
+    const flowEnvelope = (x: number): FlowState => {
+      const ax = Math.abs(x);
+      const off = ax - FOCUS; // signed distance from the flank focus
+      const aoff = Math.abs(off);
+      const sign = x < 0 ? -1 : 1;
+      // Depth peaks AT the flank focus: a card there is largest, forward and
+      // facing the viewer; it curves back + sinks + turns as it travels away
+      // (toward the pill or the edge), riding the surface of a big sphere.
+      const d = clamp(aoff / DEPTH_SPREAD, 0, 1);
+      const curve = d * d;
+      return {
+        x,
+        y: 74 * curve, // sinks away from the focal plane
+        tz: -380 * curve, // forward at the flank, receding as it curves away
+        ry: -sign * clamp(12 + aoff * 0.045, 0, 48),
+        s: clamp(0.92 - aoff * 0.00072, 0.46, 0.92),
+        // Dim overall. Brightest at the flank; fades toward the outer edge,
+        // and dims as it slides deep behind the pill so it never reads as a
+        // hard dark block at the pill's edge.
+        o: clamp(0.8 - Math.max(0, off) / 470 - Math.max(0, -off - 150) / 640, 0, 0.8),
+        // Always a touch soft; softens further as it curves away.
+        b: clamp(0.45 + aoff / 340 * 1.4, 0.45, 2.6),
+        zi: 130 - aoff / 8,
+      };
+    };
+
+    const FLOW_W = 1000; // cards live in [-W, W]; they fade out well before the edge
+    const flowCount = flowCards.length || 1;
+    const flowSpan = FLOW_W * 2;
+    const flowBaseX = flowCards.map((_, i) => (i / flowCount) * flowSpan - FLOW_W);
+    const wrapFlow = (v: number) => ((v % flowSpan) + flowSpan) % flowSpan - FLOW_W;
+    let flowDrift = 0;
+
+    const layoutDrift = () => {
+      flowCards.forEach((card, i) => {
+        applyCard(card, flowEnvelope(wrapFlow(flowBaseX[i] - flowDrift)));
+      });
+    };
+
+    if (mobile) {
+      // ring is display:none on phones — nothing to lay out
+    } else if (prefersReducedMotion()) {
+      // Static, curved frame: heroes at both flanks + an outer pair.
+      const staticX = [-FOCUS, FOCUS, -(FOCUS + 320), FOCUS + 320];
+      flowCards.forEach((card, i) => {
+        if (i < staticX.length) {
+          applyCard(card, flowEnvelope(staticX[i]));
+        } else {
+          card.style.opacity = '0';
+          card.style.transform = 'translate(-50%, -50%) scale(0.55)';
+        }
+      });
+    } else {
+      layoutDrift();
+      const FLOW_SPEED = 0.05; // px per ms — slow, dignified drift
+      const flowTick = (_time: number, deltaTime: number) => {
+        if (!flowVisible) return;
+        flowDrift += deltaTime * FLOW_SPEED;
+        if (flowDrift >= flowSpan) flowDrift -= flowSpan;
+        layoutDrift();
+      };
+      gsap.ticker.add(flowTick);
+      flowTickerRef.current = flowTick;
+    }
+
     const ctaTl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
         start: 'top top',
         end: getSpiralScrollDistance,
         scrub: true,
+        onUpdate: (self) => {
+          // Only drift while the cover-flow is actually on screen.
+          flowVisible =
+            self.progress > ctaContentProgress - 0.02 && self.progress < portalStartProgress + 0.03;
+        },
       },
     });
 
@@ -1306,12 +1411,6 @@ export default function App() {
         duration: 0.04,
         ease: 'none',
       }, ctaFillProgress)
-      .to(experienceDot, {
-        autoAlpha: 1,
-        scale: 1,
-        duration: 0.035,
-        ease: 'none',
-      }, ctaContentProgress + 0.01)
       .to(experienceLabel, {
         autoAlpha: 1,
         duration: 0.04,
@@ -1324,12 +1423,12 @@ export default function App() {
           delimiter: '',
         },
       }, ctaContentProgress)
-      .to(ctaHelper, {
+      .to(threshold, {
         autoAlpha: 1,
         y: 0,
-        duration: 0.03,
+        duration: 0.045,
         ease: 'none',
-      }, ctaContentProgress + 0.02)
+      }, ctaContentProgress + 0.006)
       .set(experienceCta, { pointerEvents: 'auto' }, ctaInteractiveProgress)
       .set(experienceCta, { pointerEvents: 'none' }, portalStartProgress)
       .to([cardsRoot, captionsRoot], {
@@ -1337,25 +1436,17 @@ export default function App() {
         duration: 0.06,
         ease: 'none',
       }, portalStartProgress - 0.05)
-      .to(ctaHelper, {
+      .to(threshold, {
         autoAlpha: 0,
-        y: -8,
+        y: -12,
         duration: 0.035,
         ease: 'none',
-      }, portalStartProgress - 0.015)
+      }, portalStartProgress - 0.02)
       .to(experienceLabel, {
         autoAlpha: 0,
-        x: -34,
         duration: 0.04,
         ease: 'none',
       }, portalStartProgress)
-      .to(experienceDot, {
-        autoAlpha: 0,
-        x: 28,
-        scale: 0.3,
-        duration: 0.04,
-        ease: 'none',
-      }, portalStartProgress + 0.005)
       .to(experienceStroke, {
         autoAlpha: 0,
         duration: 0.04,
@@ -1453,22 +1544,35 @@ export default function App() {
     const depthTilts = [-5, 4.5, -4.2];
 
     if (footer) {
-      const chromeExitTween = gsap.to(chrome, {
-        autoAlpha: 0,
-        y: -10,
-        pointerEvents: 'none',
-        ease: 'none',
-        scrollTrigger: {
-          trigger: footer,
-          start: () => isMobileViewport() ? 'top 100%' : 'top 78%',
-          end: () => isMobileViewport() ? 'top 76%' : 'top 48%',
-          scrub: true,
+      // Discrete (non-scrub) toggle so the chrome reliably hides as the footer
+      // arrives and comes back when scrolling up — a scrubbed tween here fought
+      // the spiral timeline that fades the chrome in and got stuck hidden.
+      const chromeFooterTrigger = ScrollTrigger.create({
+        trigger: footer,
+        start: () => isMobileViewport() ? 'top 92%' : 'top 72%',
+        onEnter: () => {
+          gsap.to(chrome, {
+            autoAlpha: 0,
+            y: -10,
+            duration: 0.32,
+            ease: 'power2.out',
+            overwrite: 'auto',
+            onComplete: () => { chrome.style.pointerEvents = 'none'; },
+          });
+        },
+        onLeaveBack: () => {
+          chrome.style.pointerEvents = 'auto';
+          gsap.to(chrome, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.32,
+            ease: 'power2.out',
+            overwrite: 'auto',
+          });
         },
       });
 
-      if (chromeExitTween.scrollTrigger) {
-        scrollTriggersRef.current.push(chromeExitTween.scrollTrigger);
-      }
+      scrollTriggersRef.current.push(chromeFooterTrigger);
     }
 
     cardInners.forEach((inner, index) => {
@@ -1561,6 +1665,10 @@ export default function App() {
       runtimeRef.current?.revert();
       motionMedia.revert();
       scrambleTweenRef.current?.kill();
+      if (flowTickerRef.current) {
+        gsap.ticker.remove(flowTickerRef.current);
+        flowTickerRef.current = null;
+      }
       scrollTriggersRef.current.forEach((t) => t.kill());
       scrollTriggersRef.current = [];
       caseButtonScrambleTweensRef.current.forEach((tween) => tween.kill());
@@ -1586,7 +1694,7 @@ export default function App() {
       <div className="flash-layer" ref={flashRef} aria-hidden="true" />
       <div className="works-title" ref={worksTitleRef} aria-hidden="true">
         <div className="works-title-mask">
-          <SplitChars text="some of my works" className="works-title-text" />
+          <SplitChars text="some of my designs" className="works-title-text" />
         </div>
       </div>
       <main className="intro-shell" ref={introRef} data-state="playing">
@@ -1665,33 +1773,9 @@ export default function App() {
           <div className="light-portal-grid" ref={lightPortalGridRef} />
           <canvas className="light-portal-ripple" ref={lightPortalRippleRef} />
           <div className="portal-selected-work" ref={portalSelectedWorkRef}>
-            <div className="portal-work-contact-hint">
-              <span>work / contact</span>
-              <svg className="helper-arrow helper-arrow-upright" viewBox="0 0 96 56" fill="none" aria-hidden="true">
-                <path
-                  className="helper-arrow-shaft"
-                  d="M6 50 C 34 50, 58 44, 86 16"
-                  stroke="currentColor"
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                  vectorEffect="non-scaling-stroke"
-                />
-                <path
-                  className="helper-arrow-head"
-                  d="M72 12 L 88 12 L 88 28"
-                  stroke="currentColor"
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
-            </div>
-
             <div className="portal-selected-work-copy">
-              <span className="portal-selected-kicker">selected work</span>
               <h2>selected work</h2>
-              <p>Scroll through a few selected case studies, or jump to work and contact above.</p>
+              <p>Scroll through some of my selected works and case studies.</p>
               <svg className="helper-arrow helper-arrow-down" viewBox="0 0 40 72" fill="none" aria-hidden="true">
                 <path
                   className="helper-arrow-shaft"
@@ -1715,15 +1799,37 @@ export default function App() {
           </div>
         </div>
 
+        <div className="experience-threshold" ref={experienceThresholdRef} aria-hidden="true">
+          <span className="threshold-glow" />
+
+          {/* Cover-flow of UI work framing the pill. Slot positions/depth are
+              assigned in setupExperienceCtaPhase. */}
+          <div className="threshold-flow">
+            {orbitImages.map((img, index) => (
+              <span className="threshold-flow-card" data-index={index} key={img.id}>
+                <img src={img.src} alt="" loading="lazy" decoding="async" draggable={false} />
+              </span>
+            ))}
+          </div>
+
+          {/* DOWN cue — minimal scroll hint */}
+          <div className="threshold-scroll">
+            <span className="threshold-scroll-word">scroll</span>
+            <span className="threshold-scroll-line" />
+          </div>
+        </div>
+
         <a
           className="experience-cta"
           ref={experienceCtaRef}
-          href="https://designsnaps.vercel.app/"
+          href="https://masonrypane.pages.dev/"
           target="_blank"
           rel="noreferrer"
           aria-label="Experience more"
           onMouseEnter={handleExperienceEnter}
+          onMouseLeave={handleExperienceLeave}
           onFocus={handleExperienceEnter}
+          onBlur={handleExperienceLeave}
           onClick={handleExperienceClick}
         >
           <span className="experience-cta-fill" aria-hidden="true" />
@@ -1736,31 +1842,11 @@ export default function App() {
           <span className="experience-cta-label" ref={experienceLabelRef}>
             experience more
           </span>
-          <span className="experience-cta-dot" aria-hidden="true" />
         </a>
 
-        <div className="cta-helper" ref={ctaHelperRef} aria-hidden="true">
-          <svg className="helper-arrow helper-arrow-up" viewBox="0 0 80 64" fill="none" aria-hidden="true">
-            <path
-              className="helper-arrow-shaft"
-              d="M40 60 C 40 42, 30 30, 38 14"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-            />
-            <path
-              className="helper-arrow-head"
-              d="M30 22 L 38 10 L 48 19"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              vectorEffect="non-scaling-stroke"
-            />
-          </svg>
-          <p>opens a live UI gallery in a new tab — keep scrolling for the full portfolio, then come back here for more.</p>
-        </div>
+        <p className="experience-credit" ref={experienceCreditRef} aria-hidden="true">
+          curated &amp; designed by me
+        </p>
       </section>
 
       <CaseStudyFlow

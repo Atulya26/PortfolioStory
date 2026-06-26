@@ -1,0 +1,221 @@
+/* =========================================================================
+   FooterExperience — "The Pull"
+   A self-contained footer that the visitor physically pulls into view past
+   the bottom of the page. When revealed, a pure-white room shows a real-time
+   ASCII brainwave field (Gamma + high-Beta). Black glyphs on white, no grids,
+   no texture — the opposite of the dark/grid main site.
+
+   Scope: every selector here is prefixed `fe-` so it never collides with the
+   main app. The component renders as the last child of .app-shell, above the
+   fixed dark layers (z-index 1-4) and .case-flow (z-index 5).
+   ========================================================================= */
+
+/* The thin progress hairline + pull hint sit over the main page content,
+   before the white room is revealed. They are children of .fe-root so they
+   share the component's stacking context. */
+.fe-root {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;       /* the root never blocks scroll; only the room (when open) does */
+  contain: layout paint;
+}
+
+/* --- Pull hint (the "keep pulling" anticipation cue) ---------------------- */
+.fe-hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(20px, 4vh, 44px);
+  transform: translate(-50%, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(11, 13, 16, 0.55);
+  font-family: 'SF Mono', 'Menlo', 'Consolas', 'Roboto Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0;                 /* revealed by JS based on scroll-tail position + pullPx */
+  transition: opacity 0.4s ease;
+  will-change: opacity;
+}
+
+.fe-hint-arrow {
+  display: block;
+  line-height: 1;
+  font-size: 14px;
+  animation: fe-hint-bob 1.6s ease-in-out infinite;
+}
+
+@keyframes fe-hint-bob {
+  0%, 100% { transform: translateY(0); opacity: 0.55; }
+  50%      { transform: translateY(5px); opacity: 1; }
+}
+
+/* --- Progress hairline (fills as pullPx grows) --------------------------- */
+.fe-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: rgba(11, 13, 16, 0.06);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  will-change: transform;
+}
+
+.fe-progress-bar {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: #050509;
+  transform-origin: 0 50%;
+  transform: scaleX(0);       /* updated via gsap.quickSetter as pullPx grows */
+}
+
+/* --- The white room ------------------------------------------------------ */
+/* Slides up from the bottom. transform: translateY(vh - pullPx) is driven by
+   gsap. When pullPx = 0 it sits fully below the viewport; at pullPx = vh it
+   covers the screen. Opaque white so it visually replaces the dark site. */
+.fe-room {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;        /* hard, deliberate cut — no gradient, no texture */
+  color: #050509;
+  transform: translate3d(0, 100vh, 0);
+  will-change: transform;
+  /* Hidden from a11y tree until revealed; JS flips visibility when open. */
+  visibility: hidden;
+}
+
+.fe-room-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Subtle vignette-free pure white. The field carries all the visual weight;
+   we only add the faintest darkening at the very bottom so the caption stays
+   legible over dense glyphs. */
+.fe-room-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0) 60%, rgba(255,255,255,0.86) 100%),
+    linear-gradient(0deg, rgba(255,255,255,0) 70%, rgba(255,255,255,0.7) 100%);
+}
+
+/* --- Top bar: back-to-work hint ----------------------------------------- */
+.fe-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: clamp(18px, 3vh, 32px) 20px 0;
+  pointer-events: none;
+}
+
+.fe-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(11, 13, 16, 0.5);
+  font-family: 'SF Mono', 'Menlo', 'Consolas', 'Roboto Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  background: none;
+  border: 0;
+  padding: 8px 14px;
+  cursor: pointer;
+  pointer-events: auto;
+  border-radius: 999px;
+  transition: color 0.25s ease, background 0.25s ease;
+}
+
+.fe-back:hover,
+.fe-back:focus-visible {
+  color: rgba(11, 13, 16, 0.9);
+  background: rgba(11, 13, 16, 0.04);
+  outline: none;
+}
+
+.fe-back-arrow {
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* --- Centerpiece content: caption + name -------------------------------- */
+.fe-content {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  margin-bottom: 0;
+  width: 100%;
+  padding: 0 clamp(24px, 6vw, 96px) clamp(40px, 8vh, 96px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 3vh, 36px);
+  text-align: center;
+  pointer-events: none;       /* let the field breathe; re-enable on links/buttons only */
+}
+
+.fe-caption {
+  max-width: 52ch;
+  margin: 0;
+  color: rgba(11, 13, 16, 0.62);
+  font-family: 'SF Mono', 'Menlo', 'Consolas', 'Roboto Mono', ui-monospace, monospace;
+  font-size: clamp(11px, 1.05vw, 13px);
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  font-style: italic;
+}
+
+.fe-caption em {
+  font-style: normal;
+  color: rgba(11, 13, 16, 0.82);
+  font-weight: 600;
+}
+
+.fe-name {
+  margin: 0;
+  color: #050509;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.fe-name-sub {
+  margin: 0;
+  color: rgba(11, 13, 16, 0.42);
+  font-family: 'SF Mono', 'Menlo', 'Consolas', 'Roboto Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+/* --- Reduced motion: drop the rubber-band, calm the field --------------- */
+/* The state machine itself short-circuits in JS; these rules just make sure
+   the static state looks right. */
+@media (prefers-reduced-motion: reduce) {
+  .fe-hint-arrow { animation: none; }
+  .fe-room { transition: none; }
+}
+
+/* --- Mobile tweaks ------------------------------------------------------ */
+@media (max-width: 700px) {
+  .fe-caption { max-width: 80vw; }
+  .fe-content { padding: 0 22px clamp(36px, 10vh, 64px); gap: 20px; }
+}
