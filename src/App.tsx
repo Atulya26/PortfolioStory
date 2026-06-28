@@ -284,7 +284,17 @@ const spiralCaptions: SpiralCaption[] = [
   { side: 'right', kicker: '08', line: 'Car HMI Experience' },
 ];
 
-const caseStudies = [
+type CaseStudy = {
+  code: string;
+  number: string;
+  title: string;
+  summary: string;
+  bullets: string[];
+  theme: string;
+  href?: string;
+};
+
+const caseStudies: CaseStudy[] = [
   {
     code: 'PB',
     number: '01',
@@ -292,6 +302,7 @@ const caseStudies = [
     summary: 'Store your products, shots and brand look in one place.',
     bullets: ['14+ model presets', 'Multiple pose options'],
     theme: 'case-theme-orange',
+    href: '#/case/mds-accessibility',
   },
   {
     code: 'GO',
@@ -357,7 +368,7 @@ const CaseStudyFlow = ({
     <section className="case-flow" ref={sectionRef} aria-label="Case studies">
       <div className="case-fixed-chrome" ref={chromeRef}>
         <div className="case-top-actions">
-          <button className="case-action-button" type="button" onPointerEnter={onCaseButtonEnter} onFocus={onCaseButtonEnter}>
+          <button className="case-action-button" type="button" onPointerEnter={onCaseButtonEnter} onFocus={onCaseButtonEnter} onClick={() => { window.location.hash = '/work'; }}>
             <span className="case-button-label" data-text="work">work</span>
           </button>
           <button className="case-action-button" type="button" onPointerEnter={onCaseButtonEnter} onFocus={onCaseButtonEnter}>
@@ -370,6 +381,20 @@ const CaseStudyFlow = ({
         {caseStudies.map((study, index) => (
           <section className="case-card" key={study.code} style={{ zIndex: index + 1 }}>
             <div className={`case-card-inner ${study.theme}`}>
+              {study.href ? (
+                <>
+                  <a
+                    className="case-card-link"
+                    href={study.href}
+                    aria-label={`Open case study: ${study.title}`}
+                  />
+                  <span className="case-card-cta" aria-hidden="true">
+                    View case study
+                    <span className="case-card-cta-arrow">→</span>
+                  </span>
+                </>
+              ) : null}
+
               <div className="case-card-code">({study.code})</div>
 
               <div className="case-card-head">
@@ -409,7 +434,7 @@ const CaseStudyFlow = ({
       </main>
 
       <section className="case-footer-landing" aria-label="Footer space">
-        <button className="case-more-button" type="button" onPointerEnter={onCaseButtonEnter} onFocus={onCaseButtonEnter}>
+        <button className="case-more-button" type="button" onPointerEnter={onCaseButtonEnter} onFocus={onCaseButtonEnter} onClick={() => { window.location.hash = '/work'; }}>
           <span className="case-button-label" data-text="view more case studies">view more case studies</span>
         </button>
       </section>
